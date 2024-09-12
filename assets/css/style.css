@@ -26,6 +26,7 @@ h1 {
     gap: 0;
     margin: 20px auto;
     border: 2px solid #333; /* Outer border of the chessboard */
+}
 
 /* Individual Sqaures */
 .square {
