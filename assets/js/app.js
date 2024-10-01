@@ -67,6 +67,17 @@ function addPieceClickListeners() {
     });
 }
 
+// Attach click listeners to squares
+function addSquareClickListeners() {
+    const squares = document.querySelectorAll('.square');
+    squares.forEach(square => {
+        square.addEventListener('click', handleSquareClick);
+    });
+}
+
 // Initialize board and listeners on page load
-initializeBoard();
-  
+window.onload = () => {
+    initializeBoard();
+    addPieceClickListeners();
+    addSquareClickListeners();
+};
