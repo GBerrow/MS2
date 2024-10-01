@@ -21,5 +21,27 @@ function initializeBoard() {
     }
 }
  
-initializeBoard();
+// Handle piece selection
+function handlePieceClick(event) {
+    const piece = event.target;
+    const pieceColor = piece.getAttribute('data-color');
 
+    // Only allow the current player to move their pieces
+    if (pieceColor !== currentPlayer) {
+        return; // Do nothing if it's not their turn
+    }
+
+    const square = piece.parentElement;
+    selectedPiece = {
+        pieceElement: piece,
+        currentSquare: square.id,
+        color: pieceColor,
+        pieceType: piece.getAttribute('data-piece')
+    };
+
+    console.log(`Selected ${selectedPiece.pieceType} on ${selectedPiece.currentSquare}`);
+}
+
+// Initialize board and listeners on page load
+initializeBoard();
+  
