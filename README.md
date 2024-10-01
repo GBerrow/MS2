@@ -35,3 +35,18 @@ This project is a fully interactive web-based chess game built using HTML, CSS, 
 
 Basic concept of the website layout:
 ![Wireframe](assets/images/Wireframes/Chess-wireframe.png)
+
+---
+
+## Features 
+
+Over the next few days, the following features will be developed to ensure a fully functional and engaging chess experience:
+
+- Interactive Chessboard: A fully interactive chessboard where players can click and move pieces according to standard chess rules.
+- Turn-based Play: The game automatically alternates between white and black players after each move.
+- Move Validation: The game validates pawn movement to ensure it follows the correct chess rules. Other pieces' validation is under development.
+- Game Restart: Players can reset the game and start over at any time by pressing the restart button.
+- Undo Move: An undo feature allows players to revert their last move, giving them flexibility in gameplay.
+- Visual Feedback: Selected pieces and valid moves are highlighted to enhance the user experience.
+
+---
