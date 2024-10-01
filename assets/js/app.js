@@ -59,6 +59,14 @@ function handleSquareClick(event) {
     }
 }
 
+// Attach click listeners to pieces
+function addPieceClickListeners() {
+    const pieces = document.querySelectorAll('.piece');
+    pieces.forEach(piece => {
+        piece.addEventListener('click', handlePieceClick);
+    });
+}
+
 // Initialize board and listeners on page load
 initializeBoard();
   
