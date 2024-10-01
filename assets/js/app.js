@@ -42,6 +42,23 @@ function handlePieceClick(event) {
     console.log(`Selected ${selectedPiece.pieceType} on ${selectedPiece.currentSquare}`);
 }
 
+// Handle moving a piece
+function handleSquareClick(event) {
+    if (selectedPiece) {
+        const targetSquare = event.target;
+
+        // Check if target square is empty and valid
+        if (targetSquare.classList.contains('square') && targetSquare.childElementCount === 0) {
+            targetSquare.appendChild(selectedPiece.pieceElement);
+            selectedPiece = null; // Deselect after moving
+
+            // Switch player turns
+            currentPlayer = (currentPlayer === 'white') ? 'black' : 'white';
+            console.log(`It's now ${currentPlayer}'s turn`);
+        }
+    }
+}
+
 // Initialize board and listeners on page load
 initializeBoard();
   
