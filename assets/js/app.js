@@ -13,7 +13,7 @@ function initializeBoard() {
     for (const [squareId, piece] of Object.entries(initialBoardSetup)) {
         const square = document.getElementById(squareId);
         const img = document.createElement('img');
-        img.src = assets/images/chess-pieces/${piece}.png; 
+        img.src = `assets/images/chess-pieces/${piece}.png`; 
         img.classList.add('piece');
         img.setAttribute('data-piece', piece);
         img.setAttribute('data-color', piece.split('-')[1]); 
