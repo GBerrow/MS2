@@ -1,5 +1,21 @@
-// Stockfish worker
+// Stockfish worker using the JavaScript file
 const stockfish = new Worker("assets/js/stockfish-16.1.js");
+
+stockfish.onmessage = function (event) {
+  console.log("Stockfish says: ", event.data);
+
+  const bestMoveMatch = event.data.match(/bestmove\s([a-h][1-8][a-h][1-8])/);
+  if (bestMoveMatch) {
+    const bestMove = bestMoveMatch[1];
+    console.log(`Stockfish's best move: ${bestMove}`);
+
+    makeAIMove(bestMove); // Translate Stockfish's move to the game logic
+  }
+};
+
+function sendToStockfish(command) {
+  stockfish.postMessage(command);
+}
 
 // Initial chess board setup
 const initialBoardSetup = {
@@ -42,20 +58,25 @@ let currentPlayer = "white"; // Let the human play white, and Stockfish play bla
 
 // Initialize the board with pieces
 function initializeBoard() {
-  for (const [squareId, piece] of Object.entries(initialBoardSetup)) {
-    const square = document.getElementById(squareId);
-    const img = document.createElement("img");
-    img.src = `assets/images/chess-pieces/${piece}.png`;
-    img.classList.add("piece");
-    img.setAttribute("data-piece", piece);
-    img.setAttribute("data-color", piece.split("-")[1]);
-    square.appendChild(img);
-  }
+    console.log("Initializing board...");  // Check if this line appears in the console
+    for (const [squareId, piece] of Object.entries(initialBoardSetup)) {
+        const square = document.getElementById(squareId);
+        const img = document.createElement("img");
+        img.src = `assets/images/chess-pieces/${piece}.png`;
+        img.classList.add("piece");
+        img.setAttribute("data-piece", piece);
+        img.setAttribute("data-color", piece.split("-")[1]);
+        square.appendChild(img);
+    }
 }
 
-// Stockfish communication
+// Stockfish communication using WebAssembly
 function sendToStockfish(command) {
-  stockfish.postMessage(command);
+  if (stockfish) {
+    stockfish.postMessage(command);
+  } else {
+    console.error("Stockfish is not loaded yet.");
+  }
 }
 
 // Convert the board to FEN format
