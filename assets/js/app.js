@@ -149,6 +149,21 @@ function addPieceClickListeners() {
     });
 }
 
+// Move AI piece based on Stockfish's best move
+function makeAIMove(move) {
+    const fromSquare = move.slice(0, 2);
+    const toSquare = move.slice(2, 4);
+
+    const pieceToMove = document.getElementById(fromSquare).querySelector('.piece');
+    const targetSquare = document.getElementById(toSquare);
+
+    // Move the piece
+    targetSquare.appendChild(pieceToMove);
+
+    // Switch back to the player's turn
+    currentPlayer = 'white';
+}
+
 // Attach click listeners to squares
 function addSquareClickListeners() {
     const squares = document.querySelectorAll('.square');
