@@ -1,6 +1,7 @@
 // Stockfish worker
 const stockfish = new Worker('assets/js/stockfish-16.1.js');
-                              
+ 
+// Initial chess board setup
 const initialBoardSetup = {
     a8: 'rook-black', b8: 'knight-black', c8: 'bishop-black', d8: 'queen-black', e8: 'king-black', f8: 'bishop-black', g8: 'knight-black', h8: 'rook-black',
     a7: 'pawn-black', b7: 'pawn-black', c7: 'pawn-black', d7: 'pawn-black', e7: 'pawn-black', f7: 'pawn-black', g7: 'pawn-black', h7: 'pawn-black',
@@ -9,7 +10,7 @@ const initialBoardSetup = {
 };
 
 let selectedPiece = null;
-let currentPlayer = 'white';
+let currentPlayer = 'white'; // Let the human play white, and Stockfish play black
 
 // Initialize the board with pieces
 function initializeBoard() {
@@ -24,6 +25,65 @@ function initializeBoard() {
     }
 }
  
+// Stockfish communication
+function sendToStockfish (command) {
+    stockfish.postMessage(command);
+}
+
+// Convert the board to FEN format 
+function boardToFEN(){
+    let fen = '';
+    const rows = [];
+
+    // Loop through each row on the board
+    for (let rank = 8; rank >= 1; rank--) {
+        let row = '';
+        let emptyCount = 0;
+
+        // Loop through each file (a-h)
+        for (let file of 'abcdefgh') {
+            const squareId = file + rank;
+            const square = document.getElementById(squareId);
+            const piece = square.querySelector('.piece');
+
+            if (!piece) {
+                emptyCount++;
+            } else {
+                if (emptyCount > 0) {
+                    row += emptyCount;
+                    emptyCount = 0;
+                }
+
+                const pieceType = piece.getAttribute('data-piece');
+                const color = pieceType.split('-')[1];
+                const type = pieceType.split('-')[0];
+
+                const notation = {
+                    'pawn': 'p',
+                    'rook': 'r',
+                    'knight': 'n',
+                    'bishop': 'b',
+                    'queen': 'q',
+                    'king': 'k'
+                }[type];
+
+                row += color === 'white' ? notation.toUpperCase() : notation;
+            }
+        }
+
+        if (emptyCount > 0) {
+            row += emptyCount;
+        }
+
+        rows.push(row);
+    }
+
+    fen = rows.join('/') + ` ${currentPlayer === 'white' ? 'w' : 'b'} - - 0 1`; // Basic FEN output
+    return fen;
+}
+
+
+
 // Handle piece selection
 function handlePieceClick(event) {
     const piece = event.target;
