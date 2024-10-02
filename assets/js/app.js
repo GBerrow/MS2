@@ -129,6 +129,18 @@ function getBestMoveFromStockfish() {
     sendToStockfish('go depth 10'); 
 }
 
+// Listen for Stockfish response
+stockfish.onmessage = function(event) {
+    const bestMoveMatch = event.data.match(/bestmove\s([a-h][1-8][a-h][1-8])/);
+
+    if (bestMoveMatch) {
+        const bestMove = bestMoveMatch[1];
+        console.log(`Stockfish's best move: ${bestMove}`);
+
+        makeAIMove(bestMove); // Translate Stockfish's move to the game logic
+    }
+};
+
 // Attach click listeners to pieces
 function addPieceClickListeners() {
     const pieces = document.querySelectorAll('.piece');
