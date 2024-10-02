@@ -122,6 +122,13 @@ function handleSquareClick(event) {
     }
 }
 
+// AI turn: Get Stockfish to make a move
+function getBestMoveFromStockfish() {
+    const fen = boardToFEN();
+    sendToStockfish(`position fen ${fen}`);
+    sendToStockfish('go depth 10'); 
+}
+
 // Attach click listeners to pieces
 function addPieceClickListeners() {
     const pieces = document.querySelectorAll('.piece');
