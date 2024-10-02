@@ -22,6 +22,8 @@ This project is a fully interactive web-based chess game built using HTML, CSS, 
   - [Wireframes](#wireframes)
 - [Features](#features)
 - [Technologies Used](#technologies-used)
+- [Testing](#testing)
+  - [bugs]
 
 ---
 
@@ -50,3 +52,22 @@ Over the next few days, the following features will be developed to ensure a ful
 - Visual Feedback: Selected pieces and valid moves are highlighted to enhance the user experience.
 
 ---
+
+## Technologies Used
+
+---
+
+## Testing
+
+### Bugs
+
+02/10/2024
+- Problem: AI not responding after initial move with the white piece.
+- Fix: The issue was caused by the incorrect handling of WebAssembly (WASM) files and miscommunication with Stockfish. The following steps were taken to fix it:
+  1. Ensured both the JavaScript wrapper file (`stockfish-16.1-lite-single.js`) and the corresponding WebAssembly file (`stockfish-16.1-lite-single.wasm`) were correctly placed in the `assets/js/` folder.
+  2. Updated the initialization of the Web Worker to point to the JavaScript file:
+     ```javascript
+     const stockfish = new Worker("assets/js/stockfish-16.1-lite-single.js");
+     ```
+  3. Confirmed that the `.wasm` file was being loaded correctly via the Network tab, and ensured the MIME type for `.wasm` files was `application/wasm`.
+  4. After placing both files together and correcting the Worker initialization, the AI responded correctly and made moves as expected after the player's turn.
