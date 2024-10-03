@@ -1,11 +1,10 @@
+/* ================================
+   1. Plan the Game
+================================ */
+// In this section, we initialize the Stockfish engine and handle AI vs player interactions.
+
 // Initialize Stockfish Worker using the JavaScript file
 const stockfish = new Worker("assets/js/stockfish-16.1-lite-single.js");
-
-if (!stockfish) {
-    console.error("Stockfish worker could not be initialized. Check the file path.");
-} else {
-    console.log("Stockfish worker initialized successfully.");
-}
 
 // Handle Stockfish response
 stockfish.onmessage = function (event) {
@@ -24,6 +23,11 @@ function sendToStockfish(command) {
     stockfish.postMessage(command);
 }
 
+/* ================================
+   2. Board Structure
+================================ */
+// Set up the initial board structure with the pieces and squares.
+
 // Chess Board Setup
 const initialBoardSetup = {
     a8: "rook-black", b8: "knight-black", c8: "bishop-black", d8: "queen-black",
@@ -35,6 +39,11 @@ const initialBoardSetup = {
     a2: "pawn-white", b2: "pawn-white", c2: "pawn-white", d2: "pawn-white",
     e2: "pawn-white", f2: "pawn-white", g2: "pawn-white", h2: "pawn-white"
 };
+
+/* ================================
+   3. Piece Classes & Movement Logic
+================================ */
+// In this section, we define piece interaction, including movement and validation.
 
 let selectedPiece = null;
 let currentPlayer = "white"; // Human player plays white, AI plays black
@@ -104,7 +113,11 @@ function boardToFEN() {
     return rows.join("/") + ` ${currentPlayer === "white" ? "w" : "b"} - - 0 1`;
 }
 
-// Handle piece selection
+/* ================================
+   4. Implement Movement Logic
+================================ */
+// Movement logic for player and AI turns, along with handling piece clicks and square selections.
+
 function handlePieceClick(event) {
     if (currentPlayer !== "white") return;
     const piece = event.target;
@@ -162,6 +175,24 @@ function makeAIMove(move) {
     targetSquare.appendChild(pieceToMove);
     currentPlayer = "white";
 }
+
+/* ================================
+   5. Turn Management
+================================ */
+// Manage the turns between the human and AI players.
+
+
+/* ================================
+   6. Game State
+================================ */
+// Game state management, FEN conversion, and handling different player states.
+
+
+
+/* ================================
+   7. Initialize Board & Add Listeners
+================================ */
+// Initialize the board with pieces and colors and add event listeners for interaction.
 
 // Event Listeners
 function addListeners() {
