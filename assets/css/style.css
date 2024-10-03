@@ -10,6 +10,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow-x: hidden;
     background: url(../images/background.jpg);
     height: 100vh
 }
@@ -21,6 +22,9 @@ h1 {
 /* Layout and Container Styles */
 .container {
     text-align: center;
+    display: grid;
+    place-items: center;
+    justify-content: center;
 }
 
 /* Chessboard Styles */
@@ -49,15 +53,6 @@ h1 {
     font-size: 24px;
     border: 1px solid #333; /* Border for each square */
     box-sizing: border-box; /* Ensure padding and border are included in width/height */
-}
-
-/* Diagonal color pattern using XOR logic */
-.square:nth-child(odd) {
-    background-color: #f0d9b5; /* Light color */
-}
-
-.square:nth-child(even) {
-    background-color: #b58863; /* Dark color */
 }
 
 /* Controls Section */
