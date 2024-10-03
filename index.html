@@ -13,16 +13,16 @@
         <header>
             <h1>Chess Game</h1>
         </header>
-        
         <main>
             <!-- Difficulty Settings -->
-            <div class="difficulty">
-                <label for="difficulty-select">Select Difficulty: </label>
-                <button class="difficulty-btn" id="normal">Normal</button>
-                <button class="difficulty-btn" id="hard">Hard</button>
-                <button class="difficulty-btn" id="insane">Insane</button>
-            </div>
-
+            <section id="controls">
+                <h2>Select Difficulty:</h2>
+                <div class="difficulty-buttons">
+                    <button id="normal" aria-label="Normal difficulty">Normal</button>
+                    <button id="hard" aria-label="Hard difficulty">Hard</button>
+                    <button id="insane" aria-label="Insane difficulty">Insane</button>
+                </div>
+            </section>
             <!-- Chessboard -->
             <div class="chess-board">
                 <!-- Row 8 to Row 1 (Chessboard setup as grid) -->
@@ -115,18 +115,17 @@
                 </div>
             </div>
 
-            <!-- Controls -->
-            <div class="controls">
-                <button id="reset">Restart Game</button>
-                <button id="undo">Undo Move</button>
-            </div>
+            <section id="game-controls">
+                <button id="restart" aria-label="Restart game">Restart Game</button>
+                <button id="undo" aria-label="Undo last move">Undo Move</button>
+                <p class="game-info">Chess Game built with HTML, CSS, and JavaScript</p>
+            </section>
         </main>
-
+    
         <footer>
-            <p>Chess Game built with HTML, CSS, and JavaScript</p>
+            <p>Created by [Your Name]</p>
         </footer>
-    </div>
-    <!-- Link to external JavaScript -->
-    <script src="assets/js/app.js"></script>           
-</body>
-</html>
+    
+        <script src="assets/js/app.js"></script>
+    </body>
+    </html>
