@@ -71,3 +71,7 @@ Over the next few days, the following features will be developed to ensure a ful
      ```
   3. Confirmed that the `.wasm` file was being loaded correctly via the Network tab, and ensured the MIME type for `.wasm` files was `application/wasm`.
   4. After placing both files together and correcting the Worker initialization, the AI responded correctly and made moves as expected after the player's turn.
+
+  03/10/2024
+  - Problem: Unable to capture black pieces. 
+  - Fix: 
