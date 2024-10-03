@@ -39,10 +39,12 @@ const initialBoardSetup = {
 let selectedPiece = null;
 let currentPlayer = "white"; // Human player plays white, AI plays black
 
-// Initialize the chess board with pieces
+// Initialize the board with pieces and colors
 function initializeBoard() {
-    console.log("Initializing board...");
-    Object.entries(initialBoardSetup).forEach(([squareId, piece]) => {
+    console.log("Initializing board..."); // Check if this line appears in the console
+    let isLightSquare;
+    
+    for (const [squareId, piece] of Object.entries(initialBoardSetup)) {
         const square = document.getElementById(squareId);
         const img = document.createElement("img");
         img.src = `assets/images/chess-pieces/${piece}.png`;
@@ -50,6 +52,22 @@ function initializeBoard() {
         img.setAttribute("data-piece", piece);
         img.setAttribute("data-color", piece.split("-")[1]);
         square.appendChild(img);
+    }
+
+    // Assign diagonal colors dynamically using XOR logic
+    const squares = document.querySelectorAll(".square");
+    squares.forEach((square, index) => {
+        // Extract row and column from the index
+        const row = Math.floor(index / 8);
+        const col = index % 8;
+
+        // Apply XOR logic for diagonal coloring
+        isLightSquare = (row % 2) === (col % 2); // True for light square, false for dark
+        if (isLightSquare) {
+            square.style.backgroundColor = "#f0d9b5"; // Light square
+        } else {
+            square.style.backgroundColor = "#b58863"; // Dark square
+        }
     });
 }
 
