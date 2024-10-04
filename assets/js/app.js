@@ -166,11 +166,16 @@ function handleSquareClick(event) {
     switchPlayer();
 }
 
+/* ================================
+   5. Turn Management
+================================ */
+// Manage the turns between the human and AI players.
+
 // Switch between human and AI turns
 function switchPlayer() {
     currentPlayer = currentPlayer === "white" ? "black" : "white";
     if (currentPlayer === "black") {
-        getBestMoveFromStockfish();
+        getBestMoveFromStockfish(); // Trigger AI move when it's the AI's turn
     }
 }
 
@@ -188,22 +193,21 @@ function makeAIMove(move) {
     const toSquare = move.slice(2, 4);
     const pieceToMove = document.getElementById(fromSquare).querySelector(".piece");
     const targetSquare = document.getElementById(toSquare);
+    
     if (!pieceToMove) {
         console.error(`No piece found on ${fromSquare}`);
         return;
     }
+    
+    // Remove any piece on the target square (capture logic)
     if (targetSquare.childElementCount > 0) {
         targetSquare.removeChild(targetSquare.firstChild);
     }
+
+    // Move the AI's piece
     targetSquare.appendChild(pieceToMove);
-    currentPlayer = "white";
+    currentPlayer = "white"; // Switch back to the human player
 }
-
-/* ================================
-   5. Turn Management
-================================ */
-// Manage the turns between the human and AI players.
-
 
 /* ================================
    6. Game State
