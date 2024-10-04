@@ -8,15 +8,19 @@ const stockfish = new Worker("assets/js/stockfish-16.1-lite-single.js");
 
 // Handle Stockfish response
 stockfish.onmessage = function (event) {
-    console.log("Stockfish says: ", event.data);
-
     const bestMoveMatch = event.data.match(/bestmove\s([a-h][1-8][a-h][1-8])/);
     if (bestMoveMatch) {
         const bestMove = bestMoveMatch[1];
         console.log(`Stockfish's best move: ${bestMove}`);
         makeAIMove(bestMove); // Apply Stockfish's move to the board
+    } else {
+        // Optional: Log only important Stockfish messages, like game over or mate
+        if (event.data.includes("mate") || event.data.includes("game over")) {
+            console.log("Stockfish analysis:", event.data);
+        }
     }
 };
+
 
 // Utility to send commands to Stockfish
 function sendToStockfish(command) {
@@ -127,10 +131,12 @@ function handlePieceClick(event) {
     selectedPiece = {
         pieceElement: piece,
         currentSquare: piece.parentElement.id,
-        color: pieceColor
+        color: pieceColor,
+        pieceType: piece.getAttribute("data-piece").split("-")[0] // Capture piece type here
     };
     console.log(`Selected ${selectedPiece.pieceType} on ${selectedPiece.currentSquare}`);
 }
+
 
 // Handle moving a piece
 function handleSquareClick(event) {
@@ -141,7 +147,7 @@ function handleSquareClick(event) {
 
     // Prevent moving the piece to its current square
     if (targetSquare === currentSquare) {
-        console.log("Cannot move to the same square.");
+       // console.log("Cannot move to the same square."); //
         return;
     }
 
@@ -213,7 +219,6 @@ function makeAIMove(move) {
    6. Game State
 ================================ */
 // Game state management, FEN conversion, and handling different player states.
-
 
 
 /* ================================
