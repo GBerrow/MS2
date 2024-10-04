@@ -74,4 +74,21 @@ Over the next few days, the following features will be developed to ensure a ful
 
   03/10/2024
   - Problem: Unable to capture black pieces. 
-  - Fix: 
+  - Fix: The issue occurred because the game logic did not handle piece capture correctly. The following steps were taken to fix it:
+  1. Implemented logic to check if the target square is occupied by a piece of the opposite color before moving a piece.
+  2. Updated the `handleSquareClick` function to handle piece removal (capture) correctly. When a piece of the opposite color is present, the existing piece is removed before the new piece is placed:
+     ```javascript
+     if (targetSquare.childElementCount > 0) {
+         const targetPiece = targetSquare.querySelector(".piece");
+         const targetColor = targetPiece.getAttribute("data-color");
+
+         // Check if the piece belongs to the opponent
+         if (targetColor !== selectedPiece.color) {
+             targetSquare.removeChild(targetPiece); // Capture the piece
+         } else {
+             console.log("Cannot move to a square occupied by your own piece.");
+             return;
+         }
+     }
+     ```
+  3. After this fix, white pieces are now able to capture black pieces, and the game logic proceeds correctly to the next turn.

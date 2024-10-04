@@ -135,12 +135,35 @@ function handlePieceClick(event) {
 // Handle moving a piece
 function handleSquareClick(event) {
     if (!selectedPiece) return;
-    const targetSquare = event.target;
-    if (targetSquare.classList.contains("square") && targetSquare.childElementCount === 0) {
-        targetSquare.appendChild(selectedPiece.pieceElement);
-        selectedPiece = null;
-        switchPlayer();
+    
+    const targetSquare = event.target.closest('.square'); // Ensure we target the square itself
+    const currentSquare = selectedPiece.pieceElement.parentElement;
+
+    // Prevent moving the piece to its current square
+    if (targetSquare === currentSquare) {
+        console.log("Cannot move to the same square.");
+        return;
     }
+
+    // Check if the target square contains an opponent's piece
+    const targetPiece = targetSquare.querySelector('.piece');
+    if (targetPiece) {
+        const targetPieceColor = targetPiece.getAttribute('data-color');
+        if (targetPieceColor === selectedPiece.color) {
+            console.log("Cannot move to a square occupied by your own piece.");
+            return;
+        } else {
+            // Capture the opponent's piece
+            targetSquare.removeChild(targetPiece);
+        }
+    }
+
+    // Move the selected piece to the target square
+    targetSquare.appendChild(selectedPiece.pieceElement);
+    selectedPiece = null;
+    
+    // Switch player after a valid move
+    switchPlayer();
 }
 
 // Switch between human and AI turns
