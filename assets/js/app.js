@@ -316,6 +316,14 @@ function isKingMove(from, to) {
     return (fileDiff <= 1 && rankDiff <= 1);
 }
 
+// Helper function checks if a piece (bishop or queen) can move diagonally.
+function isDiagonalMove(from, to) {
+    const [fromFile, fromRank] = [from[0], parseInt(from[1])];
+    const [toFile, toRank] = [to[0], parseInt(to[1])];
+    return Math.abs(fromFile.charCodeAt(0) - toFile.charCodeAt(0)) === Math.abs(fromRank - toRank);
+}
+
+
 /* ================================
    7. Initialize Board & Add Listeners
 ================================ */
