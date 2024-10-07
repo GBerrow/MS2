@@ -246,6 +246,13 @@ function isKingInCheck() {
     return false;
 }
 
+// Helper function to find the king's position on the board
+function findKing(player) {
+    const kingPiece = document.querySelector(`.piece[data-piece='king-${player}']`);
+    return kingPiece ? kingPiece.parentElement.id : null;
+}
+
+
 
 /* ================================
    7. Initialize Board & Add Listeners
