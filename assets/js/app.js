@@ -17,10 +17,12 @@ stockfish.onmessage = function (event) {
         // Optional: Log only important Stockfish messages, like game over or mate
         if (event.data.includes("mate") || event.data.includes("game over")) {
             console.log("Stockfish analysis:", event.data);
+        } else {
+            // Commented out detailed Stockfish analysis logs (depth, nodes, etc.)
+            // console.log("Stockfish analysis:", event.data); 
         }
     }
 };
-
 
 // Utility to send commands to Stockfish
 function sendToStockfish(command) {
@@ -149,6 +151,19 @@ function handleSquareClick(event) {
         return;
     }
 
+    // Validate the move based on the selected piece's type and the squares involved
+    const isValidMove = isValidPieceMove(
+        selectedPiece.pieceType,
+        currentSquare.id,
+        targetSquare.id,
+        selectedPiece.color
+    );
+
+    if (!isValidMove) {
+        console.log(`Invalid move for piece: ${selectedPiece.pieceType} from ${currentSquare.id} to ${targetSquare.id}`);
+        return;
+    }
+
     // Check if the target square contains an opponent's piece
     const targetPiece = targetSquare.querySelector('.piece');
     if (targetPiece) {
@@ -165,12 +180,32 @@ function handleSquareClick(event) {
     // Move the selected piece to the target square
     targetSquare.appendChild(selectedPiece.pieceElement);
     selectedPiece = null;
-    
+
     // Call handleMoveCompletion to switch players and check game state after every valid move
     handleMoveCompletion();
 }
 
-// Call this function after every move
+function isValidPieceMove(pieceType, fromSquare, toSquare, color) {
+    switch (pieceType) {
+        case 'pawn':
+            return isValidPawnMove(fromSquare, toSquare, color);
+        case 'rook':
+            return isStraightLineMove(fromSquare, toSquare) && isPathClear(fromSquare, toSquare);
+        case 'bishop':
+            return isDiagonalMove(fromSquare, toSquare) && isPathClear(fromSquare, toSquare);
+        case 'queen':
+            return (isStraightLineMove(fromSquare, toSquare) || isDiagonalMove(fromSquare, toSquare)) && isPathClear(fromSquare, toSquare);
+        case 'knight':
+            return isKnightMove(fromSquare, toSquare); // Knights can jump over pieces
+        case 'king':
+            return isKingMove(fromSquare, toSquare) && isKingMoveSafe(fromSquare, toSquare, color);
+        default:
+            return false;
+    }
+}
+
+// Implement detailed movement rules for pawns, knights, bishops, rooks, and queens here
+
 function handleMoveCompletion() {
     console.log("Move completed, switching player and checking game state...");
     switchPlayer();
@@ -225,138 +260,192 @@ function makeAIMove(move) {
 ================================ */
 // Game state management, FEN conversion, and handling different player states.
 
-function isKingInCheck() {
-    const kingPosition = findKing(currentPlayer);
-    console.log(`${currentPlayer}'s king is at ${kingPosition}`);
-    
-    const opponent = currentPlayer === "white" ? "black" : "white";
+// Helper function to find the king's position on the board
+function findKing(player) {
+    const kingPiece = document.querySelector(`.piece[data-piece='king-${player}']`);
+    const position = kingPiece ? kingPiece.parentElement.id : null;
+    console.log(`${player}'s king is at ${position}`);
+    return position;
+}
+
+// Check if the player's king is in check
+function isKingInCheck(player) {
+    const kingPosition = findKing(player); // Get the player's king's position
+    const opponent = player === "white" ? "black" : "white"; // Determine the opponent
     const opponentPieces = document.querySelectorAll(`.piece[data-color='${opponent}']`);
     
     for (let piece of opponentPieces) {
         const pieceType = piece.getAttribute("data-piece").split("-")[0];
         const currentSquare = piece.parentElement.id;
-        console.log(`${opponent} ${pieceType} at ${currentSquare} checking attack on ${kingPosition}`);
         
-        if (canPieceAttack(pieceType, currentSquare, kingPosition)) {
-            console.log(`${opponent} can attack the ${currentPlayer} king!`);
-            return true;
+        // Check if any opponent piece can attack the player's king
+        if (canPieceAttack(pieceType, currentSquare, kingPosition, opponent)) {
+            console.log(`${opponent} ${pieceType} can attack ${player}'s king!`);
+            return true;  // Return immediately after finding one attacker
         }
     }
-    console.log(`${currentPlayer}'s king is safe.`);
-    return false;
-}
-
-// Helper function to find the king's position on the board
-function findKing(player) {
-    const kingPiece = document.querySelector(`.piece[data-piece='king-${player}']`);
-    return kingPiece ? kingPiece.parentElement.id : null;
+    
+    return false;  // No piece can attack the king
 }
 
 // Check if a piece can attack the given position
-function canPieceAttack(pieceType, fromSquare, toSquare) {
+function canPieceAttack(pieceType, fromSquare, toSquare, color) {
     // Rook or Queen moves in straight lines (horizontal or vertical)
     if (pieceType === "rook" || pieceType === "queen") {
-        // Rook and Queen can attack in a straight line (either row or column)
-        return isStraightLineMove(fromSquare, toSquare);
-    } 
+        return isStraightLineMove(fromSquare, toSquare) && isPathClear(fromSquare, toSquare);
+    }
     // Bishop or Queen moves diagonally
     else if (pieceType === "bishop" || pieceType === "queen") {
-        // Bishop and Queen can attack diagonally
-        return isDiagonalMove(fromSquare, toSquare);
-    } 
-    // Knight has an "L" shaped move
+        return isDiagonalMove(fromSquare, toSquare) && isPathClear(fromSquare, toSquare);
+    }
+    // Knight moves in an "L" shape
     else if (pieceType === "knight") {
-        // Knight can attack based on its unique "L" move pattern
         return isKnightMove(fromSquare, toSquare);
-    } 
-    // Pawn attacks diagonally (different from its forward movement)
+    }
+    // Pawn attacks diagonally (based on color)
     else if (pieceType === "pawn") {
-        // Pawn can only attack diagonally, not forward
-        return isPawnAttack(fromSquare, toSquare);
-    } 
+        // Use isValidPawnMove for capturing logic as well
+        return isValidPawnMove(fromSquare, toSquare, color);
+    }
     // King moves one square in any direction
     else if (pieceType === "king") {
-        // King can attack any adjacent square
         return isKingMove(fromSquare, toSquare);
     }
     
-    // If none of the piece types match, return false (no attack)
     return false;
 }
 
-// Helper function to check if a move is in a straight line (horizontal or vertical)
-function isStraightLineMove(from, to) {
-    const [fromFile, fromRank] = [from[0], parseInt(from[1])];
-    const [toFile, toRank] = [to[0], parseInt(to[1])];
-    
-    return (fromFile === toFile || fromRank === toRank); 
-}
+// Check if the path between two squares is clear (no pieces in between)
+function isPathClear(fromSquare, toSquare) {
+    const [fromFile, fromRank] = [fromSquare[0], parseInt(fromSquare[1])];
+    const [toFile, toRank] = [toSquare[0], parseInt(toSquare[1])];
 
-// Helper for checking pawn attack logic (diagonal moves for captures)
-function isPawnAttack(from, to) {
-    const [fromFile, fromRank] = [from[0], parseInt(from[1])];
-    const [toFile, toRank] = [to[0], parseInt(to[1])];
-    const fileDiff = Math.abs(fromFile.charCodeAt(0) - toFile.charCodeAt(0));
-    
-    if (fileDiff === 1 && Math.abs(fromRank - toRank) === 1) {
-        return true;  // Pawns can attack diagonally
+    let fileStep = fromFile < toFile ? 1 : (fromFile > toFile ? -1 : 0);
+    let rankStep = fromRank < toRank ? 1 : (fromRank > toRank ? -1 : 0);
+
+    let currentFile = fromFile.charCodeAt(0) + fileStep;
+    let currentRank = fromRank + rankStep;
+
+    // Loop through all squares between fromSquare and toSquare
+    while (currentFile !== toFile.charCodeAt(0) || currentRank !== toRank) {
+        const intermediateSquare = String.fromCharCode(currentFile) + currentRank;
+        const squareElement = document.getElementById(intermediateSquare);
+        if (squareElement && squareElement.querySelector('.piece')) {
+            return false; // A piece is blocking the path
+        }
+        currentFile += fileStep;
+        currentRank += rankStep;
     }
+
+    return true; // Path is clear
+}
+
+// Validate pawn movement (including captures)
+function isValidPawnMove(fromSquare, toSquare, color) {
+    const [fromFile, fromRank] = [fromSquare[0], parseInt(fromSquare[1])];
+    const [toFile, toRank] = [toSquare[0], parseInt(toSquare[1])];
+
+    // Pawns move one square forward (white moves upwards, black moves downwards)
+    const rankDiff = color === 'white' ? toRank - fromRank : fromRank - toRank;
+
+    // Normal move: moving forward without capturing
+    if (fromFile === toFile) {
+        // Single step move
+        if (rankDiff === 1) {
+            return true;
+        }
+        // Double step move (only from starting position)
+        if (rankDiff === 2 && (fromRank === 2 || fromRank === 7)) {
+            return true;
+        }
+    }
+
+    // Capture: diagonally one square
+    if (Math.abs(fromFile.charCodeAt(0) - toFile.charCodeAt(0)) === 1 && rankDiff === 1) {
+        const targetSquare = document.getElementById(toSquare);
+        const targetPiece = targetSquare.querySelector(".piece");
+        if (targetPiece && targetPiece.getAttribute('data-color') !== color) {
+            return true; // Valid diagonal capture
+        }
+    }
+
     return false;
 }
 
-// Helper for checking king attack logic (adjacent squares)
-function isKingMove(from, to) {
-    const [fromFile, fromRank] = [from[0], parseInt(from[1])];
-    const [toFile, toRank] = [to[0], parseInt(to[1])];
-    
-    const fileDiff = Math.abs(fromFile.charCodeAt(0) - toFile.charCodeAt(0));
-    const rankDiff = Math.abs(fromRank - toRank);
-    
-    // King can move one square in any direction
-    return (fileDiff <= 1 && rankDiff <= 1);
+// Validate rook movement (straight lines)
+function isStraightLineMove(fromSquare, toSquare) {
+    const [fromFile, fromRank] = [fromSquare[0], parseInt(fromSquare[1])];
+    const [toFile, toRank] = [toSquare[0], parseInt(toSquare[1])];
+
+    return (fromFile === toFile || fromRank === toRank);
 }
 
-// Helper function that checks if a piece (bishop or queen) can move diagonally.
-function isDiagonalMove(from, to) {
-    const [fromFile, fromRank] = [from[0], parseInt(from[1])];
-    const [toFile, toRank] = [to[0], parseInt(to[1])];
+// Validate bishop movement (diagonals)
+function isDiagonalMove(fromSquare, toSquare) {
+    const [fromFile, fromRank] = [fromSquare[0], parseInt(fromSquare[1])];
+    const [toFile, toRank] = [toSquare[0], parseInt(toSquare[1])];
+
     return Math.abs(fromFile.charCodeAt(0) - toFile.charCodeAt(0)) === Math.abs(fromRank - toRank);
 }
 
-// Helper function that checks if a knight's move is valid (in the "L" shape).
-function isKnightMove(from, to) {
-    const [fromFile, fromRank] = [from[0], parseInt(from[1])];
-    const [toFile, toRank] = [to[0], parseInt(to[1])];
+// Validate knight movement (L-shape)
+function isKnightMove(fromSquare, toSquare) {
+    const [fromFile, fromRank] = [fromSquare[0], parseInt(fromSquare[1])];
+    const [toFile, toRank] = [toSquare[0], parseInt(toSquare[1])];
+
     const fileDiff = Math.abs(fromFile.charCodeAt(0) - toFile.charCodeAt(0));
     const rankDiff = Math.abs(fromRank - toRank);
+
     return (fileDiff === 2 && rankDiff === 1) || (fileDiff === 1 && rankDiff === 2);
 }
 
-// After every move, check if either king is in check
-function checkGameState() {
-    console.log("Checking game state...");
+// Validate king movement (one square in any direction)
+function isKingMove(fromSquare, toSquare) {
+    const [fromFile, fromRank] = [fromSquare[0], parseInt(fromSquare[1])];
+    const [toFile, toRank] = [toSquare[0], parseInt(toSquare[1])];
 
-    const currentKingInCheck = isKingInCheck(currentPlayer);  // Check if the current player's king is in check
-    const opponent = currentPlayer === "white" ? "black" : "white";
-    const opponentKingInCheck = isKingInCheck(opponent);  // Check if the opponent's king is in check
+    const fileDiff = Math.abs(fromFile.charCodeAt(0) - toFile.charCodeAt(0));
+    const rankDiff = Math.abs(fromRank - toRank);
 
-    if (currentKingInCheck) {
-        console.log(`${currentPlayer}'s king is in check!`);  
-    } else {
-        console.log(`${currentPlayer}'s king is safe.`);  
-    }
-
-    if (opponentKingInCheck) {
-        console.log(`${opponent}'s king is in check!`);  
-    } else {
-        console.log(`${opponent}'s king is safe.`);  
-    }
+    return fileDiff <= 1 && rankDiff <= 1;
 }
+
+// Check if the path between two squares is clear (no pieces in between)
+function isPathClear(fromSquare, toSquare) {
+    const [fromFile, fromRank] = [fromSquare[0], parseInt(fromSquare[1])];
+    const [toFile, toRank] = [toSquare[0], parseInt(toSquare[1])];
+
+    let fileStep = fromFile < toFile ? 1 : (fromFile > toFile ? -1 : 0);
+    let rankStep = fromRank < toRank ? 1 : (fromRank > toRank ? -1 : 0);
+
+    let currentFile = fromFile.charCodeAt(0) + fileStep;
+    let currentRank = fromRank + rankStep;
+
+    // Loop through all squares between fromSquare and toSquare
+    while (currentFile !== toFile.charCodeAt(0) || currentRank !== toRank) {
+        const intermediateSquare = String.fromCharCode(currentFile) + currentRank;
+        const squareElement = document.getElementById(intermediateSquare);
+        if (squareElement && squareElement.querySelector('.piece')) {
+            return false; // A piece is blocking the path
+        }
+        currentFile += fileStep;
+        currentRank += rankStep;
+    }
+
+    return true; // Path is clear
+}
+
 
 /* ================================
    7. Initialize Board & Add Listeners
 ================================ */
 // Initialize the board with pieces and colors and add event listeners for interaction.
+
+// Initialize board and listeners on page load
+window.onload = () => {
+    initializeBoard();
+    addListeners();
+};
 
 // Event Listeners
 function addListeners() {
@@ -368,8 +457,3 @@ function addListeners() {
     });
 }
 
-// Initialize board and listeners on page load
-window.onload = () => {
-    initializeBoard();
-    addListeners();
-};
