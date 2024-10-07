@@ -252,6 +252,37 @@ function findKing(player) {
     return kingPiece ? kingPiece.parentElement.id : null;
 }
 
+// Check if a piece can attack the given position
+function canPieceAttack(pieceType, fromSquare, toSquare) {
+    // Rook or Queen moves in straight lines (horizontal or vertical)
+    if (pieceType === "rook" || pieceType === "queen") {
+        // Rook and Queen can attack in a straight line (either row or column)
+        return isStraightLineMove(fromSquare, toSquare);
+    } 
+    // Bishop or Queen moves diagonally
+    else if (pieceType === "bishop" || pieceType === "queen") {
+        // Bishop and Queen can attack diagonally
+        return isDiagonalMove(fromSquare, toSquare);
+    } 
+    // Knight has an "L" shaped move
+    else if (pieceType === "knight") {
+        // Knight can attack based on its unique "L" move pattern
+        return isKnightMove(fromSquare, toSquare);
+    } 
+    // Pawn attacks diagonally (different from its forward movement)
+    else if (pieceType === "pawn") {
+        // Pawn can only attack diagonally, not forward
+        return isPawnAttack(fromSquare, toSquare);
+    } 
+    // King moves one square in any direction
+    else if (pieceType === "king") {
+        // King can attack any adjacent square
+        return isKingMove(fromSquare, toSquare);
+    }
+    
+    // If none of the piece types match, return false (no attack)
+    return false;
+}
 
 
 /* ================================
