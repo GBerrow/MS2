@@ -292,6 +292,17 @@ function isStraightLineMove(from, to) {
     return (fromFile === toFile || fromRank === toRank); 
 }
 
+// Helper for checking pawn attack logic (diagonal moves for captures)
+function isPawnAttack(from, to) {
+    const [fromFile, fromRank] = [from[0], parseInt(from[1])];
+    const [toFile, toRank] = [to[0], parseInt(to[1])];
+    const fileDiff = Math.abs(fromFile.charCodeAt(0) - toFile.charCodeAt(0));
+    
+    if (fileDiff === 1 && Math.abs(fromRank - toRank) === 1) {
+        return true;  // Pawns can attack diagonally
+    }
+    return false;
+}
 
 /* ================================
    7. Initialize Board & Add Listeners
