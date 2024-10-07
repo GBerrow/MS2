@@ -67,3 +67,5 @@ If you want to return to my normal readme, please click the link below:
 - Problem: No check, checkmate or draw conditions.
   ![test](test-images/test-image-1.png)
 - Fix:
+
+1. isKingInCheck is the primary function to check if a king is under threat by opponent pieces.

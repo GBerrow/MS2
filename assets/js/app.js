@@ -225,6 +225,27 @@ function makeAIMove(move) {
 ================================ */
 // Game state management, FEN conversion, and handling different player states.
 
+function isKingInCheck() {
+    const kingPosition = findKing(currentPlayer);
+    console.log(`${currentPlayer}'s king is at ${kingPosition}`);
+    
+    const opponent = currentPlayer === "white" ? "black" : "white";
+    const opponentPieces = document.querySelectorAll(`.piece[data-color='${opponent}']`);
+    
+    for (let piece of opponentPieces) {
+        const pieceType = piece.getAttribute("data-piece").split("-")[0];
+        const currentSquare = piece.parentElement.id;
+        console.log(`${opponent} ${pieceType} at ${currentSquare} checking attack on ${kingPosition}`);
+        
+        if (canPieceAttack(pieceType, currentSquare, kingPosition)) {
+            console.log(`${opponent} can attack the ${currentPlayer} king!`);
+            return true;
+        }
+    }
+    console.log(`${currentPlayer}'s king is safe.`);
+    return false;
+}
+
 
 /* ================================
    7. Initialize Board & Add Listeners
