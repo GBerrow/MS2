@@ -137,17 +137,15 @@ function handlePieceClick(event) {
     console.log(`Selected ${selectedPiece.pieceType} on ${selectedPiece.currentSquare}`);
 }
 
-
 // Handle moving a piece
 function handleSquareClick(event) {
     if (!selectedPiece) return;
-    
+
     const targetSquare = event.target.closest('.square'); // Ensure we target the square itself
     const currentSquare = selectedPiece.pieceElement.parentElement;
 
     // Prevent moving the piece to its current square
     if (targetSquare === currentSquare) {
-       // console.log("Cannot move to the same square."); //
         return;
     }
 
@@ -168,8 +166,15 @@ function handleSquareClick(event) {
     targetSquare.appendChild(selectedPiece.pieceElement);
     selectedPiece = null;
     
-    // Switch player after a valid move
+    // Call handleMoveCompletion to switch players and check game state after every valid move
+    handleMoveCompletion();
+}
+
+// Call this function after every move
+function handleMoveCompletion() {
+    console.log("Move completed, switching player and checking game state...");
     switchPlayer();
+    checkGameState();
 }
 
 /* ================================
