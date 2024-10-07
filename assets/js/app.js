@@ -284,6 +284,14 @@ function canPieceAttack(pieceType, fromSquare, toSquare) {
     return false;
 }
 
+// Helper function to check if a move is in a straight line (horizontal or vertical)
+function isStraightLineMove(from, to) {
+    const [fromFile, fromRank] = [from[0], parseInt(from[1])];
+    const [toFile, toRank] = [to[0], parseInt(to[1])];
+    
+    return (fromFile === toFile || fromRank === toRank); 
+}
+
 
 /* ================================
    7. Initialize Board & Add Listeners
