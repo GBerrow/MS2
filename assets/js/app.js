@@ -332,6 +332,27 @@ function isKnightMove(from, to) {
     return (fileDiff === 2 && rankDiff === 1) || (fileDiff === 1 && rankDiff === 2);
 }
 
+// After every move, check if either king is in check
+function checkGameState() {
+    console.log("Checking game state...");
+
+    const currentKingInCheck = isKingInCheck(currentPlayer);  // Check if the current player's king is in check
+    const opponent = currentPlayer === "white" ? "black" : "white";
+    const opponentKingInCheck = isKingInCheck(opponent);  // Check if the opponent's king is in check
+
+    if (currentKingInCheck) {
+        console.log(`${currentPlayer}'s king is in check!`);  
+    } else {
+        console.log(`${currentPlayer}'s king is safe.`);  
+    }
+
+    if (opponentKingInCheck) {
+        console.log(`${opponent}'s king is in check!`);  
+    } else {
+        console.log(`${opponent}'s king is safe.`);  
+    }
+}
+
 /* ================================
    7. Initialize Board & Add Listeners
 ================================ */
