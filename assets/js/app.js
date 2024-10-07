@@ -304,6 +304,18 @@ function isPawnAttack(from, to) {
     return false;
 }
 
+// Helper for checking king attack logic (adjacent squares)
+function isKingMove(from, to) {
+    const [fromFile, fromRank] = [from[0], parseInt(from[1])];
+    const [toFile, toRank] = [to[0], parseInt(to[1])];
+    
+    const fileDiff = Math.abs(fromFile.charCodeAt(0) - toFile.charCodeAt(0));
+    const rankDiff = Math.abs(fromRank - toRank);
+    
+    // King can move one square in any direction
+    return (fileDiff <= 1 && rankDiff <= 1);
+}
+
 /* ================================
    7. Initialize Board & Add Listeners
 ================================ */
