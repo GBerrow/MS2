@@ -286,7 +286,7 @@ function isKingInCheck(player) {
     return false;  // No piece can attack the king
 }
 
-// Add this: checkGameState function to assess the game state
+// Extend checkGameState to check for checkmate
 function checkGameState() {
     console.log("Checking game state...");
     const whiteKingInCheck = isKingInCheck("white");
@@ -294,13 +294,59 @@ function checkGameState() {
 
     if (whiteKingInCheck) {
         console.log("White's king is in check.");
+        if (isCheckmate("white")) {
+            console.log("Checkmate! Black wins.");
+            // Add any game-over logic here, such as disabling moves
+        }
     }
 
     if (blackKingInCheck) {
         console.log("Black's king is in check.");
+        if (isCheckmate("black")) {
+            console.log("Checkmate! White wins.");
+            // Add any game-over logic here, such as disabling moves
+        }
+    }
+}
+
+// Function to check if a player is in checkmate
+function isCheckmate(player) {
+    const opponent = player === "white" ? "black" : "white";
+    const allPieces = document.querySelectorAll(`.piece[data-color='${player}']`);
+
+    for (let piece of allPieces) {
+        const pieceType = piece.getAttribute("data-piece").split("-")[0];
+        const currentSquare = piece.parentElement.id;
+        const availableMoves = getAvailableMoves(pieceType, currentSquare, player);
+
+        // If there's any valid move, it's not checkmate
+        for (let move of availableMoves) {
+            const [fromSquare, toSquare] = move;
+            if (isValidPieceMove(pieceType, fromSquare, toSquare, player)) {
+                return false; // Player has at least one valid move, not checkmate
+            }
+        }
     }
 
-    // Implement additional logic here to check for checkmate, stalemate, or draw.
+    return true; // No valid moves, this is checkmate
+}
+
+// Get available moves for a specific piece (for simplicity, you may need to implement this function)
+function getAvailableMoves(pieceType, currentSquare, player) {
+    const moves = [];
+
+    // Implement move generation logic for each piece type here
+    // Example for pawns:
+    if (pieceType === "pawn") {
+        const forwardMove = getPawnMove(currentSquare, player);
+        if (forwardMove) moves.push([currentSquare, forwardMove]);
+        // Add logic for captures, etc.
+    }
+
+    // Add logic for other piece types here: rook, knight, bishop, queen, king
+    // You will need to handle each piece type's movement and generate possible moves
+
+    return moves;
 }
 
 // Check if moving the king would put it in check
