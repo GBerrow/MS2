@@ -146,30 +146,61 @@ If you want to return to my normal readme, please click the link below:
    1. Implement a full checkmate condition by evaluating if there are no valid moves left for the player whose king is in check.
 
 ---
-
 ### **08/10/2024**
 
-- **Problem**:
-- The queen's movement logic was flawed. The queen could only move diagonally, behaving like a bishop, but was unable to move in straight lines (horizontally and vertically).
-- The game did not detect when the king was in check after a move, allowing invalid moves.
-- Checkmate conditions were not correctly implemented, and the game didn't end when a king was captured.
+- **Problems Detected**:
+  1. **Queen's Movement Logic**: The queen behaved like a bishop, moving only diagonally but not in straight lines.
+  2. **King in Check Ignored**: The game did not detect when the king was in check, allowing illegal moves that should not be possible while in check.
+  3. **Checkmate Detection**: The game failed to detect checkmate scenarios and continued without declaring the game over when the king had no legal moves.
+  4. **Unrestricted Moves While in Check**: Players could continue moving any piece while the king was in check, violating chess rules that restrict moves to resolving the check.
+  5. **Pawn Attack on the King Ignored**: Pawn's diagonal attack on the king was not correctly detected, allowing the king to move into positions that should be considered unsafe.
+  6. **Game Over Not Triggered Properly**: The game didn’t correctly trigger game over conditions upon king capture or checkmate.
+  7. **King Movement into Check**: The king was allowed to move into squares where it would be in check, contrary to chess rules.
+
+- **Fixes Implemented**:
+  1. **Queen Movement Logic**: 
+     - The `isValidPieceMove` function was updated to allow the queen to move both diagonally like a bishop and in straight lines like a rook. The logic now checks for both `isStraightLineMove` and `isDiagonalMove` with clear path validation.
+     
+  2. **King Safety Validation**:
+     - The `isKingMoveSafe` function was introduced. This function temporarily moves the king to the destination square and verifies if the king would still be in check after the move. It prevents the king from making illegal moves into check.
+     
+  3. **Check Detection**:
+     - The `isKingInCheck` function was enhanced to correctly detect when a king is in check. This is now triggered after every player move, preventing the king from remaining in check or moving into unsafe positions.
+     - Players are now restricted from moving any piece other than one that resolves the check.
+     
+  4. **Checkmate Detection**:
+     - The `checkGameState` function was improved to handle checkmate situations. After each move, the game checks if the current player's king is in check and whether there are any valid moves to resolve it. If no valid moves exist, checkmate is declared and the game ends.
   
-![alt text](test-images/test-image-5.png)
+  5. **Pawn Attack Logic**:
+     - The `canPawnAttack` function was corrected to ensure that pawns attack diagonally and correctly detect when a king is under threat from a pawn.
+     
+  6. **Game Over Handling**:
+     - A `gameOver` function was added to stop the game when checkmate or king capture occurs. Once a game-over condition is met, the player is prevented from making further moves, and a "Restart" button appears for replaying the game.
 
-- **Fix**:
-1. **Queen Movement Logic**:
-   - The `isValidPieceMove` function was corrected for the queen, ensuring that she can move both diagonally like a bishop and in straight lines like a rook. The logic now checks for both `isStraightLineMove` and `isDiagonalMove` with clear path validation.
+  7. **Path Validation for Checkmate**:
+     - All movement logic was updated to ensure that the game correctly handles scenarios where the king is under check, restricting movement to only those that resolve the check and forbidding movement that doesn’t alleviate the threat.
 
-2. **King Safety Validation**:
-   - Introduced the `isKingMoveSafe` function, which temporarily moves the king to the target square and checks if the king would still be in check after the move. This ensures the player cannot move the king into check.
+  8. **Major Updates and Bug Fixes**:
+     - Refined pawn movement logic to ensure correct diagonal captures and movement rules.
+     - Fixed the queen’s movement to allow both diagonal and straight-line moves.
+     - Added checkmate detection and validation to prevent illegal king moves.
+     - Integrated king safety checks after every move to ensure the king doesn’t move into check or remain in check.
+     - Updated event listeners for pieces and squares after every move to ensure accurate interactions.
+     - Reorganized code structure for improved readability and maintainability.
 
-3. **Check & Checkmate Detection**:
-   - The `checkGameState` function was enhanced to detect when a player’s king is in check after every move. If a king is in check, the player is forced to make a valid move that removes the check. If no valid moves are available, the game ends in checkmate, calling the `gameOver` function.
-   - The game now correctly detects and prevents invalid moves when the player is in check, prompting the player to resolve the check first.
+- **Challenges**:
+  1. **Blocking Checks**: Test cases revealed that pieces couldn’t always block checks properly. We implemented logic to ensure that pieces can move to block check threats (e.g., moving a queen or bishop between an attacking piece and the king).
+  2. **Pawn Attacks**: Pawns were incorrectly considered for check, and the rules governing their diagonal attacks needed adjustments.
 
-4. **Game Over Condition**:
-   - A `gameOver` function was added to handle both checkmate and king capture conditions. Once a king is captured or checkmate occurs, the game ends, and no further moves can be made. A restart button is shown to allow replaying.
+- **Further Testing**:
+  - Extensive testing was performed by purposely placing the king into check and attempting illegal moves to ensure that the new rules are followed. The game now consistently prevents illegal moves and detects checkmate situations correctly.
 
 ---
 
 #### **Next Steps**:
+- Continue refining logic for special moves such as castling, en passant, and pawn promotion.
+- Test edge cases where multiple pieces threaten the king simultaneously to ensure all checks are correctly detected.
+- Ensure visual feedback for check and checkmate is clear and consistent for the user.
+- Refine user experience by adding notifications for check, checkmate, and invalid moves.
+
+
