@@ -117,8 +117,7 @@ If you want to return to my normal readme, please click the link below:
 ---
 
 ### Next Steps:
-- Continue refining movement logic to handle checkmate, stalemate, and castling.
-- Test for special moves like en passant and pawn promotion.
+- Continue refining movement logic to handle checkmate.
 
 ---
 
@@ -145,6 +144,32 @@ If you want to return to my normal readme, please click the link below:
 
 - **Next Steps**:  
    1. Implement a full checkmate condition by evaluating if there are no valid moves left for the player whose king is in check.
-   2. Add special moves such as Castling, En Passant and Pawn Promotion. 
 
 ---
+
+### **08/10/2024**
+
+- **Problem**:
+- The queen's movement logic was flawed. The queen could only move diagonally, behaving like a bishop, but was unable to move in straight lines (horizontally and vertically).
+- The game did not detect when the king was in check after a move, allowing invalid moves.
+- Checkmate conditions were not correctly implemented, and the game didn't end when a king was captured.
+  
+![alt text](test-images/test-image-5.png)
+
+- **Fix**:
+1. **Queen Movement Logic**:
+   - The `isValidPieceMove` function was corrected for the queen, ensuring that she can move both diagonally like a bishop and in straight lines like a rook. The logic now checks for both `isStraightLineMove` and `isDiagonalMove` with clear path validation.
+
+2. **King Safety Validation**:
+   - Introduced the `isKingMoveSafe` function, which temporarily moves the king to the target square and checks if the king would still be in check after the move. This ensures the player cannot move the king into check.
+
+3. **Check & Checkmate Detection**:
+   - The `checkGameState` function was enhanced to detect when a player’s king is in check after every move. If a king is in check, the player is forced to make a valid move that removes the check. If no valid moves are available, the game ends in checkmate, calling the `gameOver` function.
+   - The game now correctly detects and prevents invalid moves when the player is in check, prompting the player to resolve the check first.
+
+4. **Game Over Condition**:
+   - A `gameOver` function was added to handle both checkmate and king capture conditions. Once a king is captured or checkmate occurs, the game ends, and no further moves can be made. A restart button is shown to allow replaying.
+
+---
+
+#### **Next Steps**:
