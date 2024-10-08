@@ -331,22 +331,64 @@ function isCheckmate(player) {
     return true; // No valid moves, this is checkmate
 }
 
-// Get available moves for a specific piece (for simplicity, you may need to implement this function)
+// Function to get the available move for a pawn
+function getPawnMove(currentSquare, player) {
+    const file = currentSquare[0];
+    const rank = parseInt(currentSquare[1]);
+    const forwardMove = player === 'white' ? rank + 1 : rank - 1;
+    const newSquare = file + forwardMove;
+
+    // Check if the target square is empty and return the move
+    const targetSquare = document.getElementById(newSquare);
+    if (targetSquare && !targetSquare.querySelector('.piece')) {
+        return newSquare;
+    }
+    return null;
+}
+
+// Get available moves for a specific piece
 function getAvailableMoves(pieceType, currentSquare, player) {
     const moves = [];
 
-    // Implement move generation logic for each piece type here
-    // Example for pawns:
+    // Pawn movement
     if (pieceType === "pawn") {
         const forwardMove = getPawnMove(currentSquare, player);
-        if (forwardMove) moves.push([currentSquare, forwardMove]);
-        // Add logic for captures, etc.
+        if (forwardMove) {
+            moves.push([currentSquare, forwardMove]);
+        }
+
+        // Implement logic for pawn captures (diagonal attacks)
+        const captures = getPawnCaptures(currentSquare, player);
+        captures.forEach(captureMove => {
+            moves.push([currentSquare, captureMove]);
+        });
     }
 
-    // Add logic for other piece types here: rook, knight, bishop, queen, king
-    // You will need to handle each piece type's movement and generate possible moves
-
     return moves;
+}
+
+// Implement diagonal capture logic for pawn 
+function getPawnCaptures(currentSquare, player) {
+    const file = currentSquare[0];
+    const rank = parseInt(currentSquare[1]);
+    const captureRank = player === 'white' ? rank + 1 : rank - 1;
+    const possibleCaptures = [];
+
+    // Left diagonal capture
+    const leftCapture = String.fromCharCode(file.charCodeAt(0) - 1) + captureRank;
+    const leftTarget = document.getElementById(leftCapture);
+    if (leftTarget && leftTarget.querySelector('.piece') && leftTarget.querySelector('.piece').getAttribute('data-color') !== player) {
+        possibleCaptures.push(leftCapture);
+    }
+
+    // Right diagonal capture
+    const rightCapture = String.fromCharCode(file.charCodeAt(0) + 1) + captureRank;
+    const rightTarget = document.getElementById(rightCapture);
+    if (rightTarget && rightTarget.querySelector('.piece') && rightTarget.querySelector('.piece').getAttribute('data-color') !== player) {
+        possibleCaptures.push(rightCapture);
+    }
+
+    return possibleCaptures;
 }
 
 // Check if moving the king would put it in check
@@ -398,31 +440,6 @@ function canPieceAttack(pieceType, fromSquare, toSquare, color) {
     }
     
     return false;
-}
-
-// Check if the path between two squares is clear (no pieces in between)
-function isPathClear(fromSquare, toSquare) {
-    const [fromFile, fromRank] = [fromSquare[0], parseInt(fromSquare[1])];
-    const [toFile, toRank] = [toSquare[0], parseInt(toSquare[1])];
-
-    let fileStep = fromFile < toFile ? 1 : (fromFile > toFile ? -1 : 0);
-    let rankStep = fromRank < toRank ? 1 : (fromRank > toRank ? -1 : 0);
-
-    let currentFile = fromFile.charCodeAt(0) + fileStep;
-    let currentRank = fromRank + rankStep;
-
-    // Loop through all squares between fromSquare and toSquare
-    while (currentFile !== toFile.charCodeAt(0) || currentRank !== toRank) {
-        const intermediateSquare = String.fromCharCode(currentFile) + currentRank;
-        const squareElement = document.getElementById(intermediateSquare);
-        if (squareElement && squareElement.querySelector('.piece')) {
-            return false; // A piece is blocking the path
-        }
-        currentFile += fileStep;
-        currentRank += rankStep;
-    }
-
-    return true; // Path is clear
 }
 
 // Validate pawn movement (including captures)
