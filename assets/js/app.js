@@ -139,6 +139,12 @@ function handlePieceClick(event) {
     console.log(`Selected ${selectedPiece.pieceType} on ${selectedPiece.currentSquare}`);
 }
 
+function handleMoveCompletion() {
+    console.log("Move completed, switching player and checking game state...");
+    switchPlayer();
+    checkGameState();
+}
+
 // Handle moving a piece
 function handleSquareClick(event) {
     if (!selectedPiece) return;
@@ -198,18 +204,10 @@ function isValidPieceMove(pieceType, fromSquare, toSquare, color) {
         case 'knight':
             return isKnightMove(fromSquare, toSquare); // Knights can jump over pieces
         case 'king':
-            return isKingMove(fromSquare, toSquare) && isKingMoveSafe(fromSquare, toSquare, color);
+            return isKingMove(fromSquare, toSquare) && isKingMoveSafe(fromSquare, toSquare, color);  
         default:
             return false;
     }
-}
-
-// Implement detailed movement rules for pawns, knights, bishops, rooks, and queens here
-
-function handleMoveCompletion() {
-    console.log("Move completed, switching player and checking game state...");
-    switchPlayer();
-    checkGameState();
 }
 
 /* ================================
@@ -286,6 +284,47 @@ function isKingInCheck(player) {
     }
     
     return false;  // No piece can attack the king
+}
+
+// Add this: checkGameState function to assess the game state
+function checkGameState() {
+    console.log("Checking game state...");
+    const whiteKingInCheck = isKingInCheck("white");
+    const blackKingInCheck = isKingInCheck("black");
+
+    if (whiteKingInCheck) {
+        console.log("White's king is in check.");
+    }
+
+    if (blackKingInCheck) {
+        console.log("Black's king is in check.");
+    }
+
+    // Implement additional logic here to check for checkmate, stalemate, or draw.
+}
+
+// Check if moving the king would put it in check
+function isKingMoveSafe(fromSquare, toSquare, color) {
+    // Temporarily move the king to the destination square
+    const originalSquare = document.getElementById(fromSquare);
+    const targetSquare = document.getElementById(toSquare);
+    const movedPiece = originalSquare.querySelector('.piece');
+    const targetPiece = targetSquare.querySelector('.piece'); // To restore in case of undo
+
+    // Move the king temporarily
+    targetSquare.appendChild(movedPiece);
+
+    // Check if the move puts the king in check
+    const kingInCheck = isKingInCheck(color);
+
+    // Undo the temporary move
+    originalSquare.appendChild(movedPiece);
+    if (targetPiece) {
+        targetSquare.appendChild(targetPiece); // Restore captured piece if any
+    }
+
+    // If the king is still in check, return false
+    return !kingInCheck;
 }
 
 // Check if a piece can attack the given position
@@ -434,7 +473,6 @@ function isPathClear(fromSquare, toSquare) {
 
     return true; // Path is clear
 }
-
 
 /* ================================
    7. Initialize Board & Add Listeners

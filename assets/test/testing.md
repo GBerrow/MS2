@@ -119,3 +119,32 @@ If you want to return to my normal readme, please click the link below:
 ### Next Steps:
 - Continue refining movement logic to handle checkmate, stalemate, and castling.
 - Test for special moves like en passant and pawn promotion.
+
+---
+
+### 08/10/2024
+
+- **Problem**:  
+   - King cannot move to safety when checked. The game was not validating the king's movement correctly in check situations.
+
+![alt text](test-images/test-image-4.png)
+
+- **Fix**:  
+   1. **`isKingMoveSafe` Implementation**:  
+      - A new function `isKingMoveSafe` was introduced to check if the king's movement would result in it remaining in check.
+      - The function temporarily moves the king to the destination square, checks for any opponent attacks, and then undoes the temporary move.
+      - If moving the king would put it in check, the move is declared invalid.
+   
+   2. **Validation Update**:  
+      - The `isValidPieceMove` function was updated to include a call to `isKingMoveSafe` when validating king moves. This ensures that the king's move does not leave it vulnerable to check.
+
+   3. **`checkGameState` Improvements**:  
+      - The `checkGameState` function was improved to handle check conditions for both white and black kings.
+      - After each move, the game checks if the player's king is in check and logs the results for debugging purposes.
+      - Future implementation will handle checkmate conditions.
+
+- **Next Steps**:  
+   1. Implement a full checkmate condition by evaluating if there are no valid moves left for the player whose king is in check.
+   2. Add special moves such as Castling, En Passant and Pawn Promotion. 
+
+---
