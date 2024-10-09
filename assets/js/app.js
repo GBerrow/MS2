@@ -511,7 +511,7 @@ function isKingMoveSafe(fromSquare, toSquare, playerColor) {
     const movedPiece = originalSquare.querySelector('.piece');
     const targetPiece = targetSquare.querySelector('.piece'); // To restore in case of undo
 
-    // Move the king temporarily
+    // Temporarily move the king
     targetSquare.appendChild(movedPiece);
 
     // Check if the move puts the king in check
@@ -521,6 +521,21 @@ function isKingMoveSafe(fromSquare, toSquare, playerColor) {
     originalSquare.appendChild(movedPiece);
     if (targetPiece) {
         targetSquare.appendChild(targetPiece); // Restore captured piece if any
+    }
+
+    // Additional check: Ensure pawns are not threatening the king diagonally
+    if (playerColor === "white") {
+        // Check if black pawns are attacking diagonally from one rank down
+        if (canPawnAttack(toSquare, `${String.fromCharCode(toSquare[0].charCodeAt(0) - 1)}${parseInt(toSquare[1]) - 1}`, "black") ||
+            canPawnAttack(toSquare, `${String.fromCharCode(toSquare[0].charCodeAt(0) + 1)}${parseInt(toSquare[1]) - 1}`, "black")) {
+            return false;
+        }
+    } else if (playerColor === "black") {
+        // Check if white pawns are attacking diagonally from one rank up
+        if (canPawnAttack(toSquare, `${String.fromCharCode(toSquare[0].charCodeAt(0) - 1)}${parseInt(toSquare[1]) + 1}`, "white") ||
+            canPawnAttack(toSquare, `${String.fromCharCode(toSquare[0].charCodeAt(0) + 1)}${parseInt(toSquare[1]) + 1}`, "white")) {
+            return false;
+        }
     }
 
     // If the king is still in check, return false
@@ -553,7 +568,7 @@ function canPawnAttack(kingPosition, pawnPosition, opponentColor) {
     const [pawnFile, pawnRank] = [pawnPosition[0], parseInt(pawnPosition[1])];
 
     const fileDiff = Math.abs(kingFile.charCodeAt(0) - pawnFile.charCodeAt(0));
-    const rankDiff = opponentColor === 'white' ? pawnRank - kingRank : kingRank - pawnRank;
+    const rankDiff = opponentColor === 'white' ? kingRank - pawnRank : pawnRank - kingRank;
 
     // Pawns attack diagonally, so fileDiff should be 1 and rankDiff should be 1 for a valid attack
     return fileDiff === 1 && rankDiff === 1;

@@ -220,3 +220,10 @@ If you want to return to my normal readme, please click the link below:
 
   4. **Delayed Check Detection (Test 4)**: 
      - The game does not immediately detect check when it happens. It only flags the king as being in check when the player selects the king or attempts to move another piece. This delay in check detection affects gameplay, as the player should immediately be informed when their king is in check.
+
+- **Fixes Implemented**:
+   
+   1. **Modified isKingMoveSafe**
+     - Implemented additional validation to ensure pawns are not threatening the king diagonally during moves.
+     - Refined the logic in `isKingMoveSafe` to handle specific scenarios where pawns could attack the king.
+     - Improved overall king safety by including both black and white pawns in the check system.
