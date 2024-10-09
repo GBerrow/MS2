@@ -203,4 +203,20 @@ If you want to return to my normal readme, please click the link below:
 - Ensure visual feedback for check and checkmate is clear and consistent for the user.
 - Refine user experience by adding notifications for check, checkmate, and invalid moves.
 
+---
 
+### **09/10/2024**
+
+- **Problems Detected**:
+
+1. **King Moving into Dangerous Position (Test 1)**: 
+     - The king is allowed to move into positions where it would be in check, violating chess rules that prevent the king from placing itself into danger.
+
+  2. **No Checkmate Detection for Losing (Test 2)**: 
+     - When the player's king is in checkmate, the game doesn't display a "Game Over, Black Wins!" message when the black king wins, only showing messages when the player wins.
+
+  3. **Post-Game Piece Selection (Test 3)**: 
+     - After checkmate and a victory message ("Game over! White wins!"), the player can no longer select any pieces, indicating that the game correctly prevents further moves after a win. However, this functionality should also apply to when the player loses.
+
+  4. **Delayed Check Detection (Test 4)**: 
+     - The game does not immediately detect check when it happens. It only flags the king as being in check when the player selects the king or attempts to move another piece. This delay in check detection affects gameplay, as the player should immediately be informed when their king is in check.
