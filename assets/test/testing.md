@@ -210,20 +210,41 @@ If you want to return to my normal readme, please click the link below:
 - **Problems Detected**:
 
 1. **King Moving into Dangerous Position (Test 1)**: 
-     - The king is allowed to move into positions where it would be in check, violating chess rules that prevent the king from placing itself into danger.
+   - The king was allowed to move into positions where it would be in check, violating chess rules that prevent the king from placing itself into danger.
 
-  2. **No Checkmate Detection for Losing (Test 2)**: 
-     - When the player's king is in checkmate, the game doesn't display a "Game Over, Black Wins!" message when the black king wins, only showing messages when the player wins.
+2. **No Checkmate Detection for Losing (Test 2)**: 
+   - When the player's king was in checkmate, the game did not display a "Game Over, Black Wins!" message when black won, only showing messages when the player won.
 
-  3. **Post-Game Piece Selection (Test 3)**: 
-     - After checkmate and a victory message ("Game over! White wins!"), the player can no longer select any pieces, indicating that the game correctly prevents further moves after a win. However, this functionality should also apply to when the player loses.
+3. **Post-Game Piece Selection (Test 3)**: 
+   - After checkmate and a victory message ("Game over! White wins!"), the game prevented further moves, which worked as expected for a win but needed to be applied when the player lost as well.
 
-  4. **Delayed Check Detection (Test 4)**: 
-     - The game does not immediately detect check when it happens. It only flags the king as being in check when the player selects the king or attempts to move another piece. This delay in check detection affects gameplay, as the player should immediately be informed when their king is in check.
+4. **Delayed Check Detection (Test 4)**: 
+   - The game did not immediately detect a check when it happened. It only flagged the king as being in check when the player selected the king or attempted to move another piece. This delay in check detection affected gameplay, as the player should immediately be informed when their king is in check.
 
 - **Fixes Implemented**:
    
-   1. **Modified isKingMoveSafe**
-     - Implemented additional validation to ensure pawns are not threatening the king diagonally during moves.
-     - Refined the logic in `isKingMoveSafe` to handle specific scenarios where pawns could attack the king.
-     - Improved overall king safety by including both black and white pawns in the check system.
+1. **Modified `isKingMoveSafe` (Fix 1)**:
+   - Implemented additional validation to ensure pawns are not threatening the king diagonally during moves.
+   - Refined the logic in `isKingMoveSafe` to handle specific scenarios where pawns could attack the king.
+   - Improved overall king safety by including checks for both black and white pawns in the threat detection system.
+
+2. **Improved Checkmate Detection (Fix 2)**:
+   - Enhanced the checkmate detection system to ensure that a "Game Over" message is displayed correctly when the player is in checkmate. The game now properly detects both white and black checkmates and displays the correct winner message ("Game over! White wins!" or "Game over! Black wins!").
+
+3. **Updated Game Over Logic (Fix 3)**:
+   - Ensured that the game disables further piece selection after checkmate, preventing both player and AI from making further moves.
+   - Fixed the logic that allows post-game piece selection, so now after a checkmate, no moves can be made by either player.
+
+4. **Fixed Check Detection Timing (Fix 4)**:
+   - Adjusted the game to immediately notify the player when their king is in check. This change ensures that the game detects check as soon as it occurs, and the player is prevented from making illegal moves that leave the king in check.
+   
+5. **Restart Button Added (Fix 5)**:
+   - Introduced a restart button that becomes visible when the game ends, allowing players to restart the game without refreshing the page.
+   - The restart button clears the board, reinitializes it, and resets all relevant game states (including listeners) when clicked.
+
+6. **Terminated Stockfish on Game End (Fix 6)**:
+   - To prevent the AI from continuing to provide moves after the game ends, we added logic to terminate the Stockfish engine when the game is over.
+   
+7. **Reassigning Listeners after Moves (Fix 7)**:
+   - Ensured that event listeners are reassigned after each move so that newly moved or captured pieces are handled correctly, avoiding cases where interactions fail after certain moves.
+   

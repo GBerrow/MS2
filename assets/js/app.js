@@ -29,6 +29,8 @@ function sendToStockfish(command) {
     stockfish.postMessage(command);
 }
 
+let gameIsOver = false;  // Global flag to track if the game has ended
+
 /* ================================
    2. Board Structure
 ================================ */
@@ -125,6 +127,7 @@ function boardToFEN() {
 // Movement logic for player and AI turns, along with handling piece clicks and square selections.
 
 function handlePieceClick(event) {
+    if (gameIsOver) return; // Game over, no further moves allowed
     if (currentPlayer !== "white") return;
     const piece = event.target;
     const pieceColor = piece.getAttribute("data-color");
@@ -171,6 +174,9 @@ function gameOver(winner) {
     console.log(`Game over! ${winner} wins!`);
     alert(`Game over! ${winner.charAt(0).toUpperCase() + winner.slice(1)} wins!`);
 
+    // Set gameIsOver to true to prevent further actions
+    gameIsOver = true;
+
     // Disable further moves by removing the click event listeners or blocking actions
     document.querySelectorAll('.square').forEach(square => {
         square.removeEventListener('click', handleSquareClick); // Disable further clicks
@@ -179,15 +185,30 @@ function gameOver(winner) {
     // Optionally disable Stockfish communication
     stockfish.terminate();  // Stop Stockfish engine from running further
 
-    // Show a restart button (assuming you have one)
-    const restartButton = document.getElementById('restart-button');
+    // Show a restart button 
+    const restartButton = document.getElementById('restart');
     if (restartButton) {
         restartButton.style.display = 'block';
     }
 }
 
+document.getElementById('restart').addEventListener('click', function() {
+    // Reset game state
+    gameIsOver = false;
+
+    // Clear board and reinitialize
+    initializeBoard();
+
+    // Reassign listeners
+    reassignListeners();
+
+    // Hide restart button
+    this.style.display = 'none';
+});
+
 // Handle moving a piece
 function handleSquareClick(event) {
+    if (gameIsOver) return; // Game over, no further moves allowed
     if (!selectedPiece) return;
 
     const targetSquare = event.target.closest('.square');
@@ -231,6 +252,8 @@ function handleSquareClick(event) {
 
     // Complete move and switch player
     handleMoveCompletion();
+
+    if (gameIsOver) return;
 }
 
 // Validate move function for all pieces
@@ -302,6 +325,8 @@ function simulatesMoveAndResolvesCheck(fromSquare, toSquare, playerColor) {
 
 // Switch between human and AI turns
 function switchPlayer() {
+    if (gameIsOver) return;  // Prevent switching if the game is over
+
     currentPlayer = currentPlayer === "white" ? "black" : "white";
     if (currentPlayer === "black") {
         getBestMoveFromStockfish(); // Trigger AI move when it's the AI's turn
@@ -386,6 +411,7 @@ function checkGameState() {
         console.log("White's king is in check.");
         if (isCheckmate('white')) {
             gameOver('black');  // Black wins
+            gameIsOver = true;  // Set game over flag
             return;
         }
     }
@@ -395,8 +421,28 @@ function checkGameState() {
         console.log("Black's king is in check.");
         if (isCheckmate('black')) {
             gameOver('white');  // White wins
+            gameIsOver = true;  // Set game over flag
             return;
         }
+    }
+}
+
+// Function to handle game over and disable moves
+function gameOver(winner) {
+    console.log(`Game over! ${winner} wins!`);
+    alert(`Game over! ${winner.charAt(0).toUpperCase() + winner.slice(1)} wins!`);
+
+    gameIsOver = true;  // Set the global game over flag to true
+
+    // Optionally disable further moves by removing event listeners or blocking actions
+    document.querySelectorAll('.square').forEach(square => {
+        square.removeEventListener('click', handleSquareClick);  // Disable further clicks
+    });
+
+    // Show a restart button
+    const restartButton = document.getElementById('restart');
+    if (restartButton) {
+        restartButton.style.display = 'block';
     }
 }
 
@@ -726,19 +772,19 @@ window.onload = () => {
 
 // Add event listeners for pieces and squares
 function addListeners() {
-    // Add listeners only once per piece
     document.querySelectorAll(".piece").forEach(piece => {
-        piece.addEventListener("click", handlePieceClick, { once: true });  // Ensure each click is only handled once
+        piece.addEventListener("click", handlePieceClick);  // Allow multiple clicks
     });
 
-    // Add listeners only once per square
     document.querySelectorAll(".square").forEach(square => {
-        square.addEventListener("click", handleSquareClick, { once: true });  // Ensure no infinite loop
+        square.addEventListener("click", handleSquareClick);  // Allow multiple clicks
     });
 }
 
 // Reassign listeners to pieces and squares after a move
 function reassignListeners() {
+    if (gameIsOver) return;  // Don't reassign listeners if the game is over
+    
     // Remove existing listeners to avoid duplicate bindings
     document.querySelectorAll(".piece").forEach(piece => {
         piece.removeEventListener("click", handlePieceClick);
@@ -751,17 +797,5 @@ function reassignListeners() {
     addListeners();  
 }
 
-function handleMoveCompletion() {
-    console.log("Move completed, switching player and checking game state...");
-
-    // Switch player after move
-    switchPlayer();
-
-    // After each move, check the game state (check, checkmate, or king capture)
-    checkGameState();
-
-    // Reassign listeners after each move
-    reassignListeners();
-}
 
 
