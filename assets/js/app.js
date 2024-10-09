@@ -190,45 +190,46 @@ function gameOver(winner) {
 function handleSquareClick(event) {
     if (!selectedPiece) return;
 
-    const targetSquare = event.target.closest('.square'); // Ensure we target the square itself
+    const targetSquare = event.target.closest('.square');
     const currentSquare = selectedPiece.pieceElement.parentElement;
 
-    // Prevent moving the piece to its current square
     if (targetSquare === currentSquare) {
-        return;
+        return; // Cannot move to the same square
     }
 
-    // Validate the move based on the selected piece's type and the squares involved
+    const pieceType = selectedPiece.pieceType;
+    const playerColor = selectedPiece.color;
+
+    // Validate the move for the selected piece
     const isValidMove = isValidPieceMove(
-        selectedPiece.pieceType,
+        pieceType,
         currentSquare.id,
         targetSquare.id,
-        selectedPiece.color
+        playerColor
     );
 
-    if (!isValidMove) {
-        console.log(`Invalid move for piece: ${selectedPiece.pieceType} from ${currentSquare.id} to ${targetSquare.id}`);
-        return;
-    }
-
-    // Check if the target square contains an opponent's piece
-    const targetPiece = targetSquare.querySelector('.piece');
-    if (targetPiece) {
-        const targetPieceColor = targetPiece.getAttribute('data-color');
-        if (targetPieceColor === selectedPiece.color) {
-            console.log("Cannot move to a square occupied by your own piece.");
+    // Additional check if the selected piece is the king
+    if (pieceType === 'king') {
+        if (!isKingMoveSafe(currentSquare.id, targetSquare.id, playerColor)) {
+            console.log(`Invalid move: The king cannot move into check.`);
             return;
-        } else {
-            // Capture the opponent's piece
-            targetSquare.removeChild(targetPiece);
         }
     }
 
-    // Move the selected piece to the target square
+    if (!isValidMove) {
+        console.log(`Invalid move for ${pieceType}: ${currentSquare.id} to ${targetSquare.id}`);
+        return;
+    }
+
+    // Execute the move if valid
+    if (targetSquare.querySelector('.piece')) {
+        targetSquare.removeChild(targetSquare.querySelector('.piece')); // Capture opponent's piece
+    }
+
     targetSquare.appendChild(selectedPiece.pieceElement);
     selectedPiece = null;
 
-    // Call handleMoveCompletion to switch players and check game state after every valid move
+    // Complete move and switch player
     handleMoveCompletion();
 }
 
