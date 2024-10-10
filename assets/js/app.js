@@ -16,7 +16,7 @@ stockfish.onmessage = function (event) {
     } else {
         // Optional: Log only important Stockfish messages, like game over or mate
         if (event.data.includes("mate") || event.data.includes("game over")) {
-            console.log("Stockfish analysis:", event.data);
+        //    console.log("Stockfish analysis:", event.data);
         } else {
             // Commented out detailed Stockfish analysis logs (depth, nodes, etc.)
             // console.log("Stockfish analysis:", event.data); 
@@ -146,19 +146,11 @@ function handlePieceClick(event) {
 function handleMoveCompletion() {
     console.log("Move completed, switching player and checking game state...");
 
-    // Re-assign listeners to ensure any new pieces get event listeners
-    reassignListeners();
-
-    // Switch player after move
-    switchPlayer();
-
-    // After each move, check the game state (check, checkmate, or king capture)
-    checkGameState();
-
     // Check for king capture (game over condition)
     const whiteKing = findKing('white');
     const blackKing = findKing('black');
 
+    // End the game if a king is captured
     if (!whiteKing) {
         gameOver('black');
         return;
@@ -167,6 +159,21 @@ function handleMoveCompletion() {
         gameOver('white');
         return;
     }
+
+    // After each move, check the game state (check, checkmate)
+    const isCheckmate = checkGameState();
+
+    // If it's checkmate, game over
+    if (isCheckmate) {
+        console.log("Checkmate detected. Game over.");
+        return;
+    }
+
+    // Re-assign listeners to ensure new pieces get event listeners
+    reassignListeners();
+
+    // Switch player after move
+    switchPlayer();
 }
 
 // Game over function 
@@ -255,11 +262,11 @@ function handleSquareClick(event) {
 
     if (gameIsOver) return;
 }
-
 // Validate move function for all pieces
 function isValidPieceMove(pieceType, fromSquare, toSquare, playerColor) {
-    // Check if the move is valid for the specific piece
     let validMove = false;
+
+    // Validate move based on piece type
     switch (pieceType) {
         case 'pawn':
             validMove = isValidPawnMove(fromSquare, toSquare, playerColor);
@@ -283,9 +290,12 @@ function isValidPieceMove(pieceType, fromSquare, toSquare, playerColor) {
             return false;
     }
 
+    // If the move doesn't follow basic rules, return false
+    if (!validMove) return false;
+
     // If the king is in check, only allow moves that resolve the check
     if (isKingInCheck(playerColor)) {
-        const moveResolvesCheck = simulatesMoveAndResolvesCheck(fromSquare, toSquare, playerColor);
+        const moveResolvesCheck = simulateMoveAndCheck(fromSquare, toSquare, playerColor);
         if (!moveResolvesCheck) {
             console.log("Cannot make a move while the king is in check, resolve the check first.");
             return false;
@@ -295,27 +305,35 @@ function isValidPieceMove(pieceType, fromSquare, toSquare, playerColor) {
     return validMove;
 }
 
-// Simulate the move and check if it resolves the check
-function simulatesMoveAndResolvesCheck(fromSquare, toSquare, playerColor) {
+// Simulate the move and check if the king is safe after that move, with logging
+function simulateMoveAndCheck(fromSquare, toSquare, playerColor) {
     const originalFromSquare = document.getElementById(fromSquare);
     const originalToSquare = document.getElementById(toSquare);
 
     const movedPiece = originalFromSquare.querySelector('.piece');
-    const targetPiece = originalToSquare.querySelector('.piece'); // Opponent's piece, if any
+    const targetPiece = originalToSquare.querySelector('.piece'); // Save this to restore if needed
+
+    console.log(`Simulating move for ${playerColor}: ${fromSquare} to ${toSquare}`);
 
     // Temporarily move the piece
     originalToSquare.appendChild(movedPiece);
 
-    // Check if the king is still in check after the move
+    // Check if the king is still in check
     const kingInCheck = isKingInCheck(playerColor);
 
-    // Undo the move by returning pieces to their original positions
+    // Undo the move (restore the board state)
     originalFromSquare.appendChild(movedPiece);
     if (targetPiece) {
         originalToSquare.appendChild(targetPiece); // Restore captured piece, if any
     }
 
-    return !kingInCheck; // True if the move resolves the check
+    if (kingInCheck) {
+        console.log(`${playerColor}'s king is still in check after the move.`);
+    } else {
+        console.log(`${playerColor}'s king is safe after the move.`);
+    }
+
+    return !kingInCheck; // Return true if the move resolves the check, false if the king is still in check
 }
 
 /* ================================
@@ -384,19 +402,28 @@ function findKing(player) {
 // General function to check if the player's king is in check
 function isKingInCheck(playerColor) {
     const kingPosition = findKing(playerColor);
+    
+    if (!kingPosition) {
+        console.warn(`King for ${playerColor} not found on the board!`);
+        return false;
+    }
+
     const opponentColor = playerColor === 'white' ? 'black' : 'white';
     const opponentPieces = document.querySelectorAll(`.piece[data-color='${opponentColor}']`);
 
+    // Check if any opponent piece can attack the player's king
     for (let piece of opponentPieces) {
         const pieceType = piece.getAttribute('data-piece').split('-')[0];
         const piecePosition = piece.parentElement.id;
 
         if (canPieceAttackKing(pieceType, piecePosition, kingPosition, opponentColor)) {
-            console.log(`${opponentColor}'s ${pieceType} can attack ${playerColor}'s king at ${kingPosition}`);
-            return true;  // King is in check
+            console.log(`${playerColor}'s king at ${kingPosition} is in check from ${opponentColor}'s ${pieceType} at ${piecePosition}.`);
+            return true;  // Break early once a threat is found
         }
     }
-    return false;  // King is safe
+
+    console.log(`${playerColor}'s king at ${kingPosition} is safe.`);
+    return false;  // King is safe if no threats are found
 }
 
 // Function to check the current state of the game

@@ -1,6 +1,6 @@
 If you want to return to my normal readme, please click the link below:
 
-[readme](../../README.md)
+[Main Page](../../README.md)
 
 ---
 
@@ -17,27 +17,28 @@ If you want to return to my normal readme, please click the link below:
   - [Visual Regression Testing](#visual-regression-testing)
   - [Automated Testing](#automated-testing)
   - [Manual Testing](#manual-testing)
-  - [Bugs](#bugs)
+  - [Bugs and fixes](#bugs-and-fixes)
   - [Conclusion](#conclusion)
 
 ---
 
-## Bugs
+## Bugs and Fixes
+
+### AI / Stockfish Interaction
 
 ---
 
-### 02/10/2024
+### **02/10/2024**
 
 - **Problem**: AI not responding after the initial move with the white piece.
 - **Fix**: The issue was caused by incorrect handling of WebAssembly (WASM) files and miscommunication with Stockfish. The following steps were taken:
-
-  1. Verified both the JavaScript wrapper (`stockfish-16.1-lite-single.js`) and WebAssembly file (`stockfish-16.1-lite-single.wasm`) were correctly placed in the `assets/js/` folder.
-  2. Updated the initialization of the Web Worker to point to the JavaScript file:
+  1. Verified that the `stockfish-16.1-lite-single.js` and `.wasm` files were in the correct folder.
+  2. Updated the initialization of the Web Worker:
      ```javascript
      const stockfish = new Worker("assets/js/stockfish-16.1-lite-single.js");
      ```
-  3. Confirmed `.wasm` file loading via the Network tab and ensured the MIME type for `.wasm` was `application/wasm`.
-  4. After correcting the Worker initialization, the AI responded as expected.
+  3. Ensured `.wasm` loaded with the MIME type `application/wasm`.
+  4. After these corrections, the AI responded correctly.
 
 ---
 
@@ -65,59 +66,46 @@ If you want to return to my normal readme, please click the link below:
 
 ---
 
-### 04/10/2024
+### Movement Validation
 
-- **Problem**: No check, checkmate, or draw conditions detected.
+### **04/10/2024**
+
+- **Problem**: White pieces were not restricted to specific movement patterns.ed.
 
   ![Initial Issue](test-images/test-image-1.png)
 
-- **Fix**:
-  
-  1. **`isKingInCheck`**: Added this function to determine if a player's king is under threat by any opponent's piece.
-  2. **`findKing`**: This function locates the player's king for use in threat detection.
-  3. **`canPieceAttack`**: Used to validate if a specific opponent piece can attack a target square, using helper functions for different movement types.
-  4. **Pawn Attack Fix**: Ensured pawns only attack diagonally upwards (for white) and downwards (for black), preventing false positives.
-  5. **`checkGameState`**: This function evaluates the game state after each move to check for check, checkmate, or safe kings.
+ - **Fixes**:
+  1. Implemented `isValidPieceMove` for validating movements based on official chess rules.
+     - Pawns move forward, attack diagonally.
+     - Rooks move horizontally/vertically.
+     - Bishops move diagonally.
+     - Knights move in an "L" shape.
+     - Queens move like both rooks and bishops.
+     - Kings move one square in any direction.
+     - Path clearance checks for rooks, bishops, and queens using `isPathClear`.
+  2. Updated `handleSquareClick` to validate moves before completion, flag illegal moves, and handle piece capturing.
+  3. **King Safety**: Added `isKingMoveSafe` to prevent the king from moving into check.
 
-- **Result**:
-  The game now detects when a king is in check. Console logs show whether kings are in check or safe.
+- **Result**: The game now enforces valid movements for all pieces, easing debugging by allowing only legal moves.
 
   ![Check Detection Example](test-images/test-image-2.png)
 
 ---
 
-### 07/10/2024
+### King Safety and Checkmate Detection
 
-- **Problem**: White pieces were not restricted to their specific movements, complicating debugging.
+### **07/10/2024**
+
+- **Problem**: No detection for check, checkmate, or draw conditions.
   
-- **Fix**:
-  1. **Movement Validation for All Pieces**: 
-     - Implemented the `isValidPieceMove` function to validate movement for all pieces.
-     - Movement restrictions based on official chess rules:
-       - Pawns move forward, attack diagonally.
-       - Rooks move horizontally/vertically.
-       - Bishops move diagonally.
-       - Knights move in an "L" shape.
-       - Queens move like both rooks and bishops.
-       - Kings move one square in any direction.
-     - **Path Clearance Check**: Rooks, bishops, and queens must have a clear path to move. `isPathClear` was added to check this.
-  
-  2. **`handleSquareClick` Updates**: 
-     - `isValidPieceMove` validates moves before they are completed.
-     - The game now prevents illegal moves, flags invalid moves, and handles capturing of opponent pieces.
-  
-  3. **King Safety**:
-     - `isKingMoveSafe` prevents the king from moving into positions where it would be in check.
+- **Fixes**:
+  1. **isKingInCheck**: Checks if a player's king is under threat.
+  2. **findKing**: Locates the player's king.
+  3. **canPieceAttack**: Validates if a specific opponent piece can attack the king.
+  4. **Pawn Attack Fix**: Ensured pawns attack diagonally and appropriately detect threats.
+  5. **checkGameState**: Evaluates the game state after each move to check for check, checkmate, or safe kings.
 
-- **Outcome**:
-  The game now enforces movement restrictions for all pieces, aligning with chess rules. Debugging is easier as only valid moves are allowed.
-
-  ![Updated Board State](test-images/test-image-3.png)
-
----
-
-### Next Steps:
-- Continue refining movement logic to handle checkmate.
+- **Result**: The game detects check conditions and updates the state accordingly.
 
 ---
 
@@ -142,11 +130,10 @@ If you want to return to my normal readme, please click the link below:
       - After each move, the game checks if the player's king is in check and logs the results for debugging purposes.
       - Future implementation will handle checkmate conditions.
 
-- **Next Steps**:  
-   1. Implement a full checkmate condition by evaluating if there are no valid moves left for the player whose king is in check.
+- **Result**: Illegal king moves are prevented, and checkmate conditions are now detected.
 
 ---
-### **08/10/2024**
+### **09/10/2024**
 
 - **Problems Detected**:
   1. **Queen's Movement Logic**: The queen behaved like a bishop, moving only diagonally but not in straight lines.
@@ -180,20 +167,12 @@ If you want to return to my normal readme, please click the link below:
   7. **Path Validation for Checkmate**:
      - All movement logic was updated to ensure that the game correctly handles scenarios where the king is under check, restricting movement to only those that resolve the check and forbidding movement that doesn’t alleviate the threat.
 
-  8. **Major Updates and Bug Fixes**:
-     - Refined pawn movement logic to ensure correct diagonal captures and movement rules.
-     - Fixed the queen’s movement to allow both diagonal and straight-line moves.
-     - Added checkmate detection and validation to prevent illegal king moves.
-     - Integrated king safety checks after every move to ensure the king doesn’t move into check or remain in check.
-     - Updated event listeners for pieces and squares after every move to ensure accurate interactions.
-     - Reorganized code structure for improved readability and maintainability.
+---
 
-- **Challenges**:
-  1. **Blocking Checks**: Test cases revealed that pieces couldn’t always block checks properly. We implemented logic to ensure that pieces can move to block check threats (e.g., moving a queen or bishop between an attacking piece and the king).
-  2. **Pawn Attacks**: Pawns were incorrectly considered for check, and the rules governing their diagonal attacks needed adjustments.
+### UI / UX Improvements
 
-- **Further Testing**:
-  - Extensive testing was performed by purposely placing the king into check and attempting illegal moves to ensure that the new rules are followed. The game now consistently prevents illegal moves and detects checkmate situations correctly.
+- **Visual Feedback**: Added clearer visual feedback for check and checkmate.
+- **Game Reset**: Introduced a "Restart" button, allowing players to reset the game after checkmate without refreshing the page.
 
 ---
 
@@ -205,46 +184,3 @@ If you want to return to my normal readme, please click the link below:
 
 ---
 
-### **09/10/2024**
-
-- **Problems Detected**:
-
-1. **King Moving into Dangerous Position (Test 1)**: 
-   - The king was allowed to move into positions where it would be in check, violating chess rules that prevent the king from placing itself into danger.
-
-2. **No Checkmate Detection for Losing (Test 2)**: 
-   - When the player's king was in checkmate, the game did not display a "Game Over, Black Wins!" message when black won, only showing messages when the player won.
-
-3. **Post-Game Piece Selection (Test 3)**: 
-   - After checkmate and a victory message ("Game over! White wins!"), the game prevented further moves, which worked as expected for a win but needed to be applied when the player lost as well.
-
-4. **Delayed Check Detection (Test 4)**: 
-   - The game did not immediately detect a check when it happened. It only flagged the king as being in check when the player selected the king or attempted to move another piece. This delay in check detection affected gameplay, as the player should immediately be informed when their king is in check.
-
-- **Fixes Implemented**:
-   
-1. **Modified `isKingMoveSafe` (Fix 1)**:
-   - Implemented additional validation to ensure pawns are not threatening the king diagonally during moves.
-   - Refined the logic in `isKingMoveSafe` to handle specific scenarios where pawns could attack the king.
-   - Improved overall king safety by including checks for both black and white pawns in the threat detection system.
-
-2. **Improved Checkmate Detection (Fix 2)**:
-   - Enhanced the checkmate detection system to ensure that a "Game Over" message is displayed correctly when the player is in checkmate. The game now properly detects both white and black checkmates and displays the correct winner message ("Game over! White wins!" or "Game over! Black wins!").
-
-3. **Updated Game Over Logic (Fix 3)**:
-   - Ensured that the game disables further piece selection after checkmate, preventing both player and AI from making further moves.
-   - Fixed the logic that allows post-game piece selection, so now after a checkmate, no moves can be made by either player.
-
-4. **Fixed Check Detection Timing (Fix 4)**:
-   - Adjusted the game to immediately notify the player when their king is in check. This change ensures that the game detects check as soon as it occurs, and the player is prevented from making illegal moves that leave the king in check.
-   
-5. **Restart Button Added (Fix 5)**:
-   - Introduced a restart button that becomes visible when the game ends, allowing players to restart the game without refreshing the page.
-   - The restart button clears the board, reinitializes it, and resets all relevant game states (including listeners) when clicked.
-
-6. **Terminated Stockfish on Game End (Fix 6)**:
-   - To prevent the AI from continuing to provide moves after the game ends, we added logic to terminate the Stockfish engine when the game is over.
-   
-7. **Reassigning Listeners after Moves (Fix 7)**:
-   - Ensured that event listeners are reassigned after each move so that newly moved or captured pieces are handled correctly, avoiding cases where interactions fail after certain moves.
-   
