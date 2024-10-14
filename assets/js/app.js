@@ -362,8 +362,16 @@ function isValidKingMove(fromSquare, toSquare, playerColor) {
     return false;
 }
 
+// Check if the castling move is valid
+function isValidCastlingMove(fromSquare, toSquare) {
+    const fileDiff = Math.abs(fromSquare[0].charCodeAt(0) - toSquare[0].charCodeAt(0));
+    const rankDiff = Math.abs(fromSquare[1] - toSquare[1]);
+    
+    return (fileDiff === 2 && rankDiff === 0) || (fileDiff === 0 && rankDiff === 2);
+}
+    
 // Additional helper functions for movement logic (straight line, diagonal, etc.)
-
+// ---------------------------------------------------------------------------
 // Validate rook movement (straight lines)
 function isStraightLineMove(fromSquare, toSquare) {
     const [fromFile, fromRank] = [fromSquare[0], parseInt(fromSquare[1])];
