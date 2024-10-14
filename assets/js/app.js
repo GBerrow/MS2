@@ -11,7 +11,7 @@ stockfish.onmessage = function (event) {
     const bestMoveMatch = event.data.match(/bestmove\s([a-h][1-8][a-h][1-8])/);
     if (bestMoveMatch) {
         const bestMove = bestMoveMatch[1];
-        console.log(`Stockfish's best move: ${bestMove}`);
+        // console.log(`Stockfish's best move: ${bestMove}`);
         makeAIMove(bestMove); // Apply Stockfish's move to the board
     } else {
         // Optional: Log only important Stockfish messages, like game over or mate
@@ -354,7 +354,7 @@ function switchPlayer() {
 // AI turn: Ask Stockfish for the best move
 function getBestMoveFromStockfish() {
     const fen = boardToFEN();
-    console.log(`Sending FEN to Stockfish: ${fen}`);
+    //console.log(`Sending FEN to Stockfish: ${fen}`);
     sendToStockfish(`position fen ${fen}`);
     sendToStockfish("go depth 10");
 }
@@ -379,7 +379,16 @@ function makeAIMove(move) {
     // Move the AI's piece
     targetSquare.appendChild(pieceToMove);
     currentPlayer = "white"; // Switch back to the human player
-}
+
+     // Log the AI's move
+     console.log(`AI moved from ${fromSquare} to ${toSquare}`);
+    
+     // Check if the king is in check after the AI's move
+     if (isKingInCheck("white")) {
+         console.log("Your king is in check!");
+     }
+ }
+
 
 /* ================================
    6. Game State
@@ -395,7 +404,6 @@ function findKing(player) {
         return null;  // Return null as the king is no longer on the board
     }
     const position = kingPiece.parentElement.id;
-    console.log(`${player}'s king is at ${position}`);
     return position;
 }
 
@@ -413,8 +421,13 @@ function isKingInCheck(playerColor) {
 
     // Check if any opponent piece can attack the player's king
     for (let piece of opponentPieces) {
-        const pieceType = piece.getAttribute('data-piece').split('-')[0];
-        const piecePosition = piece.parentElement.id;
+        const pieceType = piece.getAttribute('data-piece')?.split('-')[0];
+        const piecePosition = piece.parentElement?.id;
+
+        if (!pieceType || !piecePosition) {
+            console.warn(`Malformed piece found: ${piece.outerHTML}`);
+            continue;
+        }
 
         if (canPieceAttackKing(pieceType, piecePosition, kingPosition, opponentColor)) {
             console.log(`${playerColor}'s king at ${kingPosition} is in check from ${opponentColor}'s ${pieceType} at ${piecePosition}.`);
