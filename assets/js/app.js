@@ -1,7 +1,7 @@
-/* ================================
-   1. Plan the Game
-================================ */
-// In this section, we initialize the Stockfish engine and handle AI vs player interactions.
+/* ==============================================
+   1. Game Initialization and Board Structure
+================================================= */
+// In this section, we initialize the Stockfish engine and handle AI vs player interactions While also setting up the board structure.
 
 // Initialize Stockfish Worker using the JavaScript file
 const stockfish = new Worker("assets/js/stockfish-16.1-lite-single.js");
@@ -14,7 +14,7 @@ stockfish.onmessage = function (event) {
         // console.log(`Stockfish's best move: ${bestMove}`);
         makeAIMove(bestMove); // Apply Stockfish's move to the board
     } else {
-        // Optional: Log only important Stockfish messages, like game over or mate
+        // Log only important Stockfish messages, like game over or mate
         if (event.data.includes("mate") || event.data.includes("game over")) {
         //    console.log("Stockfish analysis:", event.data);
         } else {
@@ -29,13 +29,6 @@ function sendToStockfish(command) {
     stockfish.postMessage(command);
 }
 
-let gameIsOver = false;  // Global flag to track if the game has ended
-
-/* ================================
-   2. Board Structure
-================================ */
-// Set up the initial board structure with the pieces and squares.
-
 // Chess Board Setup
 const initialBoardSetup = {
     a8: "rook-black", b8: "knight-black", c8: "bishop-black", d8: "queen-black",
@@ -47,14 +40,6 @@ const initialBoardSetup = {
     a2: "pawn-white", b2: "pawn-white", c2: "pawn-white", d2: "pawn-white",
     e2: "pawn-white", f2: "pawn-white", g2: "pawn-white", h2: "pawn-white"
 };
-
-/* ================================
-   3. Piece Classes & Movement Logic
-================================ */
-// In this section, we define piece interaction, including movement and validation.
-
-let selectedPiece = null;
-let currentPlayer = "white"; // Human player plays white, AI plays black
 
 // Initialize the board with pieces and colors
 function initializeBoard() {
@@ -121,279 +106,11 @@ function boardToFEN() {
     return rows.join("/") + ` ${currentPlayer === "white" ? "w" : "b"} - - 0 1`;
 }
 
-/* ================================
-   4. Implement Movement Logic
-================================ */
-// Movement logic for player and AI turns, along with handling piece clicks and square selections.
-
-function handlePieceClick(event) {
-    if (gameIsOver) return; // Game over, no further moves allowed
-    if (currentPlayer !== "white") return;
-    const piece = event.target;
-    const pieceColor = piece.getAttribute("data-color");
-    if (pieceColor !== currentPlayer) return;
-
-    selectedPiece = {
-        pieceElement: piece,
-        currentSquare: piece.parentElement.id,
-        color: pieceColor,
-        pieceType: piece.getAttribute("data-piece").split("-")[0] // Capture piece type here
-    };
-    console.log(`Selected ${selectedPiece.pieceType} on ${selectedPiece.currentSquare}`);
-}
-
-// Function to handle move completion and check game state
-function handleMoveCompletion() {
-    console.log("Move completed, switching player and checking game state...");
-
-    // Check for king capture (game over condition)
-    const whiteKing = findKing('white');
-    const blackKing = findKing('black');
-
-    // End the game if a king is captured
-    if (!whiteKing) {
-        gameOver('black');
-        return;
-    }
-    if (!blackKing) {
-        gameOver('white');
-        return;
-    }
-
-    // After each move, check the game state (check, checkmate)
-    const isCheckmate = checkGameState();
-
-    // If it's checkmate, game over
-    if (isCheckmate) {
-        console.log("Checkmate detected. Game over.");
-        return;
-    }
-
-    // Re-assign listeners to ensure new pieces get event listeners
-    reassignListeners();
-
-    // Switch player after move
-    switchPlayer();
-}
-
-// Game over function 
-function gameOver(winner) {
-    console.log(`Game over! ${winner} wins!`);
-    alert(`Game over! ${winner.charAt(0).toUpperCase() + winner.slice(1)} wins!`);
-
-    // Set gameIsOver to true to prevent further actions
-    gameIsOver = true;
-
-    // Disable further moves by removing the click event listeners or blocking actions
-    document.querySelectorAll('.square').forEach(square => {
-        square.removeEventListener('click', handleSquareClick); // Disable further clicks
-    });
-
-    // Optionally disable Stockfish communication
-    stockfish.terminate();  // Stop Stockfish engine from running further
-
-    // Show a restart button 
-    const restartButton = document.getElementById('restart');
-    if (restartButton) {
-        restartButton.style.display = 'block';
-    }
-}
-
-document.getElementById('restart').addEventListener('click', function() {
-    // Reset game state
-    gameIsOver = false;
-
-    // Clear board and reinitialize
-    initializeBoard();
-
-    // Reassign listeners
-    reassignListeners();
-
-    // Hide restart button
-    this.style.display = 'none';
-});
-
-// Handle moving a piece
-function handleSquareClick(event) {
-    if (gameIsOver) return; // Game over, no further moves allowed
-    if (!selectedPiece) return;
-
-    const targetSquare = event.target.closest('.square');
-    const currentSquare = selectedPiece.pieceElement.parentElement;
-
-    if (targetSquare === currentSquare) {
-        return; // Cannot move to the same square
-    }
-
-    const pieceType = selectedPiece.pieceType;
-    const playerColor = selectedPiece.color;
-
-    // Validate the move for the selected piece
-    const isValidMove = isValidPieceMove(
-        pieceType,
-        currentSquare.id,
-        targetSquare.id,
-        playerColor
-    );
-
-    // Additional check if the selected piece is the king
-    if (pieceType === 'king') {
-        if (!isKingMoveSafe(currentSquare.id, targetSquare.id, playerColor)) {
-            console.log(`Invalid move: The king cannot move into check.`);
-            return;
-        }
-    }
-
-    if (!isValidMove) {
-        console.log(`Invalid move for ${pieceType}: ${currentSquare.id} to ${targetSquare.id}`);
-        return;
-    }
-
-    // Execute the move if valid
-    if (targetSquare.querySelector('.piece')) {
-        targetSquare.removeChild(targetSquare.querySelector('.piece')); // Capture opponent's piece
-    }
-
-    targetSquare.appendChild(selectedPiece.pieceElement);
-    selectedPiece = null;
-
-    // Complete move and switch player
-    handleMoveCompletion();
-
-    if (gameIsOver) return;
-}
-// Validate move function for all pieces
-function isValidPieceMove(pieceType, fromSquare, toSquare, playerColor) {
-    let validMove = false;
-
-    // Validate move based on piece type
-    switch (pieceType) {
-        case 'pawn':
-            validMove = isValidPawnMove(fromSquare, toSquare, playerColor);
-            break;
-        case 'rook':
-            validMove = isValidRookMove(fromSquare, toSquare);
-            break;
-        case 'bishop':
-            validMove = isValidBishopMove(fromSquare, toSquare);
-            break;
-        case 'queen':
-            validMove = isValidQueenMove(fromSquare, toSquare);
-            break;
-        case 'knight':
-            validMove = isValidKnightMove(fromSquare, toSquare);
-            break;
-        case 'king':
-            validMove = isValidKingMove(fromSquare, toSquare, playerColor);
-            break;
-        default:
-            return false;
-    }
-
-    // If the move doesn't follow basic rules, return false
-    if (!validMove) return false;
-
-    // If the king is in check, only allow moves that resolve the check
-    if (isKingInCheck(playerColor)) {
-        const moveResolvesCheck = simulateMoveAndCheck(fromSquare, toSquare, playerColor);
-        if (!moveResolvesCheck) {
-            console.log("Cannot make a move while the king is in check, resolve the check first.");
-            return false;
-        }
-    }
-
-    return validMove;
-}
-
-// Simulate the move and check if the king is safe after that move, with logging
-function simulateMoveAndCheck(fromSquare, toSquare, playerColor) {
-    const originalFromSquare = document.getElementById(fromSquare);
-    const originalToSquare = document.getElementById(toSquare);
-
-    const movedPiece = originalFromSquare.querySelector('.piece');
-    const targetPiece = originalToSquare.querySelector('.piece'); // Save this to restore if needed
-
-    console.log(`Simulating move for ${playerColor}: ${fromSquare} to ${toSquare}`);
-
-    // Temporarily move the piece
-    originalToSquare.appendChild(movedPiece);
-
-    // Check if the king is still in check
-    const kingInCheck = isKingInCheck(playerColor);
-
-    // Undo the move (restore the board state)
-    originalFromSquare.appendChild(movedPiece);
-    if (targetPiece) {
-        originalToSquare.appendChild(targetPiece); // Restore captured piece, if any
-    }
-
-    if (kingInCheck) {
-        console.log(`${playerColor}'s king is still in check after the move.`);
-    } else {
-        console.log(`${playerColor}'s king is safe after the move.`);
-    }
-
-    return !kingInCheck; // Return true if the move resolves the check, false if the king is still in check
-}
 
 /* ================================
-   5. Turn Management
+   2. Piece Classes & Movement Logic
 ================================ */
-// Manage the turns between the human and AI players.
-
-// Switch between human and AI turns
-function switchPlayer() {
-    if (gameIsOver) return;  // Prevent switching if the game is over
-
-    currentPlayer = currentPlayer === "white" ? "black" : "white";
-    if (currentPlayer === "black") {
-        getBestMoveFromStockfish(); // Trigger AI move when it's the AI's turn
-    }
-}
-
-// AI turn: Ask Stockfish for the best move
-function getBestMoveFromStockfish() {
-    const fen = boardToFEN();
-    //console.log(`Sending FEN to Stockfish: ${fen}`);
-    sendToStockfish(`position fen ${fen}`);
-    sendToStockfish("go depth 10");
-}
-
-// Apply AI move
-function makeAIMove(move) {
-    const fromSquare = move.slice(0, 2);
-    const toSquare = move.slice(2, 4);
-    const pieceToMove = document.getElementById(fromSquare).querySelector(".piece");
-    const targetSquare = document.getElementById(toSquare);
-    
-    if (!pieceToMove) {
-        console.error(`No piece found on ${fromSquare}`);
-        return;
-    }
-    
-    // Remove any piece on the target square (capture logic)
-    if (targetSquare.childElementCount > 0) {
-        targetSquare.removeChild(targetSquare.firstChild);
-    }
-
-    // Move the AI's piece
-    targetSquare.appendChild(pieceToMove);
-    currentPlayer = "white"; // Switch back to the human player
-
-     // Log the AI's move
-     console.log(`AI moved from ${fromSquare} to ${toSquare}`);
-    
-     // Check if the king is in check after the AI's move
-     if (isKingInCheck("white")) {
-         console.log("Your king is in check!");
-     }
- }
-
-
-/* ================================
-   6. Game State
-================================ */
-// Game state management, FEN conversion, and handling different player states.
+// In this section, we define piece interaction, including movement and validation.
 
 // Helper function to find the king's position on the board
 function findKing(player) {
@@ -405,107 +122,6 @@ function findKing(player) {
     }
     const position = kingPiece.parentElement.id;
     return position;
-}
-
-// General function to check if the player's king is in check
-function isKingInCheck(playerColor) {
-    const kingPosition = findKing(playerColor);
-    
-    if (!kingPosition) {
-        console.warn(`King for ${playerColor} not found on the board!`);
-        return false;
-    }
-
-    const opponentColor = playerColor === 'white' ? 'black' : 'white';
-    const opponentPieces = document.querySelectorAll(`.piece[data-color='${opponentColor}']`);
-
-    // Check if any opponent piece can attack the player's king
-    for (let piece of opponentPieces) {
-        const pieceType = piece.getAttribute('data-piece')?.split('-')[0];
-        const piecePosition = piece.parentElement?.id;
-
-        if (!pieceType || !piecePosition) {
-            console.warn(`Malformed piece found: ${piece.outerHTML}`);
-            continue;
-        }
-
-        if (canPieceAttackKing(pieceType, piecePosition, kingPosition, opponentColor)) {
-            console.log(`${playerColor}'s king at ${kingPosition} is in check from ${opponentColor}'s ${pieceType} at ${piecePosition}.`);
-            return true;  // Break early once a threat is found
-        }
-    }
-
-    console.log(`${playerColor}'s king at ${kingPosition} is safe.`);
-    return false;  // King is safe if no threats are found
-}
-
-// Function to check the current state of the game
-function checkGameState() {
-    console.log("Checking game state...");
-
-    const whiteKingInCheck = isKingInCheck('white');
-    const blackKingInCheck = isKingInCheck('black');
-
-    // Check if white's king is in check
-    if (whiteKingInCheck) {
-        console.log("White's king is in check.");
-        if (isCheckmate('white')) {
-            gameOver('black');  // Black wins
-            gameIsOver = true;  // Set game over flag
-            return;
-        }
-    }
-
-    // Check if black's king is in check
-    if (blackKingInCheck) {
-        console.log("Black's king is in check.");
-        if (isCheckmate('black')) {
-            gameOver('white');  // White wins
-            gameIsOver = true;  // Set game over flag
-            return;
-        }
-    }
-}
-
-// Function to handle game over and disable moves
-function gameOver(winner) {
-    console.log(`Game over! ${winner} wins!`);
-    alert(`Game over! ${winner.charAt(0).toUpperCase() + winner.slice(1)} wins!`);
-
-    gameIsOver = true;  // Set the global game over flag to true
-
-    // Optionally disable further moves by removing event listeners or blocking actions
-    document.querySelectorAll('.square').forEach(square => {
-        square.removeEventListener('click', handleSquareClick);  // Disable further clicks
-    });
-
-    // Show a restart button
-    const restartButton = document.getElementById('restart');
-    if (restartButton) {
-        restartButton.style.display = 'block';
-    }
-}
-
-// Function to check if the player is in checkmate
-function isCheckmate(playerColor) {
-    const playerPieces = document.querySelectorAll(`.piece[data-color='${playerColor}']`);
-    
-    for (let piece of playerPieces) {
-        const pieceType = piece.getAttribute('data-piece').split('-')[0];
-        const currentSquare = piece.parentElement.id;
-        const availableMoves = getAvailableMoves(pieceType, currentSquare, playerColor);
-
-        for (let move of availableMoves) {
-            const [fromSquare, toSquare] = move;
-
-            // Simulate the move and check if it resolves the check
-            if (isValidPieceMove(pieceType, fromSquare, toSquare, playerColor)) {
-                return false;  // If there’s any valid move to get out of check, it’s not checkmate
-            }
-        }
-    }
-
-    return true;  // If no valid moves, it's checkmate
 }
 
 // Simulate a move and check if the king is safe after that move
@@ -799,8 +415,365 @@ function isPathClear(fromSquare, toSquare) {
     return true;  // Path is clear
 }
 
+function handlePieceClick(event) {
+    if (gameIsOver) return; // Game over, no further moves allowed
+    if (currentPlayer !== "white") return;
+    const piece = event.target;
+    const pieceColor = piece.getAttribute("data-color");
+    if (pieceColor !== currentPlayer) return;
+
+    selectedPiece = {
+        pieceElement: piece,
+        currentSquare: piece.parentElement.id,
+        color: pieceColor,
+        pieceType: piece.getAttribute("data-piece").split("-")[0] // Capture piece type here
+    };
+    console.log(`Selected ${selectedPiece.pieceType} on ${selectedPiece.currentSquare}`);
+}
+
+// Function to handle move completion and check game state
+function handleMoveCompletion() {
+    console.log("Move completed, switching player and checking game state...");
+
+    // Check for king capture (game over condition)
+    const whiteKing = findKing('white');
+    const blackKing = findKing('black');
+
+    // End the game if a king is captured
+    if (!whiteKing) {
+        gameOver('black');
+        return;
+    }
+    if (!blackKing) {
+        gameOver('white');
+        return;
+    }
+
+    // After each move, check the game state (check, checkmate)
+    const isCheckmate = checkGameState();
+
+    // If it's checkmate, game over
+    if (isCheckmate) {
+        console.log("Checkmate detected. Game over.");
+        return;
+    }
+
+    // Re-assign listeners to ensure new pieces get event listeners
+    reassignListeners();
+
+    // Switch player after move
+    switchPlayer();
+}
+
+
+document.getElementById('restart').addEventListener('click', function() {
+    // Reset game state
+    gameIsOver = false;
+
+    // Clear board and reinitialize
+    initializeBoard();
+
+    // Reassign listeners
+    reassignListeners();
+
+    // Hide restart button
+    this.style.display = 'none';
+});
+
+// Handle moving a piece
+function handleSquareClick(event) {
+    if (gameIsOver) return; // Game over, no further moves allowed
+    if (!selectedPiece) return;
+
+    const targetSquare = event.target.closest('.square');
+    const currentSquare = selectedPiece.pieceElement.parentElement;
+
+    if (targetSquare === currentSquare) {
+        return; // Cannot move to the same square
+    }
+
+    const pieceType = selectedPiece.pieceType;
+    const playerColor = selectedPiece.color;
+
+    // Validate the move for the selected piece
+    const isValidMove = isValidPieceMove(
+        pieceType,
+        currentSquare.id,
+        targetSquare.id,
+        playerColor
+    );
+
+    // Additional check if the selected piece is the king
+    if (pieceType === 'king') {
+        if (!isKingMoveSafe(currentSquare.id, targetSquare.id, playerColor)) {
+            console.log(`Invalid move: The king cannot move into check.`);
+            return;
+        }
+    }
+
+    if (!isValidMove) {
+        console.log(`Invalid move for ${pieceType}: ${currentSquare.id} to ${targetSquare.id}`);
+        return;
+    }
+
+    // Execute the move if valid
+    if (targetSquare.querySelector('.piece')) {
+        targetSquare.removeChild(targetSquare.querySelector('.piece')); // Capture opponent's piece
+    }
+
+    targetSquare.appendChild(selectedPiece.pieceElement);
+    selectedPiece = null;
+
+    // Complete move and switch player
+    handleMoveCompletion();
+
+    if (gameIsOver) return;
+}
+// Validate move function for all pieces
+function isValidPieceMove(pieceType, fromSquare, toSquare, playerColor) {
+    let validMove = false;
+
+    // Validate move based on piece type
+    switch (pieceType) {
+        case 'pawn':
+            validMove = isValidPawnMove(fromSquare, toSquare, playerColor);
+            break;
+        case 'rook':
+            validMove = isValidRookMove(fromSquare, toSquare);
+            break;
+        case 'bishop':
+            validMove = isValidBishopMove(fromSquare, toSquare);
+            break;
+        case 'queen':
+            validMove = isValidQueenMove(fromSquare, toSquare);
+            break;
+        case 'knight':
+            validMove = isValidKnightMove(fromSquare, toSquare);
+            break;
+        case 'king':
+            validMove = isValidKingMove(fromSquare, toSquare, playerColor);
+            break;
+        default:
+            return false;
+    }
+
+    // If the move doesn't follow basic rules, return false
+    if (!validMove) return false;
+
+    // If the king is in check, only allow moves that resolve the check
+    if (isKingInCheck(playerColor)) {
+        const moveResolvesCheck = simulateMoveAndCheck(fromSquare, toSquare, playerColor);
+        if (!moveResolvesCheck) {
+            console.log("Cannot make a move while the king is in check, resolve the check first.");
+            return false;
+        }
+    }
+
+    return validMove;
+}
+
+// Simulate the move and check if the king is safe after that move, with logging
+function simulateMoveAndCheck(fromSquare, toSquare, playerColor) {
+    const originalFromSquare = document.getElementById(fromSquare);
+    const originalToSquare = document.getElementById(toSquare);
+
+    const movedPiece = originalFromSquare.querySelector('.piece');
+    const targetPiece = originalToSquare.querySelector('.piece'); // Save this to restore if needed
+
+    console.log(`Simulating move for ${playerColor}: ${fromSquare} to ${toSquare}`);
+
+    // Temporarily move the piece
+    originalToSquare.appendChild(movedPiece);
+
+    // Check if the king is still in check
+    const kingInCheck = isKingInCheck(playerColor);
+
+    // Undo the move (restore the board state)
+    originalFromSquare.appendChild(movedPiece);
+    if (targetPiece) {
+        originalToSquare.appendChild(targetPiece); // Restore captured piece, if any
+    }
+
+    if (kingInCheck) {
+        console.log(`${playerColor}'s king is still in check after the move.`);
+    } else {
+        console.log(`${playerColor}'s king is safe after the move.`);
+    }
+
+    return !kingInCheck; // Return true if the move resolves the check, false if the king is still in check
+}
+
 /* ================================
-   7. Initialize Board & Add Listeners
+   3. Turn Management
+================================ */
+// Manage the turns between the human and AI players.
+
+let selectedPiece = null;
+let currentPlayer = "white"; // Human player plays white, AI plays black
+
+// Switch between human and AI turns
+function switchPlayer() {
+    if (gameIsOver) return;  // Prevent switching if the game is over
+
+    currentPlayer = currentPlayer === "white" ? "black" : "white";
+    if (currentPlayer === "black") {
+        getBestMoveFromStockfish(); // Trigger AI move when it's the AI's turn
+    }
+}
+
+// AI turn: Ask Stockfish for the best move
+function getBestMoveFromStockfish() {
+    const fen = boardToFEN();
+    //console.log(`Sending FEN to Stockfish: ${fen}`);
+    sendToStockfish(`position fen ${fen}`);
+    sendToStockfish("go depth 10");
+}
+
+// Apply AI move
+function makeAIMove(move) {
+    const fromSquare = move.slice(0, 2);
+    const toSquare = move.slice(2, 4);
+    const pieceToMove = document.getElementById(fromSquare).querySelector(".piece");
+    const targetSquare = document.getElementById(toSquare);
+    
+    if (!pieceToMove) {
+        console.error(`No piece found on ${fromSquare}`);
+        return;
+    }
+    
+    // Remove any piece on the target square (capture logic)
+    if (targetSquare.childElementCount > 0) {
+        targetSquare.removeChild(targetSquare.firstChild);
+    }
+
+    // Move the AI's piece
+    targetSquare.appendChild(pieceToMove);
+    currentPlayer = "white"; // Switch back to the human player
+
+     // Log the AI's move
+     console.log(`AI moved from ${fromSquare} to ${toSquare}`);
+    
+     // Check if the king is in check after the AI's move
+     if (isKingInCheck("white")) {
+         console.log("Your king is in check!");
+     }
+ }
+
+/* ================================
+   4. Game State
+================================ */
+// Game state management, FEN conversion, and handling different player states.
+
+// General function to check if the player's king is in check
+function isKingInCheck(playerColor) {
+    const kingPosition = findKing(playerColor);
+    
+    if (!kingPosition) {
+        console.warn(`King for ${playerColor} not found on the board!`);
+        return false;
+    }
+
+    const opponentColor = playerColor === 'white' ? 'black' : 'white';
+    const opponentPieces = document.querySelectorAll(`.piece[data-color='${opponentColor}']`);
+
+    // Check if any opponent piece can attack the player's king
+    for (let piece of opponentPieces) {
+        const pieceType = piece.getAttribute('data-piece')?.split('-')[0];
+        const piecePosition = piece.parentElement?.id;
+
+        if (!pieceType || !piecePosition) {
+            console.warn(`Malformed piece found: ${piece.outerHTML}`);
+            continue;
+        }
+
+        if (canPieceAttackKing(pieceType, piecePosition, kingPosition, opponentColor)) {
+            console.log(`${playerColor}'s king at ${kingPosition} is in check from ${opponentColor}'s ${pieceType} at ${piecePosition}.`);
+            return true;  // Break early once a threat is found
+        }
+    }
+
+    console.log(`${playerColor}'s king at ${kingPosition} is safe.`);
+    return false;  // King is safe if no threats are found
+}
+
+// Function to check the current state of the game
+function checkGameState() {
+    console.log("Checking game state...");
+
+    const whiteKingInCheck = isKingInCheck('white');
+    const blackKingInCheck = isKingInCheck('black');
+
+    // Check if white's king is in check
+    if (whiteKingInCheck) {
+        console.log("White's king is in check.");
+        if (isCheckmate('white')) {
+            gameOver('black');  // Black wins
+            gameIsOver = true;  // Set game over flag
+            return;
+        }
+    }
+
+    // Check if black's king is in check
+    if (blackKingInCheck) {
+        console.log("Black's king is in check.");
+        if (isCheckmate('black')) {
+            gameOver('white');  // White wins
+            gameIsOver = true;  // Set game over flag
+            return;
+        }
+    }
+}
+
+// Function to check if the player is in checkmate
+function isCheckmate(playerColor) {
+    const playerPieces = document.querySelectorAll(`.piece[data-color='${playerColor}']`);
+    
+    for (let piece of playerPieces) {
+        const pieceType = piece.getAttribute('data-piece').split('-')[0];
+        const currentSquare = piece.parentElement.id;
+        const availableMoves = getAvailableMoves(pieceType, currentSquare, playerColor);
+
+        for (let move of availableMoves) {
+            const [fromSquare, toSquare] = move;
+
+            // Simulate the move and check if it resolves the check
+            if (isValidPieceMove(pieceType, fromSquare, toSquare, playerColor)) {
+                return false;  // If there’s any valid move to get out of check, it’s not checkmate
+            }
+        }
+    }
+
+    return true;  // If no valid moves, it's checkmate
+}
+
+// Game over function 
+function gameOver(winner) {
+    console.log(`Game over! ${winner} wins!`);
+    alert(`Game over! ${winner.charAt(0).toUpperCase() + winner.slice(1)} wins!`);
+
+    // Set gameIsOver to true to prevent further actions
+    gameIsOver = true;
+
+    // Disable further moves by removing the click event listeners or blocking actions
+    document.querySelectorAll('.square').forEach(square => {
+        square.removeEventListener('click', handleSquareClick); // Disable further clicks
+    });
+
+    // Optionally disable Stockfish communication
+    stockfish.terminate();  // Stop Stockfish engine from running further
+
+    // Show a restart button 
+    const restartButton = document.getElementById('restart');
+    if (restartButton) {
+        restartButton.style.display = 'block';
+    }
+}
+
+let gameIsOver = false;  // Global flag to track if the game has ended
+
+
+/* ================================
+   5. Initialize Board & Add Listeners
 ================================ */
 // Initialize the board with pieces and colors and add event listeners for interaction.
 
