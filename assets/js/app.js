@@ -206,6 +206,22 @@ function getPawnCaptures(currentSquare, player) {
     return possibleCaptures;
 }
 
+// Adding en passant logic
+function getEnPassantMove(currentSquare, player) {
+    const file = currentSquare[0];
+    const rank = parseInt(currentSquare[1]);
+    const forwardMove = player === 'white' ? rank + 1 : rank -1;
+
+    const enPassantSquare = file + forwardMove;
+    const targetSquare = document.getElementById(enPassantSquare);
+
+    if (!targetSquare) {
+        return null; // En passant square is off the board
+    }
+
+    return enPassantSquare;
+}
+
 // Check if moving the king would put it in check
 function isKingMoveSafe(fromSquare, toSquare, playerColor) {
     const originalSquare = document.getElementById(fromSquare);
