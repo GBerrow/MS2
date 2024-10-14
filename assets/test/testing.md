@@ -185,3 +185,33 @@ If you want to return to my normal readme, please click the link below:
 ---
 
 ### **14/10/2024**
+
+- **Features Added**
+   1. **Castling**
+      - Implemented the ability for the king to castle with the rook, both kingside and queenside.
+   2. **En Passant**
+      - Added the ability for pawns to capture diagonally when moving two squares forward on their first move.
+   3. **Pawn Promotion**
+      - Allow pawns to be promoted to a queen, rook, bishop, or knight.
+
+- **Problems Detected and Solutions**
+
+   1. **Issue 1: False Checkmate Detection**  
+      - **Problem**: The game incorrectly detected a checkmate even though the white player had valid moves available to escape.  
+      - **Cause**: The `isCheckmate` logic was prematurely declaring a checkmate without simulating all possible valid moves that could resolve the check.  
+      - **Solution**: Refactor `isCheckmate` to ensure it correctly checks all possible moves, including moving other pieces or capturing the attacking piece, before declaring checkmate. Update `simulateMoveAndCheck` to simulate potential moves accurately.
+
+   2. **Issue 2: Castling Not Working**  
+      - **Problem**: Castling was being flagged as invalid because the game incorrectly interpreted the king as moving into check, even though castling was legal.  
+      - **Cause**: The `isValidKingMove` and `isKingInCheck` functions were not handling castling properly, and checks on intermediate squares were not correctly implemented.  
+      - **Solution**: Implement proper castling rules by ensuring both the king and rook are in their initial positions, no pieces are between them, and the king doesn't move through or into check. Update castling validation to reflect these rules.
+
+   3. **Issue 3: King Cannot Capture the Checking Piece**  
+      - **Problem**: The king was unable to capture the piece putting it in check, despite this being a valid move.  
+      - **Cause**: The move simulation (`simulateMoveAndCheck`) did not correctly update the board after the king's capture, causing the game to incorrectly think the king was still in check.  
+      - **Solution**: Ensure that when the king captures a checking piece, the piece is removed, and the board state is correctly updated to reflect the check being resolved. Update `simulateMoveAndCheck` to handle captures properly.
+
+- **Next Steps**
+   - Refactor checkmate logic to properly simulate all valid moves.
+   - Implement more robust handling of castling logic.
+   - Ensure the king's capture of the checking piece is allowed and handled correctly.
