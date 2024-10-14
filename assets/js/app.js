@@ -302,6 +302,26 @@ function isValidPawnMove(fromSquare, toSquare, playerColor) {
     return false;
 }
 
+// function to validate pawn promotion
+function isValidPawnPromotion(fromSquare, toSquare, playerColor) {
+    const [fromFile, fromRank] = [fromSquare[0], parseInt(fromSquare[1])];
+    const [toFile, toRank] = [toSquare[0], parseInt(toSquare[1])];
+    
+    if ((toRank === 8 && playerColor === 'white') || (toRank === 1 && playerColor === 'black')) {
+        const promotionPieces = ['queen', 'rook', 'bishop', 'knight'];
+        const selectedPiece = prompt("Choose a piece to promote to: queen, rook, bishop, or knight");
+        
+        if (promotionPieces.includes(selectedPiece.toLowerCase())) {
+            return selectedPiece.toLowerCase();
+        } else {
+            alert("Invalid selection. Defaulting to queen.");
+            return 'queen';
+        }
+    }
+    
+    return false;
+}
+
 // Function to check if a square contains an opponent piece
 function isOpponentPieceAtSquare(square, playerColor) {
     const pieceAtSquare = document.getElementById(square)?.querySelector('.piece');
