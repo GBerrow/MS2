@@ -2,7 +2,7 @@
 
 ---
 
-## Intorduction
+## Introduction
 
 The Chess Game project is designed to provide an engaging, interactive, and user-friendly experience for chess enthusiasts. The game follows the traditional rules of chess, allowing players to move pieces according to the game's established rules. The application is developed using modern web technologies like HTML, CSS, and JavaScript to ensure it runs smoothly on various browsers and devices.
 
@@ -43,18 +43,25 @@ Basic concept of the website layout:
 
 ## Features
 
-Over the next few days, the following features will be developed to ensure a fully functional and engaging chess experience:
+The following features have been implemented to ensure a fully functional and engaging chess experience:
 
 - Interactive Chessboard: A fully interactive chessboard where players can click and move pieces according to standard chess rules.
 - Turn-based Play: The game automatically alternates between white and black players after each move.
-- Move Validation: The game validates pawn movement to ensure it follows the correct chess rules. Other pieces' validation is under development.
+- Move Validation: The game validates pawn movement to ensure it follows the correct chess rules. 
 - Game Restart: Players can reset the game and start over at any time by pressing the restart button.
-- Undo Move: An undo feature allows players to revert their last move, giving them flexibility in gameplay.
-- Visual Feedback: Selected pieces and valid moves are highlighted to enhance the user experience.
+- Checkmate Detection: The game detects when a player is in checkmate, ending the game.
+- Stalemate Detection: The game recognizes when a stalemate occurs, resulting in a draw.
+- Castling: Players can perform the special castling move when conditions are met.
+- En Passant: The game supports the en passant capture for pawns.
+- Pawn Promotion: Pawns that reach the opposite end of the board can be promoted to a queen, rook, bishop, or knight.
 
 ---
 
 ## Technologies Used
+
+- HTML5
+- CSS3
+- JavaScript (ES6+)
 
 ---
 
@@ -62,6 +69,6 @@ Over the next few days, the following features will be developed to ensure a ful
 
 I have created a separate file dedicated solely to testing, as the comprehensive details would be too lengthy for this README. Please feel free to review the full testing documentation in the following section:
 
-[text](assets/test/testing.md)
+[Testing Documentation](assets/test/testing.md)
 
 ---

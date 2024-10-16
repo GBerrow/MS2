@@ -59,7 +59,7 @@ function initializeBoard() {
         square.appendChild(img);
     }
 
-    // Assign diagonal colors dynamically using XOR logic
+    // Assign diagonal colors dynamically using HSL color model
     const squares = document.querySelectorAll(".square");
     squares.forEach((square, index) => {
         // Extract row and column from the index
@@ -68,11 +68,13 @@ function initializeBoard() {
 
         // Apply XOR logic for diagonal coloring
         isLightSquare = (row % 2) === (col % 2); // True for light square, false for dark
-        if (isLightSquare) {
-            square.style.backgroundColor = "#f0d9b5"; // Light square
-        } else {
-            square.style.backgroundColor = "#b58863"; // Dark square
-        }
+
+        // Generate dynamic HSL colors
+        const hue = 30; // Brown hue
+        const saturation = isLightSquare ? 30 : 40; // Less saturated for light squares
+        const lightness = isLightSquare ? 80 - (row + col) : 40 - (row + col) / 2; // Gradual change in lightness
+
+        square.style.backgroundColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
     });
 }
 
