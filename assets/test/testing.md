@@ -215,3 +215,43 @@ If you want to return to my normal readme, please click the link below:
    - Refactor checkmate logic to properly simulate all valid moves.
    - Implement more robust handling of castling logic.
    - Ensure the king's capture of the checking piece is allowed and handled correctly.
+
+---
+
+### **15/10/2024**
+
+#### **Overview**
+Today's focus was on finalizing and debugging the castling functionality within the chess game. We encountered several issues related to the king's movement, invalid castling attempts, and ensuring the correct swap of positions between the king and rook during valid castling. After extensive debugging and testing, we successfully implemented both kingside and queenside castling.
+
+#### **Key Accomplishments**
+1. **Debugged Castling Validity**
+    - Fixed logic inside the `isValidCastling` function to ensure:
+      - Path is clear for both kingside and queenside castling.
+      - The king and rook are in their initial positions.
+      - The king is not moving through check or into check.
+      - The player has not already castled.
+    - The function now accurately determines if castling is valid based on these conditions.
+
+2. **Implemented Castling Execution**
+    - Updated the `executeCastling` function to:
+      - Move the king two squares toward the rook when castling is valid.
+      - Move the rook to the square next to the king.
+      - Correctly differentiate between kingside (`g1`/`g8`) and queenside (`c1`/`c8`) castling.
+    - Verified through multiple tests that the king and rook swap positions correctly.
+
+3. **Integrated Castling into Main Game Flow**
+    - Castling is now triggered properly within the main `handleSquareClick` function.
+    - The game logic handles castling validation and moves execution, ensuring the castling flow works seamlessly within the broader game.
+
+4. **Updated Unit Tests**
+    - Added test cases to validate castling conditions and functionality:
+      - **Kingside Castling**: Test ensures the king moves to `g1` and the rook moves to `f1`.
+      - **Queenside Castling**: Test ensures the king moves to `c1` and the rook moves to `d1`.
+    - Verified edge cases such as:
+      - Castling being disallowed if there are pieces between the king and rook.
+      - Castling being disallowed if the king moves through a check.
+      - Ensured castling rights are updated after castling, preventing future castling for that player.
+
+--- 
+
+
