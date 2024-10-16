@@ -70,7 +70,7 @@ If you want to return to my normal readme, please click the link below:
 
 ### **04/10/2024**
 
-- **Problem**: White pieces were not restricted to specific movement patterns.ed.
+- **Problem**: White pieces were not restricted to specific movement patterns.
 
   ![Initial Issue](test-images/test-image-1.png)
 
@@ -253,5 +253,33 @@ Today's focus was on finalizing and debugging the castling functionality within 
       - Ensured castling rights are updated after castling, preventing future castling for that player.
 
 --- 
+
+### **16/10/2024**
+
+#### **Overview**
+Today, we worked on refining the chess game logic, focusing on resolving issues related to the check and checkmate detection systems. We also implemented new helper functions to handle edge cases and king movement safely. Several improvements were made to ensure that the king's check and escape mechanisms are robust.
+
+#### **Problems Detected**
+1. Initial bug where the game incorrectly declared checkmate after only a few moves when the king was only in check.
+2. The `isKingInCheck` function reported undefined kings due to missing or incorrect parameters.
+3. The AI allowed the black king to take the queen while in check, without resolving the check status.
+4. The game had issues detecting whether a check could be blocked or if the king could escape.
+5. Console errors related to functions like `getAdjacentSquares` and `findKing` returning undefined values.
+
+#### **Solutions**
+1. Implemented `isKingMoveSafe` to ensure that the king's move would not result in a check.
+2. Added the `getKingPossibleMoves` function to assess all possible king moves for safety.
+3. Introduced `canPieceBlockCheckOrCapture` to check if any piece could block a check or capture the threatening piece.
+4. Fixed the undefined errors by ensuring `playerColor` was passed correctly throughout the function chain.
+5. Refined the checkmate logic by improving the logic around `isCheckmate`, and incorporated better handling of king safety using helper functions like `getKingPossibleMoves`.
+
+#### **Results**
+1. The game no longer incorrectly declares checkmate prematurely.
+2. The black king can no longer escape or ignore checks incorrectly. Instead, it now checks for valid escape routes and prevents invalid moves.
+3. The `findKing` and `isKingInCheck` errors were resolved by properly passing the `playerColor`.
+4. The game logs accurately reflect the state of the game, including whether the king is in check or checkmate, improving debugging capabilities.
+5. Console logs confirm that both kings are safe and the game continues as expected without unexpected interruptions.
+
+---
 
 
