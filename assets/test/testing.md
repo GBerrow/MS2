@@ -282,4 +282,80 @@ Today, we worked on refining the chess game logic, focusing on resolving issues 
 
 ---
 
+### **17/10/2024**
 
+#### **Overview**
+Today, we worked on enhancing the functionality for the pawn promotion system. 
+
+#### **Problems Detected**
+
+![alt text](test-images/test-image-5.png)
+
+- The errors in the console indicate that there is an issue related to the pawn promotion selection. Specifically, the following errors are shown:
+
+- Pawn Promotion Modal Not Hidden Initially: The modal responsible for showing the piece promotion options was visible by default when the page loaded, even when no promotion was happening.
+
+- Uncaught ReferenceError: handlePieceSelection is not defined
+This suggests that when a piece is selected for promotion, the function responsible for handling the piece selection (handlePieceSelection) is either missing or not properly referenced in the code.
+
+- Alignment and Spacing Issues: We encountered alignment issues with the modal in relation to the chessboard. The modal was not properly aligned with the board, and the padding around the pieces and labels was larger than desired.
+
+### **18/10/2024**
+
+#### **Overview**
+Today, we continued improving the pawn promotion system and worked on fixing several issues related to the promotion modal, the visual layout of the board, and ensuring proper functionality when selecting a promotion piece.
+
+#### **Solutions**
+ 
+- Hiding the Modal Initially: We updated the CSS for the modal to ensure it is hidden by default when the page loads. This is done by setting display: none; in the CSS class for the modal. It only becomes visible when a pawn promotion move occurs.
+   
+   ```
+   .modal {
+      display: none; /* Hide modal initially */
+      position: fixed;
+      left: 400px;
+      top: 32%;
+      transform: translateY(-50%);
+      background-color: black;
+      border: 1px solid white;
+      padding: 5px;
+      z-index: 1000;
+   }
+   ```
+   
+-  In the isValidPawnPromotion function, we added logic to display the modal when a pawn reaches the promotion rank. The modal now appears only when promotion is valid (reaching the 8th rank for white or the 1st rank for black) and hides once a selection is made. We also added functionality to hide the modal immediately after a piece is selected.
+
+```
+function isValidPawnPromotion(fromSquare, toSquare, playerColor) {
+    const [fromFile, fromRank] = [fromSquare[0], parseInt(fromSquare[1])];
+    const [toFile, toRank] = [toSquare[0], parseInt(toSquare[1])];
+
+    if ((toRank === 8 && playerColor === 'white') || (toRank === 1 && playerColor === 'black')) {
+        return new Promise((resolve, _reject) => {
+            const modal = document.getElementById('promotionModal');
+            modal.style.display = 'block'; // Show modal
+
+            document.getElementById('queen').onclick = () => handlePieceSelection('queen', resolve, toSquare, playerColor, initialBoardSetup);
+            document.getElementById('rook').onclick = () => handlePieceSelection('rook', resolve, toSquare, playerColor, initialBoardSetup);
+            document.getElementById('bishop').onclick = () => handlePieceSelection('bishop', resolve, toSquare, playerColor, initialBoardSetup);
+            document.getElementById('knight').onclick = () => handlePieceSelection('knight', resolve, toSquare, playerColor, initialBoardSetup);
+        });
+    }
+    return false;
+}
+```
+
+- General Layout Improvements: We ensured the chessboard remains centered and aligned regardless of screen scroll or window resize. We made minor tweaks to the layout and position of the modal, so it stays in the correct position relative to the chessboard.
+
+### Test Results
+
+- The modal is now hidden by default and only appears when a pawn reaches the promotion square.
+
+- Upon selecting a promotion piece, the modal hides, and the game state updates correctly.
+
+- The modal's alignment with the chessboard is now consistent, and the spacing around the promotion pieces and labels is more compact.
+
+![alt text](test-images/test-image-6.png)
+![alt text](test-images/test-image-7.png)
+
+---

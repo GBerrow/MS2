@@ -474,20 +474,71 @@ function isValidPawnMove(fromSquare, toSquare, playerColor) {
 function isValidPawnPromotion(fromSquare, toSquare, playerColor) {
     const [fromFile, fromRank] = [fromSquare[0], parseInt(fromSquare[1])];
     const [toFile, toRank] = [toSquare[0], parseInt(toSquare[1])];
-    
+
+    // Check if the pawn reached the promotion rank
     if ((toRank === 8 && playerColor === 'white') || (toRank === 1 && playerColor === 'black')) {
-        const promotionPieces = ['queen', 'rook', 'bishop', 'knight'];
-        const selectedPiece = prompt("Choose a piece to promote to: queen, rook, bishop, or knight");
-        
-        if (promotionPieces.includes(selectedPiece.toLowerCase())) {
-            return selectedPiece.toLowerCase();
-        } else {
-            alert("Invalid selection. Defaulting to queen.");
-            return 'queen';
-        }
+        return new Promise((resolve, _reject) => {
+            // Show the promotion modal
+            const modal = document.getElementById('promotionModal');
+            modal.style.display = 'block';
+
+            // Add event listeners for each piece option
+            document.getElementById('queen').onclick = () => handlePieceSelection('queen', resolve, toSquare, playerColor, initialBoardSetup);
+            document.getElementById('rook').onclick = () => handlePieceSelection('rook', resolve, toSquare, playerColor, initialBoardSetup);
+            document.getElementById('bishop').onclick = () => handlePieceSelection('bishop', resolve, toSquare, playerColor, initialBoardSetup);
+            document.getElementById('knight').onclick = () => handlePieceSelection('knight', resolve, toSquare, playerColor, initialBoardSetup);
+        });
     }
     
-    return false;
+    return false;  // Return false if it's not a promotion move
+}
+
+function handlePieceSelection(piece, resolve, pawnPosition, currentPlayer, initialBoardSetup) {
+    const modal = document.getElementById('promotionModal');
+    modal.style.display = 'none';
+
+    // Update the game state
+    initialBoardSetup[pawnPosition] = piece + '-' + currentPlayer; // Use initialBoardSetup here
+
+    // Update the visual board
+    const square = document.querySelector(`[data-square="${pawnPosition}"]`);
+    square.innerHTML = '';
+    const newPiece = createPieceElement(piece, currentPlayer);
+    square.appendChild(newPiece);
+
+    // Remove event listeners from promotion modal pieces
+    const modalPieces = modal.querySelectorAll('.promotion-piece');
+    modalPieces.forEach(modalPiece => {
+        modalPiece.removeEventListener('click', handlePieceSelection);
+    });
+
+    // Resolve the promise with the selected piece
+    resolve(piece);
+}
+
+
+function executePromotion(_fromSquare, toSquare, playerColor, selectedPiece) {
+    const targetSquare = document.getElementById(toSquare);
+
+    // Remove the pawn from the target square (as it gets promoted)
+    if (targetSquare.childElementCount > 0) {
+        targetSquare.removeChild(targetSquare.firstChild);
+    }
+
+    // Create a new piece element based on the selected piece
+    const newPieceElement = document.createElement('div');
+    newPieceElement.classList.add('piece');
+    newPieceElement.classList.add(`piece-${playerColor}`);
+    newPieceElement.setAttribute('data-piece', `${selectedPiece}-${playerColor}`);
+
+    // Append the new promoted piece to the target square
+    targetSquare.appendChild(newPieceElement);
+
+    // Log the promotion
+    console.log(`${playerColor} pawn promoted to ${selectedPiece} at ${toSquare}`);
+
+    // Switch turn to the other player
+    currentPlayer = (playerColor === 'white') ? 'black' : 'white';
 }
 
 // Function to check if a square contains an opponent piece
@@ -647,7 +698,7 @@ function canPieceBlockCheckOrCapture(attackingPiecePosition, playerColor, kingPo
     return false;  // No piece can block or capture
 }
 
-function getBlockingSquares(attackerPosition, kingPosition) {
+function getBlockingSquares(_attackerPosition, _kingPosition) {
     // Calculate the squares between the attacker and the king (if it's a sliding piece)
     // This would apply for rooks, bishops, and queens.
     let blockingSquares = [];
@@ -850,11 +901,15 @@ function handleSquareClick(event) {
         return;
     }
 
-    // check for promotion
-    if (pieceType === 'pawn' && isValidPawnPromotion(currentSquare.id, targetSquare.id, playerColor)) {
-        executePromotion(currentSquare.id, targetSquare.id, playerColor);
-        handleMoveCompletion();
-        return;
+    // Check for promotion (handle asynchronously with the modal)
+    if (pieceType === 'pawn' && isValidPawnPromotion(currentSquare.id, targetSquare.id, playerColor, initialBoardSetup)) {
+        isValidPawnPromotion(currentSquare.id, targetSquare.id, playerColor)
+            .then(selectedPiece => {
+                // Perform promotion with the selected piece
+                executePromotion(currentSquare.id, targetSquare.id, selectedPiece, playerColor);
+                handleMoveCompletion();
+            });
+        return; // Exit to wait for promotion to complete
     }
 
     // check for regular moves
@@ -982,6 +1037,13 @@ function getBestMoveFromStockfish() {
 
 // Apply AI move
 function makeAIMove(move) {
+
+        //----------------------------------------------------------------------//
+    // Disable AI moves for testing
+    currentPlayer = "white"; // Switch back to the human player
+    return;  // Skip the AI move but still switch the player back to "white"
+    //----------------------------------------------------------------------//
+    
     const fromSquare = move.slice(0, 2);
     const toSquare = move.slice(2, 4);
     const pieceToMove = document.getElementById(fromSquare).querySelector(".piece");
