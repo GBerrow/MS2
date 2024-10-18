@@ -502,9 +502,18 @@ function handlePieceSelection(piece, resolve, pawnPosition, currentPlayer, initi
 
     // Update the visual board
     const square = document.querySelector(`[data-square="${pawnPosition}"]`);
-    square.innerHTML = '';
-    const newPiece = createPieceElement(piece, currentPlayer);
-    square.appendChild(newPiece);
+    console.log(square); 
+
+    if (pawnPosition === "g8") {
+        // Handle the special case where the pawn is promoted at position 
+        console.log(`Pawn promoted to ${piece} at position ${pawnPosition}!`);
+    } else if (square) {
+        square.innerHTML = '';
+        const newPiece = createPieceElement(piece, currentPlayer);
+        square.appendChild(newPiece);
+    } else {
+        console.error(`Unable to find square with position ${pawnPosition}`);
+    }
 
     // Remove event listeners from promotion modal pieces
     const modalPieces = modal.querySelectorAll('.promotion-piece');
@@ -515,7 +524,6 @@ function handlePieceSelection(piece, resolve, pawnPosition, currentPlayer, initi
     // Resolve the promise with the selected piece
     resolve(piece);
 }
-
 
 function executePromotion(_fromSquare, toSquare, playerColor, selectedPiece) {
     const targetSquare = document.getElementById(toSquare);

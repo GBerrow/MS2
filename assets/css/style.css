@@ -1,6 +1,6 @@
 /* General Styles */
 * {
-    margin: 10;
+    margin: 0; /* Reset */
     padding: 0;
     box-sizing: border-box;
 }
@@ -12,7 +12,7 @@ body {
     align-items: center;
     overflow-x: hidden;
     background: url(../images/background.jpg);
-    height: 100vh
+    height: auto; 
 }
 
 h1 {
@@ -33,7 +33,7 @@ h1 {
     grid-template-columns: repeat(8, 60px);
     grid-template-rows: repeat(8, 60px);
     gap: 0;
-    margin: 20px auto;
+    margin: 100px auto;
     border: 2px solid #333; /* Outer border of the chessboard */
     /* Reverse the board */
     transform: rotate(90deg);
@@ -73,29 +73,52 @@ button {
 
 /* Modal Styles */
 .modal {
+    padding: 175px;
     display: none;
     position: fixed;
-    z-index: 100;
-    left: 50%;
-    top: 12%;
-    transform: translate(-50%, -50%);
-    width: 400px;
-    padding: 20px;
-    background-color: white;
-    border: 1px solid black;
+    left: 400px;
+    top: 288px; /* Perfectly aligns with the board */
+    transform: translateY(-50%);
+    background-color: black;
+    border: 1px solid white;
+    padding: 10px;
+    z-index: 1000;
 }
 
-.modal-content {
-    text-align: center;
+
+.promotion-piece-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start; /* Align items to the left */
+    gap: 20px;
+}
+
+.promotion-piece-row {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Add space between the piece and its label */
+}
+
+.promotion-piece-container img {
+    width: 50px;  /* Adjust the width of each piece image */
+    height: auto;
+    gap: 10px; /* Add space between the pieces */
 }
 
 .promotion-options {
-    display: flex;
-    justify-content: space-around;
+    filter: brightness(0) invert(1);  /* Turn images white */
+    width: 40px;  /* Adjust size as needed */
+    cursor: pointer;
+    gap: 6px; /* Adds space between the pieces */
 }
 
-.promotion-piece {
-    width: 50px;
-    height: 50px;
-    cursor: pointer;
+.modal h3 {
+    color: white;  /* Set text color to white */
+    text-align: center;
+}
+
+.promotion-label {
+    font-size: 1.2rem;
+    color: white; /* Piece name color */
 }
