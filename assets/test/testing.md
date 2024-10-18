@@ -88,7 +88,7 @@ If you want to return to my normal readme, please click the link below:
 
 - **Result**: The game now enforces valid movements for all pieces, easing debugging by allowing only legal moves.
 
-  ![Check Detection Example](test-images/test-image-2.png)
+  ![Test 2](test-images/test-image-2.png)
 
 ---
 
@@ -114,7 +114,7 @@ If you want to return to my normal readme, please click the link below:
 - **Problem**:  
    - King cannot move to safety when checked. The game was not validating the king's movement correctly in check situations.
 
-![alt text](test-images/test-image-4.png)
+![Test 4](test-images/test-image-4.png)
 
 - **Fix**:  
    1. **`isKingMoveSafe` Implementation**:  
@@ -289,7 +289,7 @@ Today, we worked on enhancing the functionality for the pawn promotion system.
 
 #### **Problems Detected**
 
-![alt text](test-images/test-image-5.png)
+![Test 5](test-images/test-image-5.png)
 
 - The errors in the console indicate that there is an issue related to the pawn promotion selection. Specifically, the following errors are shown:
 
@@ -355,7 +355,6 @@ function isValidPawnPromotion(fromSquare, toSquare, playerColor) {
 
 - The modal's alignment with the chessboard is now consistent, and the spacing around the promotion pieces and labels is more compact.
 
-![alt text](test-images/test-image-6.png)
-![alt text](test-images/test-image-7.png)
-
+![Test 6](test-images/test-image-6.png)
+![Test 7](test-images/test-image-7.png)
 ---
