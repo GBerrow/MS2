@@ -76,6 +76,10 @@ function initializeBoard() {
 
         square.style.backgroundColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
     });
+
+    // Initialize empty captured pieces display
+    document.getElementById('whiteCaptured').innerHTML = '';
+    document.getElementById('blackCaptured').innerHTML = '';
 }
 
 // Convert the board state to FEN format for Stockfish
@@ -390,7 +394,11 @@ function executeEnPassant(currentSquare, targetSquare, playerColor) {
     // Remove the captured pawn
     const capturedPawn = document.getElementById(capturedPawnSquare).querySelector('.piece');
     if (capturedPawn) {
+        const capturedPieceType = capturedPawn.getAttribute('data-piece');
         capturedPawn.remove();
+        
+        // Call CapturedPiecesDisplay for the en passant capture
+        CapturedPiecesDisplay(capturedPieceType, playerColor);
     }
 
     // Move the capturing pawn
@@ -527,6 +535,16 @@ function handlePieceSelection(piece, resolve, pawnPosition, currentPlayer, initi
 
 function executePromotion(_fromSquare, toSquare, playerColor, selectedPiece) {
     const targetSquare = document.getElementById(toSquare);
+
+    // Check if there's a piece to capture during promotion
+    if (targetSquare.childElementCount > 0) {
+        const capturedPiece = targetSquare.querySelector('.piece');
+        const capturedPieceType = capturedPiece.getAttribute('data-piece');
+        targetSquare.removeChild(capturedPiece);
+        
+        // Call CapturedPiecesDisplay for the captured piece during promotion
+        CapturedPiecesDisplay(capturedPieceType, playerColor);
+    }
 
     // Remove the pawn from the target square (as it gets promoted)
     if (targetSquare.childElementCount > 0) {
@@ -933,9 +951,14 @@ function handleSquareClick(event) {
         return;
     }
 
-    // Execute the move if valid
+   // Execute the move if valid
     if (targetSquare.querySelector('.piece')) {
-        targetSquare.removeChild(targetSquare.querySelector('.piece'));
+        const capturedPiece = targetSquare.querySelector('.piece');
+        const capturedPieceType = capturedPiece.getAttribute('data-piece');
+        targetSquare.removeChild(capturedPiece);
+        
+        // Call CapturedPiecesDisplay here
+        CapturedPiecesDisplay(capturedPieceType, playerColor);
     }
 
     // Append the selected piece to the target square
@@ -1062,23 +1085,28 @@ function makeAIMove(move) {
         return;
     }
     
-    // Remove any piece on the target square (capture logic)
+    // Check if there's a piece to capture
     if (targetSquare.childElementCount > 0) {
-        targetSquare.removeChild(targetSquare.firstChild);
+        const capturedPiece = targetSquare.querySelector('.piece');
+        const capturedPieceType = capturedPiece.getAttribute('data-piece');
+        targetSquare.removeChild(capturedPiece);
+        
+        // Call CapturedPiecesDisplay for AI's capture
+        CapturedPiecesDisplay(capturedPieceType, 'black');
     }
 
     // Move the AI's piece
     targetSquare.appendChild(pieceToMove);
     currentPlayer = "white"; // Switch back to the human player
 
-     // Log the AI's move
-     console.log(`AI moved from ${fromSquare} to ${toSquare}`);
+    // Log the AI's move
+    console.log(`AI moved from ${fromSquare} to ${toSquare}`);
     
-     // Check if the king is in check after the AI's move
-     if (isKingInCheck("white")) {
-         console.log("Your king is in check!");
-     }
- }
+    // Check if the king is in check after the AI's move
+    if (isKingInCheck("white")) {
+        console.log("Your king is in check!");
+    }
+}
 
 /* ================================
    4. Game State
@@ -1280,7 +1308,12 @@ function resetGame() {
     selectedPiece = null;
     currentTurn = 'white';
     moveHistory = [];
-    capturedPieces = { white: [], black: [] };
+    
+    // Clear captured pieces arrays and display
+    capturedWhitePieces = [];
+    capturedBlackPieces = [];
+    document.getElementById('whiteCaptured').innerHTML = '';
+    document.getElementById('blackCaptured').innerHTML = '';
     
     // Clear any highlighted squares
     document.querySelectorAll('.square').forEach(square => {
@@ -1293,7 +1326,6 @@ function resetGame() {
     // Update the UI to reflect the initial game state
     updateTurnIndicator();
     updateMoveHistory();
-    updateCapturedPieces();
     
     // Reinitialize Stockfish
     if (stockfish) {
