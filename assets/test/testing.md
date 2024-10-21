@@ -357,10 +357,26 @@ function isValidPawnPromotion(fromSquare, toSquare, playerColor) {
 
 ![Test 6](test-images/test-image-6.png)
 ![Test 7](test-images/test-image-7.png)
+
 ---
 
-
-### **18/10/2024**
+### **21/10/2024**
 
 #### **Overview**
-Starting off this week we will implement a CapturedPiecesDisplay function to track and display captured pieces. Secondly to improve the current "Undo Move" feature to allow for more than one move to be undone if needed (like a history of moves).
+
+This week’s focus is on implementing the CapturedPiecesDisplay function to track and display captured pieces for each player. Additionally, we'll be improving the "Undo Move" feature to allow for multiple move reversals, essentially creating a history of moves that can be undone.
+
+#### **Problems Detected**
+
+![Test 8](test-images/test-image-8.png)
+
+1. Promotion Error (Unable to find square with position f8):
+When attempting a pawn promotion, the console logs an error message: "Unable to find square with position f8." The promotion logic seems to be incorrectly handling the final move, causing it to reference an incorrect square (f8) when the pawn moves to the final promotion row. This likely occurs when the pawn is capturing a piece during promotion.
+
+2. Multiple Promotions on the Same Square:
+The logs reveal multiple promotions on the same square (e7 to f8), which should not happen in standard chess rules. A pawn should only promote once upon reaching the opponent’s back rank. This indicates that the promotion logic may be retriggering erroneously or failing to recognize when the pawn has already been promoted.
+
+3. 404 Error for white-queen.png:
+The file white-queen.png is either missing or incorrectly referenced in the code. This causes a 404 error when trying to load the image from the assets/images/chess-pieces/ directory. This should be addressed by verifying that the image is correctly located and referenced in the code.
+
+ 
