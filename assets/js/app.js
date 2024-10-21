@@ -1046,7 +1046,7 @@ function getBestMoveFromStockfish() {
 // Apply AI move
 function makeAIMove(move) {
 
-        //----------------------------------------------------------------------//
+    //----------------------------------------------------------------------//
     // Disable AI moves for testing
     currentPlayer = "white"; // Switch back to the human player
     return;  // Skip the AI move but still switch the player back to "white"
@@ -1191,6 +1191,33 @@ function isCheckmate(color) {
 
     console.log(`${color}'s king has no valid moves and no pieces can block or capture. Checkmate.`);
     return true; // No valid moves, no block, it's checkmate
+}
+
+// Store captured pieces
+let capturedWhitePieces = [];
+let capturedBlackPieces = [];
+
+// Function to display captured pieces
+function CapturedPiecesDisplay(capturedPiece, playerColor) {
+    let capturedArea;
+
+    if (playerColor === 'white') {
+        capturedBlackPieces.push(capturedPiece);
+        capturedArea = document.getElementById('blackCaptured');
+    } else {
+        capturedWhitePieces.push(capturedPiece);
+        capturedArea = document.getElementById('whiteCaptured');
+    }
+
+    // Clear and update the captured pieces display
+    capturedArea.innerHTML = '';
+    const capturedArray = playerColor === 'white' ? capturedBlackPieces : capturedWhitePieces;
+
+    capturedArray.forEach(piece => {
+        const pieceImage = document.createElement('img');
+        pieceImage.src = `assets/images/chess-pieces/${piece}.png`; // Adjust path based on your image structure
+        capturedArea.appendChild(pieceImage);
+    });
 }
 
 // Game over function

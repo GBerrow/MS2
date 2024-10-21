@@ -71,7 +71,8 @@ button {
     border-radius: 5px;
 }
 
-/* Modal Styles */
+/* Modal Styles (pawn promotion) */
+
 .modal {
     padding: 175px;
     display: none;
@@ -121,4 +122,24 @@ button {
 .promotion-label {
     font-size: 1.2rem;
     color: white; /* Piece name color */
+}
+
+/* Captured Pieces Section */
+
+.captured-pieces {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.captured-pieces div {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.captured-pieces img {
+    width: 40px;
+    height: auto;
 }

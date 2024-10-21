@@ -358,3 +358,9 @@ function isValidPawnPromotion(fromSquare, toSquare, playerColor) {
 ![Test 6](test-images/test-image-6.png)
 ![Test 7](test-images/test-image-7.png)
 ---
+
+
+### **18/10/2024**
+
+#### **Overview**
+Starting off this week we will implement a CapturedPiecesDisplay function to track and display captured pieces. Secondly to improve the current "Undo Move" feature to allow for more than one move to be undone if needed (like a history of moves).
