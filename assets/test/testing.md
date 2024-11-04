@@ -360,23 +360,50 @@ function isValidPawnPromotion(fromSquare, toSquare, playerColor) {
 
 ---
 
-### **21/10/2024**
+### **04/11/2024**
 
-#### **Overview**
+#### **Fixes to be Made**
 
-This week’s focus is on implementing the CapturedPiecesDisplay function to track and display captured pieces for each player. Additionally, we'll be improving the "Undo Move" feature to allow for multiple move reversals, essentially creating a history of moves that can be undone.
+1. **Fixing the Pawn Promotion Issue**
+   - **Objective**: Resolve the "Unable to find square with position f8" error that occurs during pawn promotion.
+   - **Steps**:
+     - Investigate the logic in `executePromotion()` function and ensure that the correct promotion square (e8 or appropriate final rank) is being referenced.
+     - Ensure that the promotion event only triggers once and cannot result in multiple promotions on the same square.
+     - Write unit tests for pawn promotion scenarios, including edge cases like capturing with promotion.
 
-#### **Problems Detected**
+2. **Address the Missing Image Error**
+   - **Objective**: Fix the 404 error for `white-queen.png`.
+   - **Steps**:
+     - Verify the file path for `white-queen.png` and ensure the image exists in the correct `assets/images/chess-pieces/` directory.
+     - If the file is missing, add the correct image to the directory.
+     - Ensure consistent naming across the code and image assets.
 
-![Test 8](test-images/test-image-8.png)
+3. **Enhance the "Undo Move" Functionality**
+   - **Objective**: Improve the current undo move feature to allow undoing multiple moves.
+   - **Steps**:
+     - Extend the `undoMove()` function to handle a stack of previous moves, allowing multiple undos.
+     - Implement logic to maintain a move history and re-render the board after each undo.
+     - Test for edge cases like undoing a promotion or castling move.
 
-1. Promotion Error (Unable to find square with position f8):
-When attempting a pawn promotion, the console logs an error message: "Unable to find square with position f8." The promotion logic seems to be incorrectly handling the final move, causing it to reference an incorrect square (f8) when the pawn moves to the final promotion row. This likely occurs when the pawn is capturing a piece during promotion.
+4. **Verify and Improve CapturedPiecesDisplay Logic**
+   - **Objective**: Ensure captured pieces are displayed correctly and integrate this logic seamlessly with the main game functions.
+   - **Steps**:
+     - Test if `CapturedPiecesDisplay()` is correctly displaying pieces after each capture, including en passant and promotions.
+     - Test the display after using the "Undo Move" feature to ensure captured pieces are restored correctly.
 
-2. Multiple Promotions on the Same Square:
-The logs reveal multiple promotions on the same square (e7 to f8), which should not happen in standard chess rules. A pawn should only promote once upon reaching the opponent’s back rank. This indicates that the promotion logic may be retriggering erroneously or failing to recognize when the pawn has already been promoted.
+5. **Final Testing and Debugging**
+   - **Objective**: Perform a thorough review of the changes made.
+   - **Steps**:
+     - Run manual tests of the entire game, focusing on pawn promotion, captures, and undo functionality.
+     - Update `testing.md` with new results and any bugs or issues found.
+     - Write unit tests for major functionalities, including the undo move feature and captured pieces logic.
 
-3. 404 Error for white-queen.png:
-The file white-queen.png is either missing or incorrectly referenced in the code. This causes a 404 error when trying to load the image from the assets/images/chess-pieces/ directory. This should be addressed by verifying that the image is correctly located and referenced in the code.
+6. **Code Cleanup**
+   - **Objective**: Refactor and clean up the code to ensure it follows best practices.
+   - **Steps**:
+     - Review all newly implemented code for consistency and adherence to coding standards.
+     - Remove any redundant console logs or debugging statements.
+     - Optimize functions where necessary, especially in the core game logic.
 
- 
+---
+
