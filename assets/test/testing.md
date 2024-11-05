@@ -407,3 +407,27 @@ function isValidPawnPromotion(fromSquare, toSquare, playerColor) {
 
 ---
 
+05/11/2024
+
+#### **Changes Made**
+
+##### **Pawn Promotion Logic**
+- Added or modified `executePromotion` function to handle pawn promotion. This ensures that when a pawn reaches the last row, it can be correctly promoted to the chosen piece (queen, rook, knight, or bishop) based on the player's selection.
+- The promoted piece is displayed with the correct image and properties on the target square.
+
+##### **Captured Pieces Display Fix**
+- Corrected the logic for displaying captured pieces. Fixed image source paths and error handling to ensure that captured pieces show up correctly under the appropriate player’s captured pieces section (white/black).
+- Prevented attempts to load non-existent images (like `pawn-black-white.png`) by refining the logic that determines the correct file path for each piece image.
+![Test 9](test-images/test-image-9.png)
+
+##### **Game State Verification**
+- Updated logic to consistently check for check and checkmate after each move. Improved `checkGameState` and `handleMoveCompletion` to ensure smooth transitions between players and accurate detection of end-game conditions.
+- Ensured that after a pawn reaches promotion, the game continues correctly without interruptions.
+
+##### **Miscellaneous Code Cleanup**
+- Removed unnecessary console logs or simplified debugging messages for clarity.
+- Refactored functions to improve readability and maintainability.
+- Added early exits in functions where needed to reduce unnecessary checks and improve performance.
+
+##### **Improved Error Handling**
+- Added error handlers in image-loading sections, particularly for captured piece images. This prevents repeated loading attempts for missing images and reduces console clutter from 404 errors.

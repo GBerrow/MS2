@@ -85,34 +85,30 @@ function initializeBoard() {
 // Convert the board state to FEN format for Stockfish
 function boardToFEN() {
     let fen = "";
-    const rows = [];
     for (let rank = 8; rank >= 1; rank--) {
-        let row = "";
         let emptyCount = 0;
         for (let file of "abcdefgh") {
-            const squareId = `${file}${rank}`;
-            const square = document.getElementById(squareId);
-            const piece = square.querySelector(".piece");
+            const square = document.getElementById(`${file}${rank}`);
+            const piece = square?.querySelector(".piece");
             if (!piece) {
                 emptyCount++;
-            } else {
-                if (emptyCount > 0) {
-                    row += emptyCount;
-                    emptyCount = 0;
-                }
-                const pieceType = piece.getAttribute("data-piece").split("-")[0];
-                const color = piece.getAttribute("data-color");
-                const notation = {
-                    pawn: "p", rook: "r", knight: "n", bishop: "b",
-                    queen: "q", king: "k"
-                }[pieceType];
-                row += color === "white" ? notation.toUpperCase() : notation;
+                continue;
+            }
+            // Add piece notation
+            if (emptyCount > 0) {
+                fen += emptyCount;
+                emptyCount = 0;
+            }
+            const pieceData = piece.getAttribute("data-piece");
+            if (pieceData) {
+                const [type, color] = pieceData.split("-");
+                fen += color === "white" ? type[0].toUpperCase() : type[0].toLowerCase();
             }
         }
-        if (emptyCount > 0) row += emptyCount;
-        rows.push(row);
+        if (emptyCount > 0) fen += emptyCount;
+        if (rank > 1) fen += "/";
     }
-    return rows.join("/") + ` ${currentPlayer === "white" ? "w" : "b"} - - 0 1`;
+    return `${fen} ${currentPlayer === "white" ? "w" : "b"} - - 0 1`;
 }
 
 // Function to clear the board
@@ -146,6 +142,15 @@ let blackCastled = false;
    2. Piece Classes & Movement Logic
 ================================ */
 // In this section, we define piece interaction, including movement and validation.
+
+// Define the Piece class
+function createPieceElement(pieceType, playerColor) {
+    const pieceElement = document.createElement('div');
+    pieceElement.className = `piece ${pieceType}-${playerColor}`;
+    pieceElement.setAttribute('data-piece', `${pieceType}-${playerColor}`);
+    pieceElement.style.backgroundImage = `url('assets/images/chess-pieces/${pieceType}-${playerColor}.png')`;
+    return pieceElement;
+}
 
 // Helper function to find the king's position on the board
 function findKing(color) {
@@ -191,7 +196,7 @@ function isKingInCheck(playerColor) {
         }
     }
 
-    console.log(`${playerColor}'s king at ${kingPosition} is safe.`);
+    // console.log(`${playerColor}'s king at ${kingPosition} is safe.`);
     return false;  // King is safe if no threats are found
 }
 
@@ -237,7 +242,7 @@ function simulateMoveAndCheck(fromSquare, toSquare, playerColor) {
 
 // Check if moving the king would put it in check
 function isKingMoveSafe(fromSquare, toSquare, playerColor) {
-    console.log(`Checking if king move from ${fromSquare} to ${toSquare} is safe for ${playerColor}`);
+    // console.log(`Checking if king move from ${fromSquare} to ${toSquare} is safe for ${playerColor}`);
 
     const originalSquare = document.getElementById(fromSquare);
     const targetSquare = document.getElementById(toSquare);
@@ -246,22 +251,22 @@ function isKingMoveSafe(fromSquare, toSquare, playerColor) {
 
     // Temporarily move the king
     targetSquare.appendChild(movedPiece);
-    console.log(`Temporarily moved king to ${toSquare}`);
+    // console.log(`Temporarily moved king to ${toSquare}`);
 
     // Check if the move puts the king in check
     const kingInCheck = isKingInCheck(playerColor);
-    console.log(`King in check after move: ${kingInCheck}`);
+    // console.log(`King in check after move: ${kingInCheck}`);
 
     // Undo the temporary move
     originalSquare.appendChild(movedPiece);
     if (targetPiece) {
         targetSquare.appendChild(targetPiece); // Restore captured piece if any
     }
-    console.log(`Move undone, king back at ${fromSquare}`);
+    // console.log(`Move undone, king back at ${fromSquare}`);
 
     // If the king is in check after the move, return false
     if (kingInCheck) {
-        console.log("Move would put the king in check, not safe.");
+        // console.log("Move would put the king in check, not safe.");
         return false;
     }
 
@@ -271,9 +276,9 @@ function isKingMoveSafe(fromSquare, toSquare, playerColor) {
         const leftDiagonal = `${String.fromCharCode(toSquare[0].charCodeAt(0) - 1)}${parseInt(toSquare[1]) - 1}`;
         const rightDiagonal = `${String.fromCharCode(toSquare[0].charCodeAt(0) + 1)}${parseInt(toSquare[1]) - 1}`;
 
-        console.log(`Checking pawn threats at diagonals: ${leftDiagonal}, ${rightDiagonal}`);
+        // console.log(`Checking pawn threats at diagonals: ${leftDiagonal}, ${rightDiagonal}`);
         if (canPawnAttack(toSquare, leftDiagonal, "black") || canPawnAttack(toSquare, rightDiagonal, "black")) {
-            console.log("King threatened by black pawn, move not safe.");
+            // console.log("King threatened by black pawn, move not safe.");
             return false;
         }
     } else if (playerColor === "black") {
@@ -281,29 +286,54 @@ function isKingMoveSafe(fromSquare, toSquare, playerColor) {
         const leftDiagonal = `${String.fromCharCode(toSquare[0].charCodeAt(0) - 1)}${parseInt(toSquare[1]) + 1}`;
         const rightDiagonal = `${String.fromCharCode(toSquare[0].charCodeAt(0) + 1)}${parseInt(toSquare[1]) + 1}`;
 
-        console.log(`Checking pawn threats at diagonals: ${leftDiagonal}, ${rightDiagonal}`);
+        // console.log(`Checking pawn threats at diagonals: ${leftDiagonal}, ${rightDiagonal}`);
         if (canPawnAttack(toSquare, leftDiagonal, "white") || canPawnAttack(toSquare, rightDiagonal, "white")) {
-            console.log("King threatened by white pawn, move not safe.");
+            // console.log("King threatened by white pawn, move not safe.");
             return false;
         }
     }
 
-    console.log("Move is safe for the king.");
+    // console.log("Move is safe for the king.");
     return true;
 }
 
-// Function to get the available move for a pawn
+// Function to get the available move for a pawn, including capture and promotion
 function getPawnMove(currentSquare, player) {
     const file = currentSquare[0];
     const rank = parseInt(currentSquare[1]);
     const forwardMove = player === 'white' ? rank + 1 : rank - 1;
     const newSquare = file + forwardMove;
 
-    // Check if the target square is empty and return the move
-    const targetSquare = document.getElementById(newSquare);
-    if (targetSquare && !targetSquare.querySelector('.piece')) {
-        return newSquare;
+    // Determine if the pawn is reaching the promotion rank
+    const isPromotionRank = (forwardMove === 8 && player === 'white') || (forwardMove === 1 && player === 'black');
+
+    // Get the target square element
+    const targetSquare = document.querySelector(`[data-position="${newSquare}"]`);
+
+    // Check if the square is available for movement
+    if (targetSquare) {
+        // Handle capture on the promotion square
+        if (targetSquare.childElementCount > 0) {
+            const capturedPiece = targetSquare.querySelector('.piece');
+            const capturedPieceType = capturedPiece.getAttribute('data-piece-type');
+            targetSquare.removeChild(capturedPiece);
+
+            // Update the captured pieces display
+            CapturedPiecesDisplay(capturedPieceType, player === 'white' ? 'black' : 'white');
+        }
+
+        // Handle promotion if the pawn reaches the promotion rank
+        if (isPromotionRank) {
+            isValidPawnPromotion(currentSquare, newSquare, player);
+            return null; // Exit as the promotion will be handled elsewhere
+        }
+
+        // If not a promotion, return the new square as a valid move
+        if (!targetSquare.querySelector('.piece')) {
+            return newSquare;
+        }
     }
+
     return null;
 }
 
@@ -456,29 +486,29 @@ function canPawnAttack(fromSquare, toSquare, pawnColor) {
 function isValidPawnMove(fromSquare, toSquare, playerColor) {
     const [fromFile, fromRank] = [fromSquare[0], parseInt(fromSquare[1])];
     const [toFile, toRank] = [toSquare[0], parseInt(toSquare[1])];
-
-    const rankDiff = playerColor === 'white' ? toRank - fromRank : fromRank - toRank;
-
+    const direction = playerColor === 'white' ? 1 : -1;
+    
     // Moving forward
     if (fromFile === toFile) {
-        // Pawns can only move one square forward or two squares from their starting position
-        if ((playerColor === 'white' && fromRank === 2 && rankDiff === 2) ||
-            (playerColor === 'black' && fromRank === 7 && rankDiff === 2)) {
-            return true;
+        // First move can be two squares
+        if ((playerColor === 'white' && fromRank === 2) || 
+            (playerColor === 'black' && fromRank === 7)) {
+            return toRank === fromRank + (2 * direction) || 
+                   toRank === fromRank + direction;
         }
-        return rankDiff === 1;  // Single square forward
+        return toRank === fromRank + direction;
     }
-
+    
     // Diagonal capture
-    const fileDiff = Math.abs(fromFile.charCodeAt(0) - toFile.charCodeAt(0));
-    if (fileDiff === 1 && rankDiff === 1) {
-        return isOpponentPieceAtSquare(toSquare, playerColor);
+    if (Math.abs(fromFile.charCodeAt(0) - toFile.charCodeAt(0)) === 1 && 
+        toRank === fromRank + direction) {
+        return document.getElementById(toSquare).querySelector('.piece') !== null;
     }
-
+    
     return false;
 }
 
-// function to validate pawn promotion
+// Function to validate pawn promotion
 function isValidPawnPromotion(fromSquare, toSquare, playerColor) {
     const [fromFile, fromRank] = [fromSquare[0], parseInt(fromSquare[1])];
     const [toFile, toRank] = [toSquare[0], parseInt(toSquare[1])];
@@ -490,81 +520,85 @@ function isValidPawnPromotion(fromSquare, toSquare, playerColor) {
             const modal = document.getElementById('promotionModal');
             modal.style.display = 'block';
 
+            // Define the event handler function
+            const handlePromotionSelection = (piece) => {
+                // Call the promotion handler
+                handlePieceSelection(piece, resolve, toSquare, playerColor, initialBoardSetup);
+
+                // Hide the modal after selection
+                modal.style.display = 'none';
+
+                // Clean up event listeners to avoid accumulation
+                document.getElementById('queen').onclick = null;
+                document.getElementById('rook').onclick = null;
+                document.getElementById('bishop').onclick = null;
+                document.getElementById('knight').onclick = null;
+            };
+
             // Add event listeners for each piece option
-            document.getElementById('queen').onclick = () => handlePieceSelection('queen', resolve, toSquare, playerColor, initialBoardSetup);
-            document.getElementById('rook').onclick = () => handlePieceSelection('rook', resolve, toSquare, playerColor, initialBoardSetup);
-            document.getElementById('bishop').onclick = () => handlePieceSelection('bishop', resolve, toSquare, playerColor, initialBoardSetup);
-            document.getElementById('knight').onclick = () => handlePieceSelection('knight', resolve, toSquare, playerColor, initialBoardSetup);
+            document.getElementById('queen').onclick = () => handlePromotionSelection('queen');
+            document.getElementById('rook').onclick = () => handlePromotionSelection('rook');
+            document.getElementById('bishop').onclick = () => handlePromotionSelection('bishop');
+            document.getElementById('knight').onclick = () => handlePromotionSelection('knight');
         });
     }
     
-    return false;  // Return false if it's not a promotion move
+    return null;  // Return null if it's not a promotion move
 }
 
-function handlePieceSelection(piece, resolve, pawnPosition, currentPlayer, initialBoardSetup) {
+// Function to handle piece selection during promotion
+function handlePieceSelection(piece, resolve, pawnPosition, currentPlayer) {
     const modal = document.getElementById('promotionModal');
     modal.style.display = 'none';
 
-    // Update the game state
-    initialBoardSetup[pawnPosition] = piece + '-' + currentPlayer; // Use initialBoardSetup here
+    // Replace the pawn with the new piece in the board state
+    initialBoardSetup[pawnPosition] = `${piece}-${currentPlayer}`;
 
-    // Update the visual board
-    const square = document.querySelector(`[data-square="${pawnPosition}"]`);
-    console.log(square); 
-
-    if (pawnPosition === "g8") {
-        // Handle the special case where the pawn is promoted at position 
-        console.log(`Pawn promoted to ${piece} at position ${pawnPosition}!`);
-    } else if (square) {
-        square.innerHTML = '';
-        const newPiece = createPieceElement(piece, currentPlayer);
-        square.appendChild(newPiece);
-    } else {
-        console.error(`Unable to find square with position ${pawnPosition}`);
+    // Update the visual board to reflect the new piece
+    const square = document.getElementById(pawnPosition);
+    if (!square) {
+        console.error(`Square with ID ${pawnPosition} not found.`);
+        return;
     }
 
-    // Remove event listeners from promotion modal pieces
-    const modalPieces = modal.querySelectorAll('.promotion-piece');
-    modalPieces.forEach(modalPiece => {
-        modalPiece.removeEventListener('click', handlePieceSelection);
-    });
+    // Clear the square and add the new piece visually
+    square.innerHTML = '';
+    const newPieceElement = createPieceElement(piece, currentPlayer);
+    square.appendChild(newPieceElement);
 
-    // Resolve the promise with the selected piece
+    // Resolve the promise to continue game flow
     resolve(piece);
 }
 
-function executePromotion(_fromSquare, toSquare, playerColor, selectedPiece) {
+// Function to execute a promotion
+function executePromotion(fromSquare, toSquare, playerColor, selectedPiece) {
     const targetSquare = document.getElementById(toSquare);
+    const sourceSquare = document.getElementById(fromSquare);
 
-    // Check if there's a piece to capture during promotion
-    if (targetSquare.childElementCount > 0) {
-        const capturedPiece = targetSquare.querySelector('.piece');
-        const capturedPieceType = capturedPiece.getAttribute('data-piece');
-        targetSquare.removeChild(capturedPiece);
-        
-        // Call CapturedPiecesDisplay for the captured piece during promotion
-        CapturedPiecesDisplay(capturedPieceType, playerColor);
+    if (!targetSquare) return;
+
+    // Create the promoted piece with correct attributes
+    const promotedPiece = document.createElement('img');
+    promotedPiece.src = `assets/images/chess-pieces/${selectedPiece}-${playerColor}.png`;
+    promotedPiece.classList.add('piece');
+    promotedPiece.setAttribute('data-piece', `${selectedPiece}-${playerColor}`);
+    promotedPiece.setAttribute('data-color', playerColor);
+
+    // Clear target square and place new piece
+    targetSquare.innerHTML = '';
+    targetSquare.appendChild(promotedPiece);
+
+    // Clear the source square
+    if (sourceSquare) {
+        sourceSquare.innerHTML = '';
     }
 
-    // Remove the pawn from the target square (as it gets promoted)
-    if (targetSquare.childElementCount > 0) {
-        targetSquare.removeChild(targetSquare.firstChild);
-    }
+    // Update game state to reflect the promotion
+    initialBoardSetup[toSquare] = `${selectedPiece}-${playerColor}`;
+    delete initialBoardSetup[fromSquare]; // Remove the pawn from its original position
 
-    // Create a new piece element based on the selected piece
-    const newPieceElement = document.createElement('div');
-    newPieceElement.classList.add('piece');
-    newPieceElement.classList.add(`piece-${playerColor}`);
-    newPieceElement.setAttribute('data-piece', `${selectedPiece}-${playerColor}`);
-
-    // Append the new promoted piece to the target square
-    targetSquare.appendChild(newPieceElement);
-
-    // Log the promotion
-    console.log(`${playerColor} pawn promoted to ${selectedPiece} at ${toSquare}`);
-
-    // Switch turn to the other player
-    currentPlayer = (playerColor === 'white') ? 'black' : 'white';
+    // Switch player turn
+    currentPlayer = playerColor === 'white' ? 'black' : 'white';
 }
 
 // Function to check if a square contains an opponent piece
@@ -624,20 +658,20 @@ function isValidCastling(kingSquare, targetSquare, playerColor) {
     for (let f of filesToCheck) {
         if (document.getElementById(f + rank).querySelector('.piece')) {
             //Update Console log, DONT FORGET
-            console.log(`Castling invalid: Piece found at ${f}${rank}`);
+            // console.log(`Castling invalid: Piece found at ${f}${rank}`);
             return false;
         }
     }
 
     // Check if the player has already castled
     if ((playerColor === 'white' && whiteCastled) || (playerColor === 'black' && blackCastled)) {
-        console.log('Castling invalid: Player has already castled');
+        // console.log('Castling invalid: Player has already castled');
         return false;
     }
 
     // Check if king and rook are in their initial positions
     if (kingSquare !== 'e' + rank || !document.getElementById(rookSquare).querySelector('.piece')) {
-        console.log('Castling invalid: King or rook not in initial position');
+        // console.log('Castling invalid: King or rook not in initial position');
         return false;
     }
 
@@ -645,17 +679,17 @@ function isValidCastling(kingSquare, targetSquare, playerColor) {
     const kingPath = rookFile === 'a' ? ['e', 'd', 'c'] : ['e', 'f', 'g'];
     for (let f of kingPath) {
         if (isKingInCheck(playerColor, f + rank)) {
-            console.log(`Castling invalid: King in check or passes through check at ${f}${rank}`);
+            // console.log(`Castling invalid: King in check or passes through check at ${f}${rank}`);
             return false;
         }
     }
 
-    console.log('Castling is valid');
+    // console.log('Castling is valid');
     return true;
 }
 
 function executeCastling(kingSquare, targetSquare, playerColor) {
-    console.log(`Executing castling: King at ${kingSquare}, target ${targetSquare}, player ${playerColor}`);
+    // console.log(`Executing castling: King at ${kingSquare}, target ${targetSquare}, player ${playerColor}`);
     
     const rank = playerColor === 'white' ? '1' : '8';
     const isKingsideCastling = targetSquare[0] === 'g'; // King-side or queen-side
@@ -690,9 +724,9 @@ function executeCastling(kingSquare, targetSquare, playerColor) {
             blackCastled = true;
         }
 
-        console.log(`Castling complete: King moved from ${kingSquare} to ${targetSquare}, Rook moved from ${rookSquare} to ${newRookSquare}`);
+        // console.log(`Castling complete: King moved from ${kingSquare} to ${targetSquare}, Rook moved from ${rookSquare} to ${newRookSquare}`);
     } else {
-        console.error('Invalid castling: King did not move 2 squares.');
+        // console.error('Invalid castling: King did not move 2 squares.');
     }
 }
 
@@ -835,14 +869,14 @@ function handlePieceClick(event) {
 
 // Function to handle move completion and check game state
 function handleMoveCompletion() {
-    console.log("Move completed, switching player and checking game state...");
+    // console.log("Move completed, switching player and checking game state...");
 
     // Check for king capture (game over condition)
     const whiteKing = findKing('white');
     const blackKing = findKing('black');
 
-    console.log("White king found:", whiteKing);
-    console.log("Black king found:", blackKing);
+    // console.log("White king found:", whiteKing);
+    // console.log("Black king found:", blackKing);
 
     // End the game if a king is captured
     if (!whiteKing) {
@@ -872,7 +906,7 @@ function handleMoveCompletion() {
     }
 
     // Re-assign listeners to ensure new pieces get event listeners
-    console.log("Reassigning listeners...");
+    // console.log("Reassigning listeners...");
     reassignListeners();
 
     // Switch player after move
@@ -910,6 +944,28 @@ function handleSquareClick(event) {
     const pieceType = selectedPiece.pieceType;
     const playerColor = selectedPiece.color;
 
+    // Check for pawn promotion first
+    if (pieceType === 'pawn' && isValidPawnPromotion(currentSquare.id, targetSquare.id, playerColor)) {
+        // Handle capture if there's a piece on the target square
+        if (targetSquare.querySelector('.piece')) {
+            const capturedPiece = targetSquare.querySelector('.piece');
+            const capturedPieceType = capturedPiece.getAttribute('data-piece');
+            CapturedPiecesDisplay(capturedPieceType, playerColor);
+            targetSquare.removeChild(capturedPiece);
+        }
+        
+        // Move pawn to final rank
+        targetSquare.appendChild(selectedPiece.pieceElement);
+        
+        // Show promotion modal and handle piece selection
+        isValidPawnPromotion(currentSquare.id, targetSquare.id, playerColor)
+            .then(selectedPiece => {
+                executePromotion(currentSquare.id, targetSquare.id, playerColor, selectedPiece);
+                handleMoveCompletion();
+            });
+        return;
+    }
+
     // Check for castling (king and rook)
     if (pieceType === 'king' && currentSquare.id && targetSquare.id &&
         Math.abs(targetSquare.id.charCodeAt(0) - currentSquare.id.charCodeAt(0)) === 2) {
@@ -925,17 +981,6 @@ function handleSquareClick(event) {
         executeEnPassant(currentSquare.id, targetSquare.id, playerColor);
         handleMoveCompletion();
         return;
-    }
-
-    // Check for promotion (handle asynchronously with the modal)
-    if (pieceType === 'pawn' && isValidPawnPromotion(currentSquare.id, targetSquare.id, playerColor, initialBoardSetup)) {
-        isValidPawnPromotion(currentSquare.id, targetSquare.id, playerColor)
-            .then(selectedPiece => {
-                // Perform promotion with the selected piece
-                executePromotion(currentSquare.id, targetSquare.id, selectedPiece, playerColor);
-                handleMoveCompletion();
-            });
-        return; // Exit to wait for promotion to complete
     }
 
     // check for regular moves
@@ -1140,13 +1185,13 @@ function isKingInCheck(playerColor) {
         }
     }
 
-    console.log(`${playerColor}'s king at ${kingPosition} is safe.`);
+    // console.log(`${playerColor}'s king at ${kingPosition} is safe.`);
     return false;  // King is safe if no threats are found
 }
 
 // Function to check the current state of the game
 function checkGameState() {
-    console.log("Checking game state...");
+    // console.log("Checking game state...");
 
     const whiteKingInCheck = isKingInCheck('white');
     const blackKingInCheck = isKingInCheck('black');
@@ -1181,7 +1226,7 @@ function checkGameState() {
 
 // Function to check if the player is in checkmate
 function isCheckmate(color) {
-    console.log(`${color}'s king is in check, checking for possible escape...`);
+    // console.log(`${color}'s king is in check, checking for possible escape...`);
 
     if (!isKingInCheck(color)) {
         console.log(`${color}'s king is not in check, so not checkmate.`);
@@ -1227,25 +1272,23 @@ let capturedBlackPieces = [];
 
 // Function to display captured pieces
 function CapturedPiecesDisplay(capturedPiece, playerColor) {
-    let capturedArea;
+    if (!capturedPiece) return;
+    
+    const capturedArea = document.getElementById(playerColor === 'white' ? 'blackCaptured' : 'whiteCaptured');
+    const pieceImage = document.createElement('img');
+    // Use only the captured piece's original name
+    pieceImage.src = `assets/images/chess-pieces/${capturedPiece}.png`;
+    pieceImage.classList.add('captured-piece');
+    capturedArea.appendChild(pieceImage);
+}
 
-    if (playerColor === 'white') {
-        capturedBlackPieces.push(capturedPiece);
-        capturedArea = document.getElementById('blackCaptured');
-    } else {
-        capturedWhitePieces.push(capturedPiece);
-        capturedArea = document.getElementById('whiteCaptured');
-    }
-
-    // Clear and update the captured pieces display
-    capturedArea.innerHTML = '';
-    const capturedArray = playerColor === 'white' ? capturedBlackPieces : capturedWhitePieces;
-
-    capturedArray.forEach(piece => {
-        const pieceImage = document.createElement('img');
-        pieceImage.src = `assets/images/chess-pieces/${piece}.png`; // Adjust path based on your image structure
-        capturedArea.appendChild(pieceImage);
-    });
+function updateCapturedPiecesDisplay(capturedPiece) {
+    const container = document.getElementById(
+        `captured-${capturedPiece.color}-pieces`
+    );
+    const pieceElement = document.createElement('div');
+    pieceElement.className = `captured-piece ${capturedPiece.type}-${capturedPiece.color}`;
+    container.appendChild(pieceElement);
 }
 
 // Game over function
