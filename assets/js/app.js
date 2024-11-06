@@ -1116,8 +1116,8 @@ function makeAIMove(move) {
 
     //----------------------------------------------------------------------//
     // Disable AI moves for testing
-    currentPlayer = "white"; // Switch back to the human player
-    return;  // Skip the AI move but still switch the player back to "white"
+    // currentPlayer = "white"; // Switch back to the human player
+    // return;  // Skip the AI move but still switch the player back to "white"
     //----------------------------------------------------------------------//
     
     const fromSquare = move.slice(0, 2);

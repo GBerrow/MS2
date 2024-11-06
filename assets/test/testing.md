@@ -431,3 +431,34 @@ function isValidPawnPromotion(fromSquare, toSquare, playerColor) {
 
 ##### **Improved Error Handling**
 - Added error handlers in image-loading sections, particularly for captured piece images. This prevents repeated loading attempts for missing images and reduces console clutter from 404 errors.
+
+--- 
+
+06/11/2024
+
+#### **Overview**
+
+Today I focused thouroughly on testing the game for bugs and errors. Here are some errors that cropped up during testing:
+
+### 1. Undefined Function Errors
+- **Issue**: `Uncaught ReferenceError: getValidMoves is not defined` appears in the console, especially during checkmate validation.
+- **Cause**: The `getValidMoves` function is either missing or not properly linked in `isCheckmate` and other functions.
+
+### 2. Incorrect Checkmate Logic
+- **Issue**: Console logs indicate "King can escape to d8, not checkmate" even when all escape routes should be blocked.
+- **Cause**: The `isCheckmate` function may not fully consider cases where all king moves are blocked or unsafe.
+
+### 3. AI Move Overwriting Player’s Moves
+- **Issue**: AI moves immediately after the player, potentially overwriting player moves.
+- **Cause**: Turn handling may be flawed, allowing AI to move before the player’s move is fully processed.
+
+### 4. Invalid Moves for Specific Pieces
+- **Issue**: Errors like `Invalid move for king: e1 to c3`, `Invalid move for pawn: d3 to d5`, etc.
+- **Cause**: Move validation for specific pieces (king, bishop, pawn) may not be enforced properly.
+
+### 5. Pawn Promotion Logic Issues
+- **Issue**: Inconsistent behavior around pawn promotion squares.
+
+### 6. Check Validation Errors
+- **Issue**: Logs show "Your king is in check!" but allow moves that don’t resolve the check.
+- **Cause**: `checkGameState` may not enforce moves that address check situations.
