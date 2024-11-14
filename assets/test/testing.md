@@ -462,3 +462,42 @@ Today I focused thouroughly on testing the game for bugs and errors. Here are so
 ### 6. Check Validation Errors
 - **Issue**: Logs show "Your king is in check!" but allow moves that don’t resolve the check.
 - **Cause**: `checkGameState` may not enforce moves that address check situations.
+
+07/11/2024
+
+More issues cropped up during testing: 
+
+### 7. Incorrect Move validation from AI
+- **Issue**: AI is generating moves that are not validated correctly against the movement rules of the specific piece.
+
+---
+ 
+14/11/2024
+
+#### **Overview**
+
+After a brief pause last week due to a personal emergency, I've resumed work on the project with a focus on addressing critical issues and improving code efficiency. Below is a summary of the key refactoring efforts undertaken to resolve existing bugs and streamline the codebase:
+
+### **Refactoring Summary**
+
+1. **Consolidated Duplicate Functions**  
+   Merged several redundant functions to eliminate overlapping code, improving both readability and maintainability.
+
+2. **Reduced Redundancy in Check Detection Logic**  
+   Streamlined check-related functions to ensure a single source of truth for check validation, reducing the chance of errors and inconsistencies.
+
+3. **Simplified Piece Movement Handling**  
+   Removed unnecessary validations within piece movement logic, enhancing performance by allowing the code to execute more efficiently.
+
+4. **Cleaned Up Conditional Logic**  
+   Refined conditional structures to remove redundant checks, making the logic flow more straightforward and reducing computational overhead.
+
+---
+
+### **Refactoring Goals**
+This refactor aims to:
+- **Enhance Performance:** By reducing redundant calls and simplifying logic.
+- **Reduce Function Overlap:** Consolidating similar functions to create a single, robust source of truth.
+- **Improve Code Maintainability:** Ensuring the code is easier to read, understand, and extend for future development.
+
+--- 

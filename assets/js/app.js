@@ -168,38 +168,6 @@ function findKing(color) {
     return null;
 }
 
-// General function to check if the player's king is in check
-function isKingInCheck(playerColor) {
-    const kingPosition = findKing(playerColor);
-    
-    if (!kingPosition) {
-        console.error(`Cannot check if king is in check. King not found for ${playerColor}`);
-        return false;
-    }
-
-    const opponentColor = playerColor === 'white' ? 'black' : 'white';
-    const opponentPieces = document.querySelectorAll(`.piece[data-color='${opponentColor}']`);
-
-    // Check if any opponent piece can attack the player's king
-    for (let piece of opponentPieces) {
-        const pieceType = piece.getAttribute('data-piece')?.split('-')[0];
-        const piecePosition = piece.parentElement?.id;
-
-        if (!pieceType || !piecePosition) {
-            console.warn(`Malformed piece found: ${piece.outerHTML}`);
-            continue;
-        }
-
-        if (canPieceAttackKing(pieceType, piecePosition, kingPosition, opponentColor)) {
-            console.log(`${playerColor}'s king at ${kingPosition} is in check from ${opponentColor}'s ${pieceType} at ${piecePosition}.`);
-            return true;  // Break early once a threat is found
-        }
-    }
-
-    // console.log(`${playerColor}'s king at ${kingPosition} is safe.`);
-    return false;  // King is safe if no threats are found
-}
-
 // Helper function to get the possible moves for the king
 function getKingPossibleMoves(kingPosition, playerColor) {
     const possibleMoves = [];
@@ -214,31 +182,6 @@ function getKingPossibleMoves(kingPosition, playerColor) {
     return possibleMoves;  // Return all valid moves for the king
 }
 
-// Simulate a move and check if the king is safe after that move
-function simulateMoveAndCheck(fromSquare, toSquare, playerColor) {
-    const originalFromSquare = document.getElementById(fromSquare);
-    const originalToSquare = document.getElementById(toSquare);
-
-    const movedPiece = originalFromSquare.querySelector('.piece');
-    const capturedPiece = originalToSquare.querySelector('.piece');
-
-    // Simulate the move
-    originalToSquare.appendChild(movedPiece);
-    if (capturedPiece) {
-        capturedPiece.remove();  // Temporarily "capture" the piece
-    }
-
-    // Check if the king is still in check after this move
-    const kingInCheck = isKingInCheck(playerColor);
-
-    // Undo the move (restore board state)
-    originalFromSquare.appendChild(movedPiece);
-    if (capturedPiece) {
-        originalToSquare.appendChild(capturedPiece);
-    }
-
-    return !kingInCheck;  // Return true if the king is safe after the move
-}
 
 // Check if moving the king would put it in check
 function isKingMoveSafe(fromSquare, toSquare, playerColor) {
@@ -454,10 +397,10 @@ function canPieceAttackKing(pieceType, piecePosition, kingPosition, opponentColo
                     && isPathClear(piecePosition, kingPosition);
         case 'knight':
             // Knights jump over pieces, so no path obstruction check is needed
-            return isKnightMove(piecePosition, kingPosition);
+            return isValidKnightMove(piecePosition, kingPosition);      
         case 'king':
             // King moves only one square, so no need for path obstruction check
-            return isKingMove(piecePosition, kingPosition);
+            return isValidKingMove(piecePosition, kingPosition);
         default:
             return false;
     }
@@ -803,28 +746,6 @@ function isDiagonalMove(fromSquare, toSquare) {
     return Math.abs(fromFile.charCodeAt(0) - toFile.charCodeAt(0)) === Math.abs(fromRank - toRank);
 }
 
-// Validate knight movement (L-shape)
-function isKnightMove(fromSquare, toSquare) {
-    const [fromFile, fromRank] = [fromSquare[0], parseInt(fromSquare[1])];
-    const [toFile, toRank] = [toSquare[0], parseInt(toSquare[1])];
-
-    const fileDiff = Math.abs(fromFile.charCodeAt(0) - toFile.charCodeAt(0));
-    const rankDiff = Math.abs(fromRank - toRank);
-
-    return (fileDiff === 2 && rankDiff === 1) || (fileDiff === 1 && rankDiff === 2);
-}
-
-// Validate king movement (one square in any direction)
-function isKingMove(fromSquare, toSquare) {
-    const [fromFile, fromRank] = [fromSquare[0], parseInt(fromSquare[1])];
-    const [toFile, toRank] = [toSquare[0], parseInt(toSquare[1])];
-
-    const fileDiff = Math.abs(fromFile.charCodeAt(0) - toFile.charCodeAt(0));
-    const rankDiff = Math.abs(fromRank - toRank);
-
-    return fileDiff <= 1 && rankDiff <= 1;
-}
-
 // Check for clear path in both straight-line and diagonal moves
 function isPathClear(fromSquare, toSquare) {
     const [fromFile, fromRank] = [fromSquare.charCodeAt(0), parseInt(fromSquare[1])];
@@ -936,89 +857,51 @@ function handleSquareClick(event) {
 
     const targetSquare = event.target.closest('.square');
     const currentSquare = selectedPiece.pieceElement.parentElement;
-
-    if (targetSquare === currentSquare) {
-        return;
-    }
-
     const pieceType = selectedPiece.pieceType;
     const playerColor = selectedPiece.color;
 
-    // Check for pawn promotion first
-    if (pieceType === 'pawn' && isValidPawnPromotion(currentSquare.id, targetSquare.id, playerColor)) {
-        // Handle capture if there's a piece on the target square
-        if (targetSquare.querySelector('.piece')) {
-            const capturedPiece = targetSquare.querySelector('.piece');
-            const capturedPieceType = capturedPiece.getAttribute('data-piece');
-            CapturedPiecesDisplay(capturedPieceType, playerColor);
-            targetSquare.removeChild(capturedPiece);
-        }
-        
-        // Move pawn to final rank
-        targetSquare.appendChild(selectedPiece.pieceElement);
-        
-        // Show promotion modal and handle piece selection
-        isValidPawnPromotion(currentSquare.id, targetSquare.id, playerColor)
-            .then(selectedPiece => {
-                executePromotion(currentSquare.id, targetSquare.id, playerColor, selectedPiece);
-                handleMoveCompletion();
-            });
-        return;
-    }
-
-    // Check for castling (king and rook)
-    if (pieceType === 'king' && currentSquare.id && targetSquare.id &&
-        Math.abs(targetSquare.id.charCodeAt(0) - currentSquare.id.charCodeAt(0)) === 2) {
-        if (isValidCastling(currentSquare.id, targetSquare.id, playerColor)) {
-            executeCastling(currentSquare.id, targetSquare.id, playerColor);
-            handleMoveCompletion();
-            return;
-        }
-    }
-    
-    // check for en passant
-    if (pieceType === 'pawn' && isValidEnPassantMove(currentSquare.id, targetSquare.id, playerColor)) {
-        executeEnPassant(currentSquare.id, targetSquare.id, playerColor);
+    // Let isValidPieceMove handle all validation
+    if (isValidPieceMove(pieceType, currentSquare.id, targetSquare.id, playerColor)) {
+        executeMove(currentSquare, targetSquare, pieceType, playerColor);
         handleMoveCompletion();
-        return;
     }
+}
 
-    // check for regular moves
-    const isValidMove = isValidPieceMove(
-        pieceType,
-        currentSquare.id,
-        targetSquare.id,
-        playerColor
-    );
-
-    if (!isValidMove) {
-        console.log(`Invalid move for ${pieceType}: ${currentSquare.id} to ${targetSquare.id}`);
-        return;
-    }
-
-   // Execute the move if valid
+function executeMove(currentSquare, targetSquare, pieceType, playerColor) {
+    // Handle captures
     if (targetSquare.querySelector('.piece')) {
         const capturedPiece = targetSquare.querySelector('.piece');
         const capturedPieceType = capturedPiece.getAttribute('data-piece');
         targetSquare.removeChild(capturedPiece);
-        
-        // Call CapturedPiecesDisplay here
         CapturedPiecesDisplay(capturedPieceType, playerColor);
     }
 
-    // Append the selected piece to the target square
+    // Execute the move
     targetSquare.appendChild(selectedPiece.pieceElement);
     selectedPiece = null;
-
-    // Re-assign listeners to ensure new pieces get event listeners
-    handleMoveCompletion();
 }
 
 // Validate move function for all pieces
 function isValidPieceMove(pieceType, fromSquare, toSquare, playerColor) {
+    // Check for pawn promotion first
+    if (pieceType === 'pawn' && isValidPawnPromotion(fromSquare, toSquare, playerColor)) {
+        return true;
+    }
+
+    // Check for castling
+    if (pieceType === 'king' && 
+        Math.abs(toSquare.charCodeAt(0) - fromSquare.charCodeAt(0)) === 2) {
+        return isValidCastling(fromSquare, toSquare, playerColor);
+    }
+    
+    // Check for en passant
+    if (pieceType === 'pawn' && isValidEnPassantMove(fromSquare, toSquare, playerColor)) {
+        return true;
+    }
+
     let validMove = false;
 
-    // Validate move based on piece type
+    // Validate regular moves based on piece type
     switch (pieceType) {
         case 'pawn':
             validMove = isValidPawnMove(fromSquare, toSquare, playerColor);
@@ -1042,11 +925,11 @@ function isValidPieceMove(pieceType, fromSquare, toSquare, playerColor) {
             return false;
     }
 
-      // Check if the target square contains a piece of the same color
-      const targetSquarePiece = document.getElementById(toSquare).querySelector('.piece');
-      if (targetSquarePiece && targetSquarePiece.getAttribute('data-color') === playerColor) {
-          return false; // Can't move to a square occupied by a piece of the same color
-      }
+    // Check if target square contains a piece of the same color
+    const targetSquarePiece = document.getElementById(toSquare).querySelector('.piece');
+    if (targetSquarePiece && targetSquarePiece.getAttribute('data-color') === playerColor) {
+        return false;
+    }
 
     // If the move doesn't follow basic rules, return false
     if (!validMove) return false;
@@ -1253,12 +1136,9 @@ function isCheckmate(color) {
         const piecePosition = piece.parentElement.id;
 
         // Check if any opponent piece can capture the checking piece or block the check
-        const validMoves = getValidMoves(pieceType, piecePosition, opponentColor);
-        for (let move of validMoves) {
-            if (canPieceBlockCheckOrCapture(pieceType, piecePosition, move, color)) {
-                console.log(`${pieceType} at ${piecePosition} can block the check by moving to ${move}. Not checkmate.`);
-                return false; // A piece can block or capture, so no checkmate
-            }
+        if (isValidPieceMove(pieceType, piecePosition, move, color)) {
+            console.log(`${pieceType} at ${piecePosition} can block the check by moving to ${move}. Not checkmate.`);
+            return false; // A piece can block or capture, so no checkmate
         }
     }
 
