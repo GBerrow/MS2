@@ -501,3 +501,36 @@ This refactor aims to:
 - **Improve Code Maintainability:** Ensuring the code is easier to read, understand, and extend for future development.
 
 --- 
+
+17/11/2024 
+
+#### **Overview**
+
+With my submission date being tomorrow, I unfortuneatly do not have the time to fix one issue within the game. I have tried numerous methods but none been able to fix the issue. 
+
+#### **Issue**
+The game works correctly for the most part and the ai moves and responds correctly to most of the moves. However, in a certain scenario when I attack the ai's king (on sqaure f7), the ai makes an illegal move and moves the pawn instead and im not sure why it's doing this. 
+
+![Test 10](test-images/test-image-10.png)
+
+Numerous different methods have been tried to fix this issue but none have been successful.
+
+1. Added proper validation checks for king positions and piece movements added with proper validation checks for king positions and piece movements
+2. Implemented more robust error handling for undefined values
+3. Added numerous console logs for debugging piece movements and check detection
+4. Refactored the check and checkmate detection logic to be more robust
+5. Improved the move simulation system with simulateMoveAndCheck so that it can detect check and checkmate more accurately
+6. Enhanced the blocking squares calculation for check resolution for more accurate check resolution
+7. Added thorough testing of edge cases in piece movement 
+8. Implemented clearer game state verification after moves to ensure it's updated correctly 
+9. Added verification of king safety during castling 
+10. Enhanced the move validation system for all pieces so that it can detect illegal moves
+
+### **What to do next**
+
+Instead of trying to fix this very specific issue, I have decided to focus on the quality of life of the user and how the gameplay feels. I will look to implement a few features that will improve the gameplay experience and overall look of my project.
+
+1. hightlight the piece of what possible options you can move too.
+2. Adding a sound effect when a piece is moved or captured. 
+3. Enhacing the website with media queries to make it responsive. 
+4. Update readme with the latest changes. 
