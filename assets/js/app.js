@@ -780,12 +780,15 @@ function handlePieceClick(event) {
     if (pieceColor !== currentPlayer) return;
 
     selectedPiece = {
+        
         pieceElement: piece,
         currentSquare: piece.parentElement.id,
         color: pieceColor,
         pieceType: piece.getAttribute("data-piece").split("-")[0] // Capture piece type here
+        
     };
     console.log(`Selected ${selectedPiece.pieceType} on ${selectedPiece.currentSquare}`);
+    highlightMoves(selectedPiece, initialBoardSetup);
 }
 
 // Function to handle move completion and check game state
@@ -868,7 +871,8 @@ function handleSquareClick(event) {
 }
 
 function executeMove(currentSquare, targetSquare, pieceType, playerColor) {
-    // Handle captures
+    clearHighlights();
+    // Handle captures    
     if (targetSquare.querySelector('.piece')) {
         const capturedPiece = targetSquare.querySelector('.piece');
         const capturedPieceType = capturedPiece.getAttribute('data-piece');
