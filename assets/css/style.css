@@ -60,14 +60,12 @@ h1 {
     background-color: rgba(0, 255, 0, 0.3) !important;
     position: relative;
     z-index: 1;
-    transform: rotate(270deg);
 }
 
 .highlight-capture {
     background-color: rgba(255, 0, 0, 0.3) !important;
     position: relative;
     z-index: 1;
-    transform: rotate(270deg);
 }
 
 /* Controls Section */
