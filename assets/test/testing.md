@@ -1,6 +1,6 @@
 If you want to return to my normal readme, please click the link below:
 
-[Main Page](../../README.md)
+Main Page - https://github.com/GBerrow/MS2
 
 ---
 
