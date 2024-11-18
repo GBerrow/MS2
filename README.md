@@ -242,7 +242,7 @@ This sophisticated chess implementation combines cutting-edge web technologies a
 
 ## Testing
 
-Our testing process follows industry best practices with comprehensive coverage across multiple areas. For detailed information about our testing methodology, test cases, and results, please refer to our dedicated testing documentation:
+This testing process follows industry best practices with comprehensive coverage across multiple areas. For detailed information about our testing methodology, test cases, and results, please refer to our dedicated testing documentation:
 
 [Testing Documentation](assets/test/testing.md)
 
