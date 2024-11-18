@@ -1,188 +1,201 @@
-/* General Styles */
+/* General Styles - Reset default browser styles */
 * {
-  margin: 0; /* Reset */
-  padding: 0;
-  box-sizing: border-box;
+  margin: 0; /* Reset margin */
+  padding: 0; /* Reset padding */
+  box-sizing: border-box; /* Include padding and border in element's total width and height */
 }
 
+/* Body styles - Main layout structure */
 body {
-  font-family: Arial, sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  overflow-x: hidden;
-  background: url(../images/background.jpg);
-  height: auto;
+  font-family: Arial, sans-serif; /* Set default font */
+  display: flex; /* Enable flexbox layout */
+  flex-direction: column; /* Stack children vertically */
+  align-items: center; /* Center children horizontally */
+  overflow-x: hidden; /* Hide horizontal scrollbar */
+  background: url(../images/background.jpg); /* Set background image */
+  height: auto; /* Allow content to determine height */
 }
 
+/* Main heading styles */
 h1 {
-  text-align: center;
-  margin: 20px auto;
-  font-size: 2rem;
+  text-align: center; /* Center the heading text */
+  margin: 20px auto; /* Add space around heading */
+  font-size: 2rem; /* Set font size to 2x root size */
 }
 
-/* Layout and Container Styles */
+/* Layout and Container Styles - Main content wrapper */
 .container {
   margin-top: -20px; /* Moves the entire layout up slightly */
-  text-align: center;
-  display: grid;
-  place-items: center;
-  justify-content: center;
+  text-align: center; /* Center text content */
+  display: grid; /* Enable grid layout */
+  place-items: center; /* Center grid items both vertically and horizontally */
+  justify-content: center; /* Center grid container horizontally */
 }
 
-/* Chessboard Styles */
+/* Chessboard Styles - Main game board layout */
 .chess-board {
-  display: grid;
-  grid-template-columns: repeat(8, 60px);
-  grid-template-rows: repeat(8, 60px);
-  gap: 0;
-  margin: 15px auto;
-  border: 2px solid #333;
-  transform: rotate(90deg); /* Reverse the board */
+  display: grid; /* Create grid layout for chess squares */
+  grid-template-columns: repeat(8, 60px); /* Create 8 columns of 60px each */
+  grid-template-rows: repeat(8, 60px); /* Create 8 rows of 60px each */
+  gap: 0; /* No gap between squares */
+  margin: 15px auto; /* Center the board with margin */
+  border: 2px solid #333; /* Add border around entire board */
+  transform: rotate(90deg); /* Rotate board for correct orientation */
 }
 
+/* Chess piece styles */
 .piece {
-  width: 80%;
-  height: 80%;
-  transform: rotate(270deg);
+  width: 80%; /* Set piece width relative to square */
+  height: 80%; /* Set piece height relative to square */
+  transform: rotate(270deg); /* Counter-rotate pieces to display correctly */
 }
 
-/* Chess Square Styles */
+/* Individual chess square styles */
 .square {
-  width: 60px;
-  height: 60px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 24px;
+  width: 60px; /* Fixed width for squares */
+  height: 60px; /* Fixed height for squares */
+  display: flex; /* Enable flexbox for centering pieces */
+  justify-content: center; /* Center pieces horizontally */
+  align-items: center; /* Center pieces vertically */
+  font-size: 24px; /* Set font size for any text in squares */
   border: 1px solid #333; /* Border for each square */
-  box-sizing: border-box; /* Ensure padding and border are included in width/height */
+  box-sizing: border-box; /* Include border in square dimensions */
 }
 
-/* Chess Piece Movement Styles */
+/* Highlight styles for possible moves */
 .highlight-move {
-  background-color: rgba(0, 255, 0, 0.3) !important;
-  position: relative;
-  z-index: 1;
+  background-color: rgba(0, 255, 0, 0.3) !important; /* Green highlight for valid moves */
+  position: relative; /* Enable z-index */
+  z-index: 1; /* Ensure highlight appears above board */
 }
 
+/* Highlight styles for possible captures */
 .highlight-capture {
-  background-color: rgba(255, 0, 0, 0.3) !important;
-  position: relative;
-  z-index: 1;
+  background-color: rgba(255, 0, 0, 0.3) !important; /* Red highlight for possible captures */
+  position: relative; /* Enable z-index */
+  z-index: 1; /* Ensure highlight appears above board */
 }
 
-/* Highlight Styles */
+/* Common styles for both move and capture highlights */
 .highlight-move,
 .highlight-capture {
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box; /* Matches square size including borders */
-  margin: 0;
-  padding: 0;
-  position: relative;
-  z-index: 1;
+  width: 100%; /* Full width of square */
+  height: 100%; /* Full height of square */
+  box-sizing: border-box; /* Include border in dimensions */
+  margin: 0; /* Remove margin */
+  padding: 0; /* Remove padding */
+  position: relative; /* Enable z-index */
+  z-index: 1; /* Layer ordering */
 }
 
-/* Controls Section */
+/* Controls section layout */
 .controls {
-  margin-top: 20px;
+  margin-top: 20px; /* Space above controls */
 }
 
-/* Restart Button */
+/* Common button styles */
 button {
-  padding: 10px 20px;
-  margin: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  background-color: #333;
-  color: white;
-  border: none;
-  border-radius: 5px;
+  padding: 10px 20px; /* Internal spacing */
+  margin: 5px; /* External spacing */
+  font-size: 16px; /* Text size */
+  cursor: pointer; /* Show pointer on hover */
+  background-color: #333; /* Dark background */
+  color: white; /* White text */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Rounded corners */
 }
 
+/* Mute button specific styles */
 #muteButton {
-  padding: 10px 20px;
-  margin: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  background-color: #333;
-  color: white;
-  border: none;
-  border-radius: 5px;
+  padding: 10px 20px; /* Internal spacing */
+  margin: 5px; /* External spacing */
+  font-size: 16px; /* Text size */
+  cursor: pointer; /* Show pointer on hover */
+  background-color: #333; /* Dark background */
+  color: white; /* White text */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Rounded corners */
 }
 
+/* Mute button hover effect */
 #muteButton:hover {
-  background-color: #444;
+  background-color: #444; /* Lighter background on hover */
 }
 
-/* Modal Styles (pawn promotion) */
+/* Modal styles for pawn promotion */
 .modal {
-  padding: 175px;
-  display: none;
-  position: fixed;
-  left: 400px;
-  top: 288px; /* Perfectly aligns with the board */
-  transform: translateY(-50%);
-  background-color: black;
-  border: 1px solid white;
-  padding: 10px;
-  z-index: 1000;
+  padding: 175px; /* Large padding */
+  display: none; /* Hidden by default */
+  position: fixed; /* Fixed position on screen */
+  left: 400px; /* Position from left */
+  top: 288px; /* Position from top to align with board */
+  transform: translateY(-50%); /* Center vertically */
+  background-color: black; /* Black background */
+  border: 1px solid white; /* White border */
+  padding: 10px; /* Internal spacing */
+  z-index: 1000; /* Appear above other elements */
 }
 
+/* Container for promotion piece options */
 .promotion-piece-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start; /* Align items to the left */
-  gap: 20px;
+  display: flex; /* Enable flexbox */
+  flex-direction: column; /* Stack items vertically */
+  justify-content: center; /* Center vertically */
+  align-items: flex-start; /* Align items to left */
+  gap: 20px; /* Space between items */
 }
 
+/* Row layout for promotion pieces */
 .promotion-piece-row {
-  display: flex;
-  align-items: center;
-  gap: 10px; /* Add space between the piece and its label */
+  display: flex; /* Enable flexbox */
+  align-items: center; /* Center items vertically */
+  gap: 10px; /* Space between piece and label */
 }
 
+/* Promotion piece image styles */
 .promotion-piece-container img {
-  width: 50px; /* Adjust the width of each piece image */
-  height: auto;
-  gap: 10px; /* Add space between the pieces */
+  width: 50px; /* Fixed width */
+  height: auto; /* Maintain aspect ratio */
+  gap: 10px; /* Space between pieces */
 }
 
+/* Promotion option piece styles */
 .promotion-options {
-  filter: brightness(0) invert(1); /* Turn images white */
-  width: 40px; /* Adjust size as needed */
-  cursor: pointer;
-  gap: 6px; /* Adds space between the pieces */
+  filter: brightness(0) invert(1); /* Make images white */
+  width: 40px; /* Fixed width */
+  cursor: pointer; /* Show pointer on hover */
+  gap: 6px; /* Space between pieces */
 }
 
+/* Modal heading styles */
 .modal h3 {
-  color: white; /* Set text color to white */
-  text-align: center;
+  color: white; /* White text */
+  text-align: center; /* Center text */
 }
 
+/* Promotion piece label styles */
 .promotion-label {
-  font-size: 1.2rem;
-  color: white; /* Piece name color */
+  font-size: 1.2rem; /* Text size */
+  color: white; /* White text */
 }
 
-/* Captured Pieces Section */
-
+/* Captured pieces section layout */
 .captured-pieces {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 20px;
+  display: flex; /* Enable flexbox */
+  flex-direction: column; /* Stack items vertically */
+  align-items: center; /* Center items horizontally */
+  margin-top: 20px; /* Space above section */
 }
 
+/* Captured pieces container styles */
 .captured-pieces div {
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
+  display: flex; /* Enable flexbox */
+  gap: 5px; /* Space between pieces */
+  flex-wrap: wrap; /* Allow wrapping to new line */
 }
 
+/* Captured piece image styles */
 .captured-pieces img {
-  width: 40px;
-  height: auto;
+  width: 40px; /* Fixed width */
+  height: auto; /* Maintain aspect ratio */
 }

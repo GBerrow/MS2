@@ -2,26 +2,31 @@
 
 /* Small screens, laptops */
 @media screen and (max-width: 1024px) {
+  /* Adjust chess board dimensions for laptop screens */
   .chess-board {
     width: 483px;
     height: 483px;
   }
 
+  /* Set square size for laptop screens */
   v.square {
     width: 70px;
     height: 70px;
   }
 
+  /* Adjust chess piece size for laptop screens */
   .piece {
     width: 46px;
     height: auto;
   }
 
+  /* Set captured pieces image size for laptop screens */
   .captured-pieces img {
     width: 30px;
     height: auto;
   }
 
+  /* Style game control buttons for laptop screens */
   #game-controls button {
     font-size: 14px;
     padding: 8px 16px;
@@ -30,6 +35,7 @@
 
 /* iPads, Tablets */
 @media screen and (max-width: 768px) {
+  /* Adjust chess board dimensions and grid for tablet screens */
   .chess-board {
     width: 404px;
     height: 404px;
@@ -38,26 +44,31 @@
     grid-template-rows: repeat(8, 50px);
   }
 
+  /* Set square size for tablet screens */
   .square {
     width: 50px;
     height: 50px;
   }
 
+  /* Adjust chess piece size for tablet screens */
   .piece {
     width: 40px;
     height: auto;
   }
 
+  /* Set captured pieces image size for tablet screens */
   .captured-pieces img {
     width: 25px;
     height: auto;
   }
 
+  /* Style game control buttons for tablet screens */
   #game-controls button {
     font-size: 12px;
     padding: 6px 12px;
   }
 
+  /* Adjust modal styling for tablet screens */
   .modal {
     padding: 10px;
     transform: scale(0.9);
@@ -66,6 +77,7 @@
 
 /* Mobile devices adjustments (max-width: 480px) */
 @media screen and (max-width: 480px) {
+  /* Style header for mobile screens */
   header h1 {
     margin: 10px auto; /* Center the title horizontally */
     margin-bottom: 20px; /* Adjust the spacing below the title */
@@ -75,39 +87,45 @@
   }
 
   .container {
-    margin-top: -10px; /* Bring the layout up a bit more */
-    padding: 0 5px; /* Slight padding to keep elements within bounds */
+    margin-top: -10px;
+    padding: 0 5px;
   }
 
+  /* Adjust chess board dimensions and grid for mobile screens */
   .chess-board {
-    width: 336px; /* Slightly smaller board for better fit */
+    width: 336px;
     height: 336px;
     margin: 10px auto; /* Adjust margin to center the board */
     grid-template-columns: repeat(8, 42px); /* Adjust square size */
     grid-template-rows: repeat(8, 42px);
   }
 
+  /* Set square size for mobile screens */
   .square {
-    width: 42px; /* Match square size to grid */
+    width: 42px;
     height: 42px;
   }
 
+  /* Scale chess pieces for mobile screens */
   .piece {
-    width: 75%; /* Scale pieces slightly smaller within squares */
+    width: 75%;
     height: 75%;
   }
 
+  /* Style captured pieces section for mobile screens */
   .captured-pieces {
-    margin-top: 15px; /* Add spacing for captured pieces */
-    font-size: 12px; /* Adjust font size for smaller screens */
+    margin-top: 15px;
+    font-size: 12px;
   }
 
+  /* Adjust game controls spacing for mobile screens */
   #game-controls {
-    margin-top: 15px; /* Space above the restart and mute buttons */
+    margin-top: 15px;
   }
 
+  /* Style footer for mobile screens */
   footer {
-    margin-top: 15px; /* Ensure footer isn't too close */
-    font-size: 12px; /* Smaller font for the footer text */
+    margin-top: 15px;
+    font-size: 12px;
   }
 }
