@@ -1,0 +1,115 @@
+/* General media query adjustments */
+
+/* Small screens, laptops */
+@media screen and (max-width: 1024px) {
+    .chess-board {
+        width: 483px;
+        height: 483px;
+    }
+    
+    v.square {
+        width: 70px;
+        height: 70px;
+    }
+
+    .piece {
+        width: 46px;
+        height: auto;
+    }
+
+    .captured-pieces img {
+        width: 30px;
+        height: auto;
+    }
+
+    #game-controls button {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+}
+
+/* iPads, Tablets */
+@media screen and (max-width: 768px) {
+    .chess-board {
+        width: 404px;
+        height: 404px;
+        margin: 10px auto;
+        grid-template-columns: repeat(8, 50px);
+        grid-template-rows: repeat(8, 50px);
+    }
+    
+    .square {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .piece {
+        width: 40px;
+        height: auto;
+    }
+
+    .captured-pieces img {
+        width: 25px;
+        height: auto;
+    }
+
+    #game-controls button {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+
+    .modal {
+        padding: 10px;
+        transform: scale(0.9);
+    }
+}
+
+/* Mobile devices adjustments (max-width: 480px) */
+@media screen and (max-width: 480px) {
+    header h1 {
+        margin: 10px auto; /* Center the title horizontally */
+        margin-bottom: 20px; /* Adjust the spacing below the title */
+        font-size: 1.8rem; /* Slightly larger font size for better visibility */
+        line-height: 1.3; /* Adjust line height for better spacing */
+        text-align: center; /* Ensure the text is always centered */
+    }
+
+    .container {
+        margin-top: -10px; /* Bring the layout up a bit more */
+        padding: 0 5px; /* Slight padding to keep elements within bounds */
+    }
+
+    .chess-board {
+        width: 336px; /* Slightly smaller board for better fit */
+        height: 336px;
+        margin: 10px auto; /* Adjust margin to center the board */
+        grid-template-columns: repeat(8, 42px); /* Adjust square size */
+        grid-template-rows: repeat(8, 42px);
+    }
+
+    .square {
+        width: 42px; /* Match square size to grid */
+        height: 42px;
+    }
+
+    .piece {
+        width: 75%; /* Scale pieces slightly smaller within squares */
+        height: 75%;
+    }
+
+    .captured-pieces {
+        margin-top: 15px; /* Add spacing for captured pieces */
+        font-size: 12px; /* Adjust font size for smaller screens */
+    }
+
+    #game-controls {
+        margin-top: 15px; /* Space above the restart and mute buttons */
+    }
+
+    footer {
+        margin-top: 15px; /* Ensure footer isn't too close */
+        font-size: 12px; /* Smaller font for the footer text */
+    }
+}
+
+
