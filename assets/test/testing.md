@@ -21,7 +21,7 @@ Main Page - https://github.com/GBerrow/MS2
   - [Conclusion](#conclusion)
 
 
-Important!: Sadly I was not able to complete major part of the testing processes (as shown above) due to time constraints and personal issues. Down below is what I have achieved in the development process of the game
+Important!: Sadly I was not able to complete major parts of the testing processes due to time constraints and personal issues. Down below is what I have achieved in the development process of the game
 ---
 
 ## Bugs and Fixes
@@ -548,7 +548,18 @@ Despite encountering a specific edge case issue with the AI's king movement, the
 
 While the specific AI king movement issue on square f7 remains unresolved, the decision to prioritize user experience improvements demonstrates a practical approach to project management given time constraints. The planned enhancements, including move highlighting, sound effects, responsive design, and documentation updates, will significantly improve the game's accessibility and enjoyment for users.
 
-Future development could focus on:
+## Has not been tested yet
+- cross browser testing
+- html validation
+- css validation
+- javascript validation
+- accessibility testing
+- lighthouse testing
+- slow website testing
+
+---
+
+## Future development could focus on:
 - Resolving the AI king movement edge case
 - Implementing additional AI difficulty levels
 - Adding game state saving functionality
