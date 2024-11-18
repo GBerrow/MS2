@@ -29,6 +29,23 @@ function sendToStockfish(command) {
     stockfish.postMessage(command);
 }
 
+const moveSound = new Audio('./assets/sound/move.mp3');
+const captureSound = new Audio('./assets/sound/capture.mp3');
+const checkSound = new Audio('./assets/sound/check.mp3');
+const castleSound = new Audio('./assets/sound/castle.mp3');
+const promotionSound = new Audio('./assets/sound/promotion.mp3');
+
+let isMuted = false;
+
+function toggleSound() {
+    isMuted = !isMuted;
+    const muteButton = document.getElementById('muteButton');
+    muteButton.textContent = isMuted ? '🔇' : '🔊';
+    [moveSound, captureSound, checkSound, castleSound, promotionSound].forEach(sound => {
+        sound.muted = isMuted;
+    });
+}
+
 // Chess Board Setup
 const initialBoardSetup = {
     a8: "rook-black", b8: "knight-black", c8: "bishop-black", d8: "queen-black",
@@ -514,34 +531,31 @@ function handlePieceSelection(piece, resolve, pawnPosition, currentPlayer) {
 }
 
 // Function to execute a promotion
+
 function executePromotion(fromSquare, toSquare, playerColor, selectedPiece) {
     const targetSquare = document.getElementById(toSquare);
     const sourceSquare = document.getElementById(fromSquare);
 
     if (!targetSquare) return;
 
-    // Create the promoted piece with correct attributes
     const promotedPiece = document.createElement('img');
     promotedPiece.src = `assets/images/chess-pieces/${selectedPiece}-${playerColor}.png`;
     promotedPiece.classList.add('piece');
     promotedPiece.setAttribute('data-piece', `${selectedPiece}-${playerColor}`);
     promotedPiece.setAttribute('data-color', playerColor);
 
-    // Clear target square and place new piece
     targetSquare.innerHTML = '';
     targetSquare.appendChild(promotedPiece);
 
-    // Clear the source square
     if (sourceSquare) {
         sourceSquare.innerHTML = '';
     }
 
-    // Update game state to reflect the promotion
     initialBoardSetup[toSquare] = `${selectedPiece}-${playerColor}`;
-    delete initialBoardSetup[fromSquare]; // Remove the pawn from its original position
+    delete initialBoardSetup[fromSquare];
 
-    // Switch player turn
     currentPlayer = playerColor === 'white' ? 'black' : 'white';
+    promotionSound.play();
 }
 
 // Function to check if a square contains an opponent piece
@@ -632,13 +646,9 @@ function isValidCastling(kingSquare, targetSquare, playerColor) {
 }
 
 function executeCastling(kingSquare, targetSquare, playerColor) {
-    // console.log(`Executing castling: King at ${kingSquare}, target ${targetSquare}, player ${playerColor}`);
-    
     const rank = playerColor === 'white' ? '1' : '8';
-    const isKingsideCastling = targetSquare[0] === 'g'; // King-side or queen-side
-
-    // Define the rook's current and target positions
-    const rookFile = isKingsideCastling ? 'h' : 'a'; 
+    const isKingsideCastling = targetSquare[0] === 'g';
+    const rookFile = isKingsideCastling ? 'h' : 'a';
     const rookSquare = rookFile + rank;
     const newRookFile = isKingsideCastling ? 'f' : 'd';
     const newRookSquare = newRookFile + rank;
@@ -651,25 +661,17 @@ function executeCastling(kingSquare, targetSquare, playerColor) {
         return;
     }
 
-    // Ensure the king is moving exactly 2 squares (which would indicate castling)
     const kingFileDiff = Math.abs(kingSquare.charCodeAt(0) - targetSquare.charCodeAt(0));
     if (kingFileDiff === 2) {
-        // Move the king
         document.getElementById(targetSquare).appendChild(king);
-
-        // Move the rook to its new position
         document.getElementById(newRookSquare).appendChild(rook);
 
-        // Update castling rights
         if (playerColor === 'white') {
             whiteCastled = true;
         } else {
             blackCastled = true;
         }
-
-        // console.log(`Castling complete: King moved from ${kingSquare} to ${targetSquare}, Rook moved from ${rookSquare} to ${newRookSquare}`);
-    } else {
-        // console.error('Invalid castling: King did not move 2 squares.');
+        castleSound.play();
     }
 }
 
@@ -878,6 +880,9 @@ function executeMove(currentSquare, targetSquare, pieceType, playerColor) {
         const capturedPieceType = capturedPiece.getAttribute('data-piece');
         targetSquare.removeChild(capturedPiece);
         CapturedPiecesDisplay(capturedPieceType, playerColor);
+        captureSound.play(); // Add capture sound
+    } else {
+        moveSound.play(); // Add regular move sound
     }
 
     // Execute the move
@@ -1078,16 +1083,15 @@ function isKingInCheck(playerColor) {
 
 // Function to check the current state of the game
 function checkGameState() {
-    // console.log("Checking game state...");
-
     const whiteKingInCheck = isKingInCheck('white');
     const blackKingInCheck = isKingInCheck('black');
 
     if (whiteKingInCheck) {
+        checkSound.play();
         console.log("White's king is in check.");
         if (isCheckmate('white')) {
             console.log("White is in checkmate. Black wins.");
-            gameOver('black');  // Black wins
+            gameOver('black');
             gameIsOver = true;
             return true;
         } else {
@@ -1096,10 +1100,11 @@ function checkGameState() {
     }
 
     if (blackKingInCheck) {
+        checkSound.play();
         console.log("Black's king is in check.");
         if (isCheckmate('black')) {
             console.log("Black is in checkmate. White wins.");
-            gameOver('white');  // White wins
+            gameOver('white');
             gameIsOver = true;
             return true;
         } else {
@@ -1108,7 +1113,7 @@ function checkGameState() {
     }
 
     console.log("Neither king is in checkmate, game continues.");
-    return false;  // No checkmate detected
+    return false;
 }
 
 // Function to check if the player is in checkmate
