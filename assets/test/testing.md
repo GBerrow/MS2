@@ -21,7 +21,7 @@ If you want to return to my normal readme, please click the link below:
   - [Conclusion](#conclusion)
 
 
-Important!: Sadly I was not able to complete major part of the testing processes (as shown above) due to time constraints and personal issues.
+Important!: Sadly I was not able to complete major part of the testing processes (as shown above) due to time constraints and personal issues. Down below is what I have achieved in the development process of the game
 ---
 
 ## Bugs and Fixes
@@ -512,6 +512,11 @@ With my submission date being tomorrow, I unfortuneatly do not have the time to 
 
 #### **Issue**
 The game works correctly for the most part and the ai moves and responds correctly to most of the moves. However, in a certain scenario when I attack the ai's king (on sqaure f7), the ai makes an illegal move and moves the pawn instead and im not sure why it's doing this. 
+
+18/11/2024
+
+#### **Issue 2**
+The AI does make an illegal now and again. Somtimes it will capture a piece with a knight but not legally as it sometimes acts like a pawn. I have not had the time to fix this issue.
 
 ![Test 10](test-images/test-image-10.png)
 

@@ -7,6 +7,8 @@ Welcome to the Chess Game project! This project is a fully interactive web-based
 
 ![alt text](assets/images/am-i-responsive.png)
 
+Link to deployed website - https://gberrow.github.io/MS2/
+
 ---
 
 ## Project Overview
