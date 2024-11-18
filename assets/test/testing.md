@@ -20,6 +20,8 @@ If you want to return to my normal readme, please click the link below:
   - [Bugs and fixes](#bugs-and-fixes)
   - [Conclusion](#conclusion)
 
+
+Important!: Sadly I was not able to complete major part of the testing processes (as shown above) due to time constraints and personal issues.
 ---
 
 ## Bugs and Fixes
@@ -534,3 +536,19 @@ Instead of trying to fix this very specific issue, I have decided to focus on th
 2. Adding a sound effect when a piece is moved or captured. 
 3. Enhacing the website with media queries to make it responsive. 
 4. Update readme with the latest changes. 
+
+### Conclusion
+
+Despite encountering a specific edge case issue with the AI's king movement, the chess game project has achieved significant milestones in terms of functionality and user experience. The refactoring efforts have successfully improved code maintainability, reduced function overlap, and enhanced overall performance through simplified piece movement handling and cleaned-up conditional logic.
+
+While the specific AI king movement issue on square f7 remains unresolved, the decision to prioritize user experience improvements demonstrates a practical approach to project management given time constraints. The planned enhancements, including move highlighting, sound effects, responsive design, and documentation updates, will significantly improve the game's accessibility and enjoyment for users.
+
+Future development could focus on:
+- Resolving the AI king movement edge case
+- Implementing additional AI difficulty levels
+- Adding game state saving functionality
+- Expanding the move history feature
+- Introducing multiplayer capabilities
+- Enhancing the AI's strategic decision-making
+
+This project has laid a solid foundation for a chess game implementation, with clear documentation and structured code that can be built upon for future improvements and features.
