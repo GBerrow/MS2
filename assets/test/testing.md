@@ -612,7 +612,7 @@ This project has laid a solid foundation for a chess game implementation, with c
 
 ---
 
-27/02/25
+### **27/02/25**
 
 After receiving feedback from both my assessors and peers, I’ve decided to return to this chess game project with a fresh outlook and a refined approach 3 months after my last update. While the initial implementation laid a strong foundation, I now aim to fully resolve key gameplay issues, enhance the user experience, and improve overall functionality. The primary focus will be on fixing illegal AI moves, implementing clearer move indicators, refining UI responsiveness, and expanding testing coverage. By incorporating structured debugging, better UI feedback, and robust documentation, I plan to bring this project closer to an interactive and seamless chess experience. This README.md and testing.md will serve as a roadmap for my progress, detailing the refinements and fixes as I move toward a fully functional chess game.
 
@@ -620,6 +620,17 @@ After receiving feedback from both my assessors and peers, I’ve decided to ret
 
 ![alt text](test-images/test-image-11.png)
 
+This table above serves as a guideline of priortiess I need to tackle next. The most immediate step would be to permantly fix the illegal AI moves and ensure the gameplay is completely functional.
+
 ---
 
-This table above serves as a guideline of priortiess I need to tackle next. The most immediate step would be to permantly fix the illegal AI moves and ensure the gameplay is completely functional.
+### **10/03/2025**  
+
+After taking time off this week, I’ve returned to this project with a fresh perspective. Upon reviewing my work, I’ve concluded that having the entire chess game codebase condensed into a single JavaScript file is far from ideal. This structure makes it difficult to navigate, maintain, and debug efficiently.  
+
+To address this, I’ve decided that my first priority is to refactor the codebase. As part of this process, I’ve created a template to guide the reorganization:  
+
+![Test 12](test-images/test-image-12.png)  
+
+This template will help restructure the code by dividing it into multiple files based on functionality. Doing so will significantly improve maintainability, organization, and debugging efficiency, making future development much smoother.  
+
