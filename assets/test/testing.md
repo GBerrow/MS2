@@ -634,3 +634,74 @@ To address this, I’ve decided that my first priority is to refactor the codeba
 
 This template will help restructure the code by dividing it into multiple files based on functionality. Doing so will significantly improve maintainability, organization, and debugging efficiency, making future development much smoother.  
 
+---
+
+### **13/03/2025**  
+
+The last couple of days I have broken down my code and organised into multiple files (shown in the previous template above) in the hopes of that this solution would help me maintain and debug the code more efficiently. However even after breaking it down into those files, the current monolithic structure still carried all of it's significant bugs and issues over. These challenging issues have led me to conclude that that I need to do even more thinking and planning about what the best outcome will be for the project. Down below I'll list out all the bugs and the issues that has been found and reviewed by my assessors, my peers and myself.
+
+### Confirmed Bugs
+
+- Undefined Function Errors
+- Inconsistent Variable References
+
+### Additional Issues Found in Code Review
+
+- Inconsistent Variable References
+- Logic Flow Problems
+- Error Handling Issues
+- Debugging Artifacts in the Console
+
+### Most Critical Issues
+
+- Complex Interrelationships
+  - Functions are highly interdependent with complex call chains.
+  - Functions like isCheckmate() depend on isKingInCheck(), which depends on findKing() and canPieceAttackKing().
+  - Changes to one function likely require changes to multiple other functions 
+
+- Global State Management
+  - Relies heavily on global variables (selectedPiece, currentPlayer, gameIsOver, whiteCastled, blackCastled)
+  - State is modified by numerous functions, making it difficult to track changes
+  - Easy to introduce state-related bugs when modifying code
+
+- Lack of Modularization
+  - Despite section comments, the code lacks true modular organization
+  - Related functions are sometimes separated (e.g., pawn movement logic is spread across multiple functions)
+
+- Inconsistent Implementation Patterns
+  - Different movement validation functions use different approaches
+  - Some functions return boolean values, others return arrays or objects
+
+## Decision to completely rebuild the code
+
+After careful consideration, I have weighed up the pros and cons of the current codebase and have taken the significant decision to decide whether to rebuild the entire codebase from scratch. This decision is based on the following factors:
+
+#### Pros of complete rewrite:
+
+1. Clean slate to implement proper architecture from the beginning
+
+2. Opportunity to fix all existing bugs at once
+
+3. Can implement a more maintainable, modular codebase
+
+4. Better separation of concerns with the proposed folder structure
+
+5. Easier testing and debugging in the long run
+
+#### Cons of complete rewrite:
+
+1. Time-intensive process to reimplement all chess rules and logic
+
+2. Risk of introducing new bugs during rewrite
+
+3. Temporarily losing a working (albeit buggy) product
+
+4. Need to thoroughly test all features again
+
+#### Overall Decision:
+
+I have decided to completely rebuild the codebase from scratch. This decision is based on a new folder structure I came up that has a bullet-proof design that will allow me to fully implement the chess rules and logic in a far more maintainable, efficient and modular way:
+
+![Test 13](test-images/test-image-13.png)
+
+This enhanced structure represents a significant improvement over the previous design. The separation between core game logic, board state, and UI elements will make debugging dramatically easier, as you can validate each component independently. This architecture also supports more sophisticated testing approaches (unit tests, integration tests) that would be nearly impossible with the current design.
