@@ -1,4 +1,4 @@
-function isValidQueenMove(boardState, from, to, playerColor) {
+export function isValidQueenMove(boardState, from, to, playerColor) {
     // Queen combines rook and bishop movement
     // Check if move is in a straight line OR diagonal
     const fromFile = from.charCodeAt(0);
@@ -24,7 +24,7 @@ function isValidQueenMove(boardState, from, to, playerColor) {
     return true; // Basic validation only, path clearing will be handled by integration
 }
 
-function getQueenMoves(boardState, position, playerColor) {
+export function getQueenMoves(boardState, position, playerColor) {
     const validMoves = [];
     const [file, rank] = [position.charCodeAt(0), parseInt(position[1])];
     

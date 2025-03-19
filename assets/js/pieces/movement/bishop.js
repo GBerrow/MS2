@@ -1,4 +1,4 @@
-function isValidBishopMove(boardState, from, to, playerColor) {
+export function isValidBishopMove(boardState, from, to, playerColor) {
     // Check if move is diagonal
     const fileDiff = Math.abs(from.charCodeAt(0) - to.charCodeAt(0));
     const rankDiff = Math.abs(parseInt(from[1]) - parseInt(to[1]));
@@ -13,7 +13,7 @@ function isValidBishopMove(boardState, from, to, playerColor) {
     return true; // Basic validation only, path clearing will be handled by integration
 }
 
-function getBishopMoves(boardState, position, playerColor) {
+export function getBishopMoves(boardState, position, playerColor) {
     const validMoves = [];
     const [file, rank] = [position.charCodeAt(0), parseInt(position[1])];
     

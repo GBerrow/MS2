@@ -1,4 +1,4 @@
-function isValidKingMove(boardState, from, to, playerColor) {
+export function isValidKingMove(boardState, from, to, playerColor) {
     // King moves one square in any direction
     const fromFile = from.charCodeAt(0);
     const fromRank = parseInt(from[1]);
@@ -18,7 +18,7 @@ function isValidKingMove(boardState, from, to, playerColor) {
     return true;
 }
 
-function getKingMoves(boardState, position, playerColor) {
+export function getKingMoves(boardState, position, playerColor) {
     const validMoves = [];
     const [file, rank] = [position.charCodeAt(0), parseInt(position[1])];
     

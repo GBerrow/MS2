@@ -1,5 +1,5 @@
 // pawn.js - No imports
-function isValidPawnMove(boardState, from, to, playerColor) {
+export function isValidPawnMove(boardState, from, to, playerColor) {
     const fromFile = from.charCodeAt(0);
     const fromRank = parseInt(from[1]);
     const toFile = to.charCodeAt(0);
@@ -47,7 +47,7 @@ function isValidPawnMove(boardState, from, to, playerColor) {
     return false;
 }
 
-function getPawnMoves(boardState, position, playerColor) {
+export function getPawnMoves(boardState, position, playerColor) {
     const validMoves = [];
     const [file, rank] = [position.charCodeAt(0), parseInt(position[1])];
     

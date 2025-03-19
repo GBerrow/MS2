@@ -1,4 +1,4 @@
-function isValidKnightMove(boardState, from, to, playerColor) {
+export function isValidKnightMove(boardState, from, to, playerColor) {
     // Knight moves in an L-shape: 2 squares in one direction and 1 in perpendicular
     const fromFile = from.charCodeAt(0);
     const fromRank = parseInt(from[1]);
@@ -20,7 +20,7 @@ function isValidKnightMove(boardState, from, to, playerColor) {
     return true;
 }
 
-function getKnightMoves(boardState, position, playerColor) {
+export function getKnightMoves(boardState, position, playerColor) {
     const validMoves = [];
     const [file, rank] = [position.charCodeAt(0), parseInt(position[1])];
     

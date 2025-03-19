@@ -1,4 +1,4 @@
-function isValidRookMove(boardState, from, to, playerColor) {
+export function isValidRookMove(boardState, from, to, playerColor) {
     // Check if move is in a straight line (same rank or file)
     const isStraightLine = from[0] === to[0] || from[1] === to[1];
     if (!isStraightLine) return false;
@@ -11,7 +11,7 @@ function isValidRookMove(boardState, from, to, playerColor) {
     return true; // Basic validation only, path clearing will be handled by integration
 }
 
-function getRookMoves(boardState, position, playerColor) {
+export function getRookMoves(boardState, position, playerColor) {
     const validMoves = [];
     const [file, rank] = [position.charCodeAt(0), parseInt(position[1])];
     
