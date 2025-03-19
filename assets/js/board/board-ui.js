@@ -71,3 +71,33 @@ export function updateBoardAfterMove(from, to) {
         toSquare.appendChild(piece);
     }
 }
+
+/**
+ * Renders the current board state to the UI
+ */
+export function renderBoard() {
+    // Clear the board first
+    document.querySelectorAll(".square").forEach(square => {
+        square.innerHTML = "";
+    });
+    
+    // Place pieces according to boardState
+    for (const [position, piece] of Object.entries(boardState.pieces)) {
+        const square = document.getElementById(position);
+        if (!square) {
+            console.error(`Square with ID ${position} not found!`);
+            continue;
+        }
+        
+        // Create image element for the piece
+        const img = document.createElement("img");
+        img.src = `assets/images/chess-pieces/${piece}.png`;
+        img.alt = piece;
+        img.classList.add("piece");
+        img.setAttribute("data-piece", piece);
+        img.setAttribute("data-color", piece.split("-")[1]);
+        
+        // Add the piece to the square
+        square.appendChild(img);
+    }
+}
