@@ -6,8 +6,12 @@ export const boardState = {
         white: [],
         black: []
     },
-    inCheck: false,
-    lastMove: null
+    inCheck: {
+        white: false,
+        black: false
+    },
+    lastMove: null,
+    aiEnabled: true // flag to enable/disable AI
 };
 
 // Methods to manipulate state
