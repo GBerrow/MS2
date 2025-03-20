@@ -24,6 +24,30 @@ export function setupEventListeners() {
     if (restartButton) {
         restartButton.addEventListener('click', handleRestartGame);
     }
+
+    // set up event listeners for AI button
+    const toggleAIButton = document.getElementById('toggleAI');
+    if (toggleAIButton) {
+        toggleAIButton.addEventListener('click', toggleAI);
+    }
+}
+// functon for the AI button
+function toggleAI() {
+    boardState.aiEnabled = !boardState.aiEnabled;
+    
+    const toggleAIButton = document.getElementById('toggleAI');
+    if (toggleAIButton) {
+        toggleAIButton.textContent = `Toggle AI: ${boardState.aiEnabled ? 'ON' : 'OFF'}`;
+    }
+    
+    console.log(`AI ${boardState.aiEnabled ? 'enabled' : 'disabled'}`);
+    
+    // If AI was just enabled and it's black's turn, trigger a move
+    if (boardState.aiEnabled && boardState.currentPlayer === 'black') {
+        import('./game-logic/turn-manager.js').then(module => {
+            module.switchTurn();
+        });
+    }
 }
 
 function handleSquareClick(event) {
