@@ -199,3 +199,57 @@ button {
   width: 40px; /* Fixed width */
   height: auto; /* Maintain aspect ratio */
 }
+
+/* Game Over Styles */
+.game-over-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.game-over-modal {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    transform: scale(0.9);
+    animation: pop 0.5s forwards;
+}
+
+@keyframes pop {
+    0% { transform: scale(0.9); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.game-over-modal h2 {
+    color: #333;
+    margin-bottom: 20px;
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+}
+
+.game-over-modal button {
+    background-color: #2c3e50;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.game-over-modal button:hover {
+    background-color: #1a252f;
+}
