@@ -9,7 +9,8 @@ import { isValidQueenMove } from '../pieces/movement/queen.js';
 import { isValidKingMove } from '../pieces/movement/king.js';
 import { isPathClear } from '../pieces/validation.js';
 import { switchTurn } from '../game-logic/turn-manager.js';
-import { checkForCheck } from '../game-logic/check-detection.js';
+import { simulateMoveAndCheck, checkForCheck, isCheckmate } from '../game-logic/check-detection.js';
+import { declareGameOver } from '../game-logic/game-over.js';
 
 let selectedSquare = null;
 
@@ -126,14 +127,16 @@ function showValidMoves(position) {
     highlightValidMoves(validMoves);
 }
 
+// Function to try to make a move
 function tryMove(from, to) {
     const piece = boardState.pieces[from];
     if (!piece) return false;
     
     const [type, color] = piece.split('-');
+    
+    // First check if the move is mechanically valid
     let isValid = false;
     
-    // Validate move based on piece type
     switch (type) {
         case 'pawn':
             isValid = isValidPawnMove(boardState, from, to, color);
@@ -159,11 +162,24 @@ function tryMove(from, to) {
     }
     
     if (isValid) {
+        // Check if this move would leave or put the king in check
+        if (simulateMoveAndCheck(boardState, from, to, color)) {
+            console.log(`Illegal move: ${from} to ${to} - would leave king in check`);
+            return false;
+        }
+        
         // Execute the move
         executeMove(from, to);
         
-        // Check for check after the move
+        // Check for check or checkmate after the move
         checkForCheck();
+        
+        // Check for checkmate
+        const opponentColor = color === 'white' ? 'black' : 'white';
+        if (boardState.inCheck[opponentColor] && isCheckmate(opponentColor)) {
+            // Handle checkmate
+            declareGameOver(`Checkmate! ${color} wins!`);
+        }
         
         // Switch turns
         switchTurn();
