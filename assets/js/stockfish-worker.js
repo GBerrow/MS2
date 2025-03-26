@@ -33,9 +33,6 @@ export function initStockfish(callback) {
                     window.onBestMove(bestMove);
                 }
             }
-            
-            // Debug messages
-            console.log('Stockfish: ' + message);
         };
         
         // Initialize UCI mode
