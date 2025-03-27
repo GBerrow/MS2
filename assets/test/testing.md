@@ -702,6 +702,93 @@ After careful consideration, I have weighed up the pros and cons of the current 
 
 I have decided to completely rebuild the codebase from scratch. This decision is based on a new folder structure I came up that has a bullet-proof design that will allow me to fully implement the chess rules and logic in a far more maintainable, efficient and modular way:
 
-![Test 13](test-images/test-image-13.png)
+![Test 13](test-images/test-image-13.png)  
 
 This enhanced structure represents a significant improvement over the previous design. The separation between core game logic, board state, and UI elements will make debugging dramatically easier, as you can validate each component independently. This architecture also supports more sophisticated testing approaches (unit tests, integration tests) that would be nearly impossible with the current design.
+
+---
+
+### **27/03/2025**
+
+Nearly 2 weeks have passed since updating the testing.md and I have spent much of my time in this period laying out the new foundation for the project. This new structure has proven to be very effective in comparison to the old one, allowing for easier debugging and maintenance. Here are the key changes down below:
+
+#### **Successfully Implemented Modular Architecture**
+
+The complete rewrite of the codebase following the modular structure has been completed, resulting in:
+
+- **Separate Module Files**: Functionality is now properly separated into individual files organized by responsibility
+- **Reduced Interdependencies**: Functions now have clearer inputs and outputs, making debugging simpler
+- **Improved Code Organization**: Each piece type has its own movement logic file
+
+#### **Key Improvements Over Previous Implementation**
+
+| Issue | Previous Implementation | New Implementation |
+|-------|-------------------------|-------------------|
+| **Code Structure** | Monolithic with complex interdependencies | Modular with clear separation of concerns |
+| **Check Detection** | Inconsistent, allowed illegal king moves | Robust protection against moving into check |
+| **Checkmate Logic** | Unreliable, missed valid checkmate scenarios | Accurately detects all checkmate conditions |
+| **Debugging** | Difficult to trace issues with extensive call chains | Clear function boundaries with transparent state management |
+| **AI Integration** | Mixed with game logic | Separate module with clean interfaces |
+
+#### **Previous Issues**
+
+The previous implementation had several fundamental issues. Such as:
+- Duplicate and redundant functions
+- overlapping code
+- inconsistent logic
+- lack of clarity in code structure
+- AI making illegal moves
+- Incorrect piece behaviour/movements
+
+#### **Approach that fixes Previous Issues**
+
+The new modular architecture addresses these issues through by:
+
+1. **Centralized Game Logic**
+   - Moved all game state management into dedicated `board-state.js`
+   - Single source of truth for piece positions and game status
+   - Clear interfaces for updating game state
+
+2. **Separated Movement Rules**
+   - Each piece type has its own module (pawn.js, rook.js, etc.)
+   - Movement validation is isolated and testable
+   - No more overlapping or conflicting movement rules
+
+3. **Enhanced Check Detection**
+   - New `simulateMoveAndCheck` function properly validates king safety
+   - Correctly handles pawn attack patterns
+   - Prevents all illegal moves that would leave king in check
+
+4. **Improved AI Integration** 
+   - Stockfish engine properly isolated in `stockfish-worker.js`
+   - Clear communication protocol between game and AI
+   - Validated moves before execution
+
+5. **Robust Move Validation**
+   - Multi-step validation process:
+     1. Basic piece movement rules
+     2. Path clearance checking
+     3. King safety verification
+     4. Check resolution validation
+
+6. **Clear Code Structure - Snippet:**
+   ```
+   assets/
+   ├── js/
+   │   ├── board/          # Board state and UI
+   │   ├── pieces/         # Piece-specific logic
+   │   ├── game-logic/     # Core game rules
+   │   └── ui/            # User interface handlers
+   ```
+
+This new structure ensures:
+- No duplicate functionality
+- Clear separation of concerns
+- Consistent logic flow
+- Easy debugging and maintenance
+- Proper move validation
+- Correct piece behavior
+
+The results show significantly improved gameplay with proper chess rules enforcement and no illegal moves. The next phase will be to further improve the UI and add additional features to enhance the overall experience.
+
+---
