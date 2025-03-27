@@ -117,27 +117,102 @@ export function simulateMoveAndCheck(boardState, from, to, playerColor) {
         inCheck: { ...boardState.inCheck }
     };
     
-    // Save the captured piece (if any)
-    const capturedPiece = tempBoardState.pieces[to];
-    
     // Execute the move on the temporary board
     const piece = tempBoardState.pieces[from];
     delete tempBoardState.pieces[from];
     tempBoardState.pieces[to] = piece;
     
-    // Find the king position
+    // Find the king position - either the piece that just moved (if it's a king)
+    // or the king's current position
     let kingPosition = null;
-    for (const [position, pieceInfo] of Object.entries(tempBoardState.pieces)) {
-        if (pieceInfo === `king-${playerColor}`) {
-            kingPosition = position;
-            break;
+    
+    if (piece.split('-')[0] === 'king') {
+        // If we're moving the king, use the destination square
+        kingPosition = to;
+    } else {
+        // Otherwise find the king's position
+        for (const [position, pieceInfo] of Object.entries(tempBoardState.pieces)) {
+            if (pieceInfo === `king-${playerColor}`) {
+                kingPosition = position;
+                break;
+            }
         }
     }
     
-    // Check if the king would be in check after this move
-    const wouldBeInCheck = isKingInCheck(kingPosition, playerColor, tempBoardState);
+    if (!kingPosition) {
+        console.error("King not found in simulateMove");
+        return true; // Assume check as a safety measure
+    }
     
-    return wouldBeInCheck;
+    // Check if any opponent piece could attack the king after this move
+    return isKingInCheckAfterMove(kingPosition, playerColor, tempBoardState);
+}
+
+// Helper function to determine if king would be in check after a move
+function isKingInCheckAfterMove(kingPosition, kingColor, tempBoardState) {
+    const opponentColor = kingColor === 'white' ? 'black' : 'white';
+    
+    // Check all opponent pieces
+    for (const [position, piece] of Object.entries(tempBoardState.pieces)) {
+        const [pieceType, pieceColor] = piece.split('-');
+        
+        if (pieceColor !== opponentColor) continue;
+        
+        let canAttackKing = false;
+        
+        switch (pieceType) {
+            case 'pawn': 
+                // Special case for pawn - they attack diagonally
+                const pawnFile = position.charCodeAt(0);
+                const pawnRank = parseInt(position[1]);
+                const kingFile = kingPosition.charCodeAt(0);
+                const kingRank = parseInt(kingPosition[1]);
+                
+                // Pawn attack logic depends on color
+                if (pieceColor === 'white') {
+                    // White pawns attack diagonally up
+                    canAttackKing = Math.abs(pawnFile - kingFile) === 1 && 
+                                    (kingRank - pawnRank) === 1;
+                } else {
+                    // Black pawns attack diagonally down
+                    canAttackKing = Math.abs(pawnFile - kingFile) === 1 && 
+                                    (pawnRank - kingRank) === 1;
+                }
+                break;
+                
+            case 'knight':
+                canAttackKing = isValidKnightMove(tempBoardState, position, kingPosition, pieceColor);
+                break;
+                
+            case 'bishop':
+                canAttackKing = isValidBishopMove(tempBoardState, position, kingPosition, pieceColor) && 
+                               isPathClear(tempBoardState, position, kingPosition);
+                break;
+                
+            case 'rook':
+                canAttackKing = isValidRookMove(tempBoardState, position, kingPosition, pieceColor) && 
+                               isPathClear(tempBoardState, position, kingPosition);
+                break;
+                
+            case 'queen':
+                canAttackKing = isValidQueenMove(tempBoardState, position, kingPosition, pieceColor) && 
+                               isPathClear(tempBoardState, position, kingPosition);
+                break;
+                
+            case 'king':
+                // Kings can attack adjacent squares
+                const fileDistance = Math.abs(position.charCodeAt(0) - kingPosition.charCodeAt(0));
+                const rankDistance = Math.abs(parseInt(position[1]) - parseInt(kingPosition[1]));
+                canAttackKing = fileDistance <= 1 && rankDistance <= 1 && (fileDistance + rankDistance > 0);
+                break;
+        }
+        
+        if (canAttackKing) {
+            return true; // King would be in check
+        }
+    }
+    
+    return false; // King would not be in check
 }
 
 // Check if a player is in checkmate
