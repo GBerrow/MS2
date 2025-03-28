@@ -7,6 +7,7 @@ import { isValidBishopMove } from '../pieces/movement/bishop.js';
 import { isValidQueenMove } from '../pieces/movement/queen.js';
 import { isValidKingMove } from '../pieces/movement/king.js';
 import { isPathClear } from '../pieces/validation.js';
+import { playSound } from '../ui/sound-manager.js';
 
 export function checkForCheck() {
     // Find both kings
@@ -36,6 +37,8 @@ export function checkForCheck() {
         console.log("White king is in check!");
         if (isCheckmate('white')) {
             console.log("White is in checkmate!");
+            // Play checkmate sound
+            playSound('checkmate');
             
             // Import and call declareGameOver after a short delay to ensure UI is updated
             setTimeout(() => {
@@ -43,6 +46,9 @@ export function checkForCheck() {
                     module.declareGameOver("Checkmate! Black wins!");
                 });
             }, 500);
+        } else {
+            // Just in check, not checkmate
+            playSound('check');
         }
     }
     
@@ -50,6 +56,8 @@ export function checkForCheck() {
         console.log("Black king is in check!");
         if (isCheckmate('black')) {
             console.log("Black is in checkmate!");
+            // Play checkmate sound
+            playSound('checkmate');
             
             // Import and call declareGameOver after a short delay to ensure UI is updated
             setTimeout(() => {
@@ -57,6 +65,9 @@ export function checkForCheck() {
                     module.declareGameOver("Checkmate! White wins!");
                 });
             }, 500);
+        } else {
+            // Just in check, not checkmate
+            playSound('check');
         }
     }
     
