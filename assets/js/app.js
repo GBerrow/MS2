@@ -3,6 +3,7 @@ import { initializeBoard } from './board/board-setup.js';
 import { setupEventListeners } from './ui/event-handlers.js';
 import { initializeTurnManager } from './game-logic/turn-manager.js';
 import { boardState } from './board/board-state.js';
+import { initSoundManager } from './ui/sound-manager.js';
 
 // Initialize the game when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
@@ -18,6 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize turn manager (which sets up Stockfish)
     initializeTurnManager();
     
+    // Initialize sound manager
+    initSoundManager();
+    
     console.log("Chess game initialized");
 });
-
