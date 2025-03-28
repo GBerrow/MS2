@@ -11,6 +11,7 @@ import { isPathClear } from '../pieces/validation.js';
 import { switchTurn } from '../game-logic/turn-manager.js';
 import { simulateMoveAndCheck, checkForCheck, isCheckmate } from '../game-logic/check-detection.js';
 import { declareGameOver } from '../game-logic/game-over.js';
+import { playSound } from '../ui/sound-manager.js';
 
 let selectedSquare = null;
 
@@ -165,6 +166,7 @@ function tryMove(from, to) {
         // Check if this move would leave or put the king in check
         if (simulateMoveAndCheck(boardState, from, to, color)) {
             console.log(`Illegal move: ${from} to ${to} - would leave king in check`);
+            playSound('incorrectMove');
             return false;
         }
         
@@ -187,6 +189,8 @@ function tryMove(from, to) {
         return true;
     }
     
+    // Play incorrect move sound for invalid moves
+    playSound('incorrectMove');
     return false;
 }
 
