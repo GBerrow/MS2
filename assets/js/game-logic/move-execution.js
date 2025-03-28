@@ -2,6 +2,7 @@ import { boardState } from '../board/board-state.js';
 import { updateBoardAfterMove, renderBoard } from '../board/board-ui.js';
 import { recordMove } from './move-history.js';
 import { updateCapturedPieces } from '../ui/captured-pieces.js';
+import { playSound } from '../ui/sound-manager.js';
 
 export function executeMove(from, to) {
     // Get the piece that's moving
@@ -27,6 +28,12 @@ export function executeMove(from, to) {
         
         // Update the UI to show captured pieces
         updateCapturedPieces();
+        
+        // Play capture sound
+        playSound('capture');
+    } else {
+        // Play regular move sound
+        playSound('move');
     }
     
     // Update board state
