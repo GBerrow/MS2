@@ -72,6 +72,8 @@ export function updateBoardAfterMove(from, to) {
     }
 }
 
+import { reattachDragListeners } from '../ui/event-handlers.js';
+
 /**
  * Renders the current board state to the UI
  */
@@ -100,4 +102,7 @@ export function renderBoard() {
         // Add the piece to the square
         square.appendChild(img);
     }
+    
+    // Reattach drag listeners to the new pieces
+    reattachDragListeners();
 }

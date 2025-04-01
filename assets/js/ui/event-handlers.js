@@ -14,12 +14,21 @@ import { declareGameOver } from '../game-logic/game-over.js';
 import { playSound } from '../ui/sound-manager.js';
 
 let selectedSquare = null;
+let draggedPiece = null;
+let dragSourceElement = null;
 
 export function setupEventListeners() {
     // Add click event listeners to all squares
     document.querySelectorAll('.square').forEach(square => {
         square.addEventListener('click', handleSquareClick);
+        
+        // Add drag and drop event listeners
+        square.addEventListener('dragover', handleDragOver);
+        square.addEventListener('drop', handleDrop);
     });
+    
+    // Add drag event listeners to pieces
+    setupDragListeners();
     
     // Setup other event listeners (restart button, etc.)
     const restartButton = document.getElementById('restart');
@@ -33,23 +42,101 @@ export function setupEventListeners() {
         toggleAIButton.addEventListener('click', toggleAI);
     }
 }
-// functon for the AI button
-function toggleAI() {
-    boardState.aiEnabled = !boardState.aiEnabled;
+
+// Setup drag listeners for all pieces
+function setupDragListeners() {
+    // Add dragstart event to pieces
+    document.querySelectorAll('.piece').forEach(piece => {
+        piece.setAttribute('draggable', 'true');
+        piece.addEventListener('dragstart', handleDragStart);
+        piece.addEventListener('dragend', handleDragEnd);
+    });
+}
+
+// Handle the start of dragging a piece
+function handleDragStart(e) {
+    const piece = e.target;
+    const square = piece.closest('.square');
     
-    const toggleAIButton = document.getElementById('toggleAI');
-    if (toggleAIButton) {
-        toggleAIButton.textContent = `Toggle AI: ${boardState.aiEnabled ? 'ON' : 'OFF'}`;
+    if (!square) return;
+    
+    const position = square.id;
+    const pieceType = piece.getAttribute('data-piece');
+    
+    // Check if it's the current player's piece
+    if (pieceType && pieceType.split('-')[1] === boardState.currentPlayer) {
+        // Set data for drag operation
+        draggedPiece = pieceType;
+        dragSourceElement = square;
+        
+        // Set data transfer for drop
+        e.dataTransfer.setData('text/plain', position);
+        e.dataTransfer.effectAllowed = 'move';
+        
+        // Create a custom drag image that looks like the original piece
+        const dragImage = piece.cloneNode(true);
+        dragImage.style.width = `${piece.offsetWidth}px`;
+        dragImage.style.height = `${piece.offsetHeight}px`;
+        
+        // Add the drag image to the document (off-screen)
+        dragImage.style.position = 'absolute';
+        dragImage.style.top = '-1000px';
+        dragImage.style.opacity = '1';
+        document.body.appendChild(dragImage);
+        
+        // Set the custom drag image with the center at cursor position
+        e.dataTransfer.setDragImage(
+            dragImage, 
+            dragImage.width / 2, 
+            dragImage.height / 2
+        );
+        
+        // Remove the temporary element after a short delay
+        setTimeout(() => {
+            document.body.removeChild(dragImage);
+        }, 0);
+        
+        // Highlight valid moves
+        showValidMoves(position);
+        
+        // Don't change opacity of original piece during drag
+        // This prevents the "ghost" effect
+    } else {
+        // Prevent dragging if it's not the player's turn
+        e.preventDefault();
+    }
+}
+
+// Handle dragging over a square
+function handleDragOver(e) {
+    // Allow dropping on this element
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+}
+
+// Handle dropping a piece on a square
+function handleDrop(e) {
+    // Prevent default action
+    e.preventDefault();
+    
+    // Clear highlights
+    clearHighlights();
+    
+    // Get data
+    const fromPosition = e.dataTransfer.getData('text/plain');
+    const toPosition = e.currentTarget.id;
+    
+    // If dropped on the same square, do nothing
+    if (fromPosition === toPosition) {
+        return;
     }
     
-    console.log(`AI ${boardState.aiEnabled ? 'enabled' : 'disabled'}`);
+    // Try to make the move
+    tryMove(fromPosition, toPosition);
     
-    // If AI was just enabled and it's black's turn, trigger a move
-    if (boardState.aiEnabled && boardState.currentPlayer === 'black') {
-        import('./game-logic/turn-manager.js').then(module => {
-            module.switchTurn();
-        });
-    }
+    // Reset drag state
+    draggedPiece = null;
+    dragSourceElement = null;
 }
 
 function handleSquareClick(event) {
@@ -197,4 +284,16 @@ function tryMove(from, to) {
 function handleRestartGame() {
     // Reset the game state and board
     window.location.reload(); // Simple refresh 
+}
+
+export function reattachDragListeners() {
+    setupDragListeners();
+}
+
+// Handle the end of dragging
+function handleDragEnd(e) {
+    // No need to reset opacity since we're not changing it
+    
+    // Clear highlights if no move was made
+    clearHighlights();
 }
