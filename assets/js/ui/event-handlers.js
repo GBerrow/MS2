@@ -15,20 +15,18 @@ import { playSound } from '../ui/sound-manager.js';
 
 let selectedSquare = null;
 let draggedPiece = null;
-let dragSourceElement = null;
+let floatingPiece = null;
+let dragSource = null;
+let offsetX, offsetY;
 
 export function setupEventListeners() {
     // Add click event listeners to all squares
     document.querySelectorAll('.square').forEach(square => {
         square.addEventListener('click', handleSquareClick);
-        
-        // Add drag and drop event listeners
-        square.addEventListener('dragover', handleDragOver);
-        square.addEventListener('drop', handleDrop);
     });
     
-    // Add drag event listeners to pieces
-    setupDragListeners();
+    // Setup custom mouse-based dragging
+    setupCustomDragListeners();
     
     // Setup other event listeners (restart button, etc.)
     const restartButton = document.getElementById('restart');
@@ -43,18 +41,23 @@ export function setupEventListeners() {
     }
 }
 
-// Setup drag listeners for all pieces
-function setupDragListeners() {
-    // Add dragstart event to pieces
+function setupCustomDragListeners() {
+    // Remove any existing listeners to prevent duplicates
     document.querySelectorAll('.piece').forEach(piece => {
-        piece.setAttribute('draggable', 'true');
-        piece.addEventListener('dragstart', handleDragStart);
-        piece.addEventListener('dragend', handleDragEnd);
+        piece.removeEventListener('mousedown', handlePieceMouseDown);
+        piece.setAttribute('draggable', 'false'); // Disable HTML5 dragging
+    });
+    
+    // Add new listeners
+    document.querySelectorAll('.piece').forEach(piece => {
+        piece.addEventListener('mousedown', handlePieceMouseDown);
+        
+        // Add touch support for mobile
+        piece.addEventListener('touchstart', handlePieceTouchStart, { passive: false });
     });
 }
 
-// Handle the start of dragging a piece
-function handleDragStart(e) {
+function handlePieceMouseDown(e) {
     const piece = e.target;
     const square = piece.closest('.square');
     
@@ -62,81 +65,204 @@ function handleDragStart(e) {
     
     const position = square.id;
     const pieceType = piece.getAttribute('data-piece');
+    const pieceColor = pieceType ? pieceType.split('-')[1] : null;
     
     // Check if it's the current player's piece
-    if (pieceType && pieceType.split('-')[1] === boardState.currentPlayer) {
-        // Set data for drag operation
+    if (pieceColor === boardState.currentPlayer) {
+        e.preventDefault(); // Prevent default browser behavior
+        
+        // Store dragged piece info
         draggedPiece = pieceType;
-        dragSourceElement = square;
+        dragSource = position;
         
-        // Set data transfer for drop
-        e.dataTransfer.setData('text/plain', position);
-        e.dataTransfer.effectAllowed = 'move';
+        // Get the original piece dimensions
+        const rect = piece.getBoundingClientRect();
+        const originalWidth = rect.width;
+        const originalHeight = rect.height;
         
-        // Create a custom drag image that looks like the original piece
-        const dragImage = piece.cloneNode(true);
-        dragImage.style.width = `${piece.offsetWidth}px`;
-        dragImage.style.height = `${piece.offsetHeight}px`;
+        // Create floating piece element that matches the original exactly
+        floatingPiece = document.createElement('img');
+        floatingPiece.src = piece.src;
+        floatingPiece.style.position = 'fixed';
+        floatingPiece.style.pointerEvents = 'none';
+        floatingPiece.style.width = `${originalWidth}px`;
+        floatingPiece.style.height = `${originalHeight}px`;
+        floatingPiece.style.zIndex = '1000';
+        document.body.appendChild(floatingPiece);
         
-        // Add the drag image to the document (off-screen)
-        dragImage.style.position = 'absolute';
-        dragImage.style.top = '-1000px';
-        dragImage.style.opacity = '1';
-        document.body.appendChild(dragImage);
+        // Position the cursor at the center of the piece
+        // We want the center of the piece to be at the cursor position
+        offsetX = originalWidth / 2;
+        offsetY = originalHeight / 2;
         
-        // Set the custom drag image with the center at cursor position
-        e.dataTransfer.setDragImage(
-            dragImage, 
-            dragImage.width / 2, 
-            dragImage.height / 2
-        );
+        // Position floating piece with cursor at the center
+        floatingPiece.style.left = `${e.clientX - offsetX}px`;
+        floatingPiece.style.top = `${e.clientY - offsetY}px`;
         
-        // Remove the temporary element after a short delay
-        setTimeout(() => {
-            document.body.removeChild(dragImage);
-        }, 0);
+        // Set up mouse move and mouse up handlers
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
         
-        // Highlight valid moves
+        // Hide original piece during drag
+        piece.style.opacity = '0.3';
+        
+        // Show valid moves
         showValidMoves(position);
-        
-        // Don't change opacity of original piece during drag
-        // This prevents the "ghost" effect
-    } else {
-        // Prevent dragging if it's not the player's turn
-        e.preventDefault();
     }
 }
 
-// Handle dragging over a square
-function handleDragOver(e) {
-    // Allow dropping on this element
+// New touch-based event handler
+function handlePieceTouchStart(e) {
+    const piece = e.target;
+    const square = piece.closest('.square');
+    
+    if (!square) return;
+    
+    // Prevent scrolling while dragging
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
+    
+    const position = square.id;
+    const pieceType = piece.getAttribute('data-piece');
+    const pieceColor = pieceType ? pieceType.split('-')[1] : null;
+    
+    // Check if it's the current player's piece
+    if (pieceColor === boardState.currentPlayer) {
+        // Store dragged piece info
+        draggedPiece = pieceType;
+        dragSource = position;
+        
+        // Get the original piece dimensions
+        const rect = piece.getBoundingClientRect();
+        const originalWidth = rect.width;
+        const originalHeight = rect.height;
+        
+        // Create floating piece element that matches the original exactly
+        floatingPiece = document.createElement('img');
+        floatingPiece.src = piece.src;
+        floatingPiece.style.position = 'fixed';
+        floatingPiece.style.pointerEvents = 'none';
+        floatingPiece.style.width = `${originalWidth}px`;
+        floatingPiece.style.height = `${originalHeight}px`;
+        floatingPiece.style.zIndex = '1000';
+        document.body.appendChild(floatingPiece);
+        
+        // Get touch position
+        const touch = e.touches[0];
+        
+        // Position the touch at the center of the piece
+        offsetX = originalWidth / 2;
+        offsetY = originalHeight / 2;
+        
+        // Position floating piece with touch at the center
+        floatingPiece.style.left = `${touch.clientX - offsetX}px`;
+        floatingPiece.style.top = `${touch.clientY - offsetY}px`;
+        
+        // Set up touch move and touch end handlers
+        document.addEventListener('touchmove', handleTouchMove, { passive: false });
+        document.addEventListener('touchend', handleTouchEnd);
+        
+        // Hide original piece during drag
+        piece.style.opacity = '0.3';
+        
+        // Show valid moves
+        showValidMoves(position);
+    }
 }
 
-// Handle dropping a piece on a square
-function handleDrop(e) {
-    // Prevent default action
-    e.preventDefault();
+function handleMouseMove(e) {
+    if (floatingPiece) {
+        // Move the floating piece with the cursor at the center
+        floatingPiece.style.left = `${e.clientX - offsetX}px`;
+        floatingPiece.style.top = `${e.clientY - offsetY}px`;
+    }
+}
+
+function handleTouchMove(e) {
+    if (floatingPiece) {
+        // Prevent scrolling
+        e.preventDefault();
+        
+        const touch = e.touches[0];
+        
+        // Move the floating piece with the touch at the center
+        floatingPiece.style.left = `${touch.clientX - offsetX}px`;
+        floatingPiece.style.top = `${touch.clientY - offsetY}px`;
+    }
+}
+
+function handleMouseUp(e) {
+    if (!floatingPiece || !draggedPiece || !dragSource) {
+        cleanupDrag();
+        return;
+    }
+    
+    // Find the square under the mouse
+    const elemBelow = document.elementFromPoint(e.clientX, e.clientY);
+    const square = elemBelow ? elemBelow.closest('.square') : null;
+    
+    if (square) {
+        const destination = square.id;
+        
+        // Try to make the move if destination is different from source
+        if (dragSource !== destination) {
+            tryMove(dragSource, destination);
+        }
+    }
+    
+    // Clean up
+    cleanupDrag();
+}
+
+function handleTouchEnd(e) {
+    if (!floatingPiece || !draggedPiece || !dragSource) {
+        cleanupDrag();
+        return;
+    }
+    
+    // Get the last touch position
+    const touch = e.changedTouches[0];
+    
+    // Find the square under the touch point
+    const elemBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+    const square = elemBelow ? elemBelow.closest('.square') : null;
+    
+    if (square) {
+        const destination = square.id;
+        
+        // Try to make the move if destination is different from source
+        if (dragSource !== destination) {
+            tryMove(dragSource, destination);
+        }
+    }
+    
+    // Clean up
+    cleanupDrag();
+}
+
+function cleanupDrag() {
+    // Remove floating piece
+    if (floatingPiece && floatingPiece.parentNode) {
+        floatingPiece.parentNode.removeChild(floatingPiece);
+    }
     
     // Clear highlights
     clearHighlights();
     
-    // Get data
-    const fromPosition = e.dataTransfer.getData('text/plain');
-    const toPosition = e.currentTarget.id;
+    // Restore opacity of all pieces
+    document.querySelectorAll('.piece').forEach(piece => {
+        piece.style.opacity = '1';
+    });
     
-    // If dropped on the same square, do nothing
-    if (fromPosition === toPosition) {
-        return;
-    }
-    
-    // Try to make the move
-    tryMove(fromPosition, toPosition);
-    
-    // Reset drag state
+    // Reset variables
     draggedPiece = null;
-    dragSourceElement = null;
+    dragSource = null;
+    floatingPiece = null;
+    
+    // Remove event listeners
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+    document.removeEventListener('touchmove', handleTouchMove);
+    document.removeEventListener('touchend', handleTouchEnd);
 }
 
 function handleSquareClick(event) {
@@ -287,13 +413,15 @@ function handleRestartGame() {
 }
 
 export function reattachDragListeners() {
-    setupDragListeners();
+    setupCustomDragListeners();
 }
 
-// Handle the end of dragging
-function handleDragEnd(e) {
-    // No need to reset opacity since we're not changing it
-    
-    // Clear highlights if no move was made
-    clearHighlights();
+// Define toggleAI function if it's missing
+function toggleAI() {
+    boardState.aiEnabled = !boardState.aiEnabled;
+    const toggleButton = document.getElementById('toggleAI');
+    if (toggleButton) {
+        toggleButton.textContent = `Toggle AI: ${boardState.aiEnabled ? 'ON' : 'OFF'}`;
+    }
+    console.log(`AI is now ${boardState.aiEnabled ? 'enabled' : 'disabled'}`);
 }
