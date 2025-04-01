@@ -165,19 +165,53 @@ export function executeEnPassant(from, to, capturePosition) {
     const [_, color] = pawn.split('-');
     const capturedPawn = boardState.pieces[capturePosition];
     
-    // Move the pawn
+    if (!capturedPawn) {
+        console.error(`No pawn found at ${capturePosition} for en passant capture`);
+        return false;
+    }
+    
+    console.log(`Executing en passant: ${color} pawn captures ${capturedPawn} at ${capturePosition}`);
+    
+    // Instead of doing the en passant logic ourselves, let's use the existing executeMove
+    // First, record the captured pawn
+    const capturedColor = capturedPawn.split('-')[1];
+    
+    // Add directly to captured pieces array
+    boardState.capturedPieces[color].push(capturedPawn);
+    
+    // Remove the captured pawn
+    delete boardState.pieces[capturePosition];
+    
+    // Now move the capturing pawn normally
     delete boardState.pieces[from];
     boardState.pieces[to] = pawn;
     
-    // Capture the opponent's pawn
-    delete boardState.pieces[capturePosition];
+    // Force update the captured pieces display by directly calling the function
+    import('../ui/captured-pieces.js').then(module => {
+        console.log("Updating captured pieces after en passant");
+        module.updateCapturedPieces();
+    });
     
-    // Add to captured pieces list
-    const capturedColor = capturedPawn.split('-')[1];
-    boardState.capturedPieces[capturedColor === 'white' ? 'black' : 'white'].push(capturedPawn);
+    // Also directly update the DOM element for captured pieces
+    const capturedContainer = document.getElementById(color === 'white' ? 'whiteCaptured' : 'blackCaptured');
+    if (capturedContainer) {
+        const img = document.createElement('img');
+        img.src = `assets/images/chess-pieces/${capturedPawn}.png`;
+        img.alt = capturedPawn;
+        img.title = capturedPawn.replace('-', ' ');
+        capturedContainer.appendChild(img);
+        console.log(`Added ${capturedPawn} to ${color}'s captured pieces container`);
+    }
     
-    // Update the UI
-    renderBoard();
+    // Update board display
+    import('../board/board-ui.js').then(module => {
+        module.renderBoard();
+    });
+    
+    // Play capture sound
+    import('../ui/sound-manager.js').then(module => {
+        module.playSound('capture');
+    });
     
     return true;
 }

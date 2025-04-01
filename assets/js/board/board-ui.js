@@ -1,3 +1,5 @@
+import { boardState } from './board-state.js';
+
 /**
  * Applies the chess board coloring pattern
  * Uses a dynamic color scheme for visual depth
