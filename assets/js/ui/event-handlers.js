@@ -12,6 +12,7 @@ import { switchTurn } from '../game-logic/turn-manager.js';
 import { simulateMoveAndCheck, checkForCheck, isCheckmate } from '../game-logic/check-detection.js';
 import { declareGameOver } from '../game-logic/game-over.js';
 import { playSound } from '../ui/sound-manager.js';
+import {isCastlingValid,executeCastling,isEnPassantValid,executeEnPassant,isPawnPromotionValid,executePromotion,} from "../game-logic/special-moves.js";
 
 let selectedSquare = null;
 let draggedPiece = null;
@@ -347,6 +348,39 @@ function tryMove(from, to) {
     if (!piece) return false;
     
     const [type, color] = piece.split('-');
+    
+    // First check for special moves
+    if (type === 'king' && isCastlingValid(from, to)) {
+        if (executeCastling(from, to)) {
+            checkForCheck();
+            switchTurn();
+            return true;
+        }
+    }
+    
+    if (type === 'pawn') {
+        const enPassantResult = isEnPassantValid(from, to);
+        if (enPassantResult.valid) {
+            if (executeEnPassant(from, to, enPassantResult.capturePosition)) {
+                checkForCheck();
+                switchTurn();
+                return true;
+            }
+        }
+        
+        // Add debug log
+        console.log(`Checking pawn promotion from: ${from} to: ${to}`);
+        
+        if (isPawnPromotionValid(from, to)) {
+            console.log("Pawn promotion is valid, executing...");
+            executePromotion(from, to).then(() => {
+                console.log("Promotion completed");
+                checkForCheck();
+                switchTurn();
+            });
+            return true;
+        }
+    }
     
     // First check if the move is mechanically valid
     let isValid = false;

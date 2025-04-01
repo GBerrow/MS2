@@ -1,130 +1,161 @@
-/* General Styles - Reset default browser styles */
+* ----------------------------------------
+   GENERAL STYLES
+   ---------------------------------------- */
+/* Reset all default browser styles to ensure consistent rendering across browsers */
 * {
-  margin: 0; /* Reset margin */
-  padding: 0; /* Reset padding */
-  box-sizing: border-box; /* Include padding and border in element's total width and height */
+  margin: 0; /* Remove default margin */
+  padding: 0; /* Remove default padding */
+  box-sizing: border-box; /* Include padding and border in element width/height calculation */
 }
 
-/* Body styles - Main layout structure */
+/* ----------------------------------------
+   BODY LAYOUT
+   ---------------------------------------- */
+/* Set up the main page layout and background */
 body {
-  font-family: Arial, sans-serif; /* Set default font */
-  display: flex; /* Enable flexbox layout */
-  flex-direction: column; /* Stack children vertically */
+  font-family: Arial, sans-serif; /* Set primary font for all text */
+  display: flex; /* Use flexbox layout for body content */
+  flex-direction: column; /* Stack children elements vertically */
   align-items: center; /* Center children horizontally */
-  overflow-x: hidden; /* Hide horizontal scrollbar */
-  background: url(../images/background.jpg); /* Set background image */
-  height: auto; /* Allow content to determine height */
+  overflow-x: hidden; /* Hide horizontal scrollbar if content overflows */
+  background: url(../images/background.jpg); /* Set background image for the entire page */
+  height: auto; /* Allow body to expand based on content */
 }
 
-/* Main heading styles */
+/* ----------------------------------------
+   TYPOGRAPHY
+   ---------------------------------------- */
+/* Main page heading styling */
 h1 {
-  text-align: center; /* Center the heading text */
-  margin: 20px auto; /* Add space around heading */
-  font-size: 2rem; /* Set font size to 2x root size */
+  text-align: center; /* Center-align the heading text */
+  margin: 20px auto; /* Add space around the heading */
+  font-size: 2rem; /* Set font size to 2x root size (32px typically) */
 }
 
-/* Layout and Container Styles - Main content wrapper */
+/* ----------------------------------------
+   LAYOUT CONTAINERS
+   ---------------------------------------- */
+/* Main content container positioning and alignment */
 .container {
-  margin-top: -20px; /* Moves the entire layout up slightly */
-  text-align: center; /* Center text content */
-  display: grid; /* Enable grid layout */
-  place-items: center; /* Center grid items both vertically and horizontally */
-  justify-content: center; /* Center grid container horizontally */
+  margin-top: -20px; /* Shift the entire layout up slightly */
+  text-align: center; /* Center all text within the container */
+  display: grid; /* Use CSS grid for layout */
+  place-items: center; /* Center grid items both horizontally and vertically */
+  justify-content: center; /* Center the grid container itself horizontally */
 }
 
-/* Chessboard Styles - Main game board layout */
+/* ----------------------------------------
+   CHESSBOARD STYLING
+   ---------------------------------------- */
+/* Main chessboard grid layout */
 .chess-board {
-  display: grid; /* Create grid layout for chess squares */
+  display: grid; /* Use CSS grid for the chessboard */
   grid-template-columns: repeat(8, 60px); /* Create 8 columns of 60px each */
   grid-template-rows: repeat(8, 60px); /* Create 8 rows of 60px each */
-  gap: 0; /* No gap between squares */
+  gap: 0; /* No gap between chess squares */
   margin: 15px auto; /* Center the board with margin */
-  border: 2px solid #333; /* Add border around entire board */
+  border: 2px solid #333; /* Add border around the entire board */
   transform: rotate(90deg); /* Rotate board for correct orientation */
 }
 
-/* Chess piece styles */
+/* ----------------------------------------
+   CHESS PIECES
+   ---------------------------------------- */
+/* Chess piece image styling */
 .piece {
-    width: 80%; /* Set piece width relative to square */
-    height: 80%; /* Set piece height relative to square */
-    transform: rotate(270deg); /* Counter-rotate pieces to display correctly */
-    cursor: grab; /* Show grab cursor on pieces */
-    user-select: none; /* Prevent text selection when dragging */
+  width: 80%; /* Set piece width relative to its square */
+  height: 80%; /* Set piece height relative to its square */
+  transform: rotate(270deg); /* Counter-rotate pieces to display correctly (since board is rotated) */
+  cursor: grab; /* Show grab cursor when hovering over pieces */
+  user-select: none; /* Prevent text selection when dragging */
 }
 
-/* Drag and drop styles */
+/* ----------------------------------------
+   DRAG AND DROP INTERACTIONS
+   ---------------------------------------- */
+/* Active state during piece dragging */
 .piece:active {
-    cursor: grabbing; /* Show grabbing cursor when dragging */
+  cursor: grabbing; /* Change cursor to grabbing while actively dragging */
 }
 
+/* Disable pointer events during drag for dragged piece */
 .piece.dragging {
-    pointer-events: none; /* Disable pointer events during drag */
+  pointer-events: none; /* Prevent the dragged element from interfering with drop targets */
 }
 
-/* No need for opacity changes since we're using a custom drag image */
+/* Highlight valid drop targets during drag */
 .square.valid-drop {
-  background-color: rgba(0, 255, 0, 0.2); /* Highlight valid drop targets */
+  background-color: rgba(0, 255, 0, 0.2); /* Light green highlight for valid drop targets */
 }
 
-/* Individual chess square styles */
+/* ----------------------------------------
+   CHESS SQUARES
+   ---------------------------------------- */
+/* Individual square styling */
 .square {
-  width: 60px; /* Fixed width for squares */
-  height: 60px; /* Fixed height for squares */
-  display: flex; /* Enable flexbox for centering pieces */
+  width: 60px; /* Fixed width for each square */
+  height: 60px; /* Fixed height for each square */
+  display: flex; /* Use flexbox for centering pieces */
   justify-content: center; /* Center pieces horizontally */
   align-items: center; /* Center pieces vertically */
   font-size: 24px; /* Set font size for any text in squares */
-  border: 1px solid #333; /* Border for each square */
+  border: 1px solid #333; /* Add border to each square */
   box-sizing: border-box; /* Include border in square dimensions */
 }
 
-/* Highlight styles for possible moves */
+/* ----------------------------------------
+   MOVE HIGHLIGHTING
+   ---------------------------------------- */
+/* Highlight style for valid move squares */
 .highlight-move {
-  background-color: rgba(0, 255, 0, 0.3) !important; /* Green highlight for valid moves */
-  position: relative; /* Enable z-index */
+  background-color: rgba(0, 255, 0, 0.3) !important; /* Green semi-transparent highlight */
+  position: relative; /* Enable z-index positioning */
   z-index: 1; /* Ensure highlight appears above board */
 }
 
-/* Highlight styles for possible captures */
+/* Highlight style for possible capture squares */
 .highlight-capture {
-  background-color: rgba(255, 0, 0, 0.3) !important; /* Red highlight for possible captures */
-  position: relative; /* Enable z-index */
+  background-color: rgba(255, 0, 0, 0.3) !important; /* Red semi-transparent highlight */
+  position: relative; /* Enable z-index positioning */
   z-index: 1; /* Ensure highlight appears above board */
 }
 
 /* Common styles for both move and capture highlights */
 .highlight-move,
 .highlight-capture {
-  width: 100%; /* Full width of square */
-  height: 100%; /* Full height of square */
+  width: 100%; /* Cover entire square */
+  height: 100%; /* Cover entire square */
   box-sizing: border-box; /* Include border in dimensions */
   margin: 0; /* Remove margin */
   padding: 0; /* Remove padding */
-  position: relative; /* Enable z-index */
-  z-index: 1; /* Layer ordering */
+  position: relative; /* Enable z-index positioning */
+  z-index: 1; /* Layer ordering for visual hierarchy */
 }
 
+/* ----------------------------------------
+   GAME CONTROLS
+   ---------------------------------------- */
 /* Controls section layout */
 .controls {
-  margin-top: 20px; /* Space above controls */
+  margin-top: 20px; /* Add space above the controls section */
 }
 
-/* Common button styles */
+/* Common button styling for all game buttons */
 button {
-  padding: 10px 20px; /* Internal spacing */
-  margin: 5px; /* External spacing */
-  font-size: 16px; /* Text size */
-  cursor: pointer; /* Show pointer on hover */
-  background-color: #333; /* Dark background */
-  color: white; /* White text */
-  border: none; /* Remove border */
-  border-radius: 5px; /* Rounded corners */
+  padding: 10px 20px; /* Internal spacing within buttons */
+  margin: 5px; /* External spacing between buttons */
+  font-size: 16px; /* Text size for buttons */
+  cursor: pointer; /* Show pointer cursor on hover */
+  background-color: #333; /* Dark background color */
+  color: white; /* White text for contrast */
+  border: none; /* Remove default border */
+  border-radius: 5px; /* Rounded corners for buttons */
 }
 
-/* Mute button specific styles */
+/* Specific styling for mute button */
 #muteButton {
-  padding: 10px 20px; /* Internal spacing */
-  margin: 5px; /* External spacing */
+  padding: 10px 20px; /* Internal spacing within button */
+  margin: 5px; /* External spacing around button */
   font-size: 16px; /* Text size */
   cursor: pointer; /* Show pointer on hover */
   background-color: #333; /* Dark background */
@@ -133,139 +164,169 @@ button {
   border-radius: 5px; /* Rounded corners */
 }
 
-/* Mute button hover effect */
+/* Hover effect for mute button */
 #muteButton:hover {
-  background-color: #444; /* Lighter background on hover */
+  background-color: #444; /* Slightly lighter background on hover for feedback */
 }
 
-/* Modal styles for pawn promotion */
-.modal {
-  padding: 175px; /* Large padding */
+/* ----------------------------------------
+   PROMOTION MODAL
+   ---------------------------------------- */
+/* Full-screen overlay for promotion modal */
+.promotion-overlay {
+  position: fixed; /* Fixed position relative to viewport */
+  top: 0; /* Align to top of viewport */
+  left: 0; /* Align to left of viewport */
+  width: 100%; /* Full viewport width */
+  height: 100%; /* Full viewport height */
+  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black overlay */
   display: none; /* Hidden by default */
-  position: fixed; /* Fixed position on screen */
-  left: 400px; /* Position from left */
-  top: 288px; /* Position from top to align with board */
-  transform: translateY(-50%); /* Center vertically */
-  background-color: black; /* Black background */
-  border: 1px solid white; /* White border */
-  padding: 10px; /* Internal spacing */
-  z-index: 1000; /* Appear above other elements */
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+  z-index: 2000; /* High z-index to appear above all other elements */
+  transition: opacity 0.5s ease; /* Smooth transition for opacity changes */
+}
+
+/* Promotion modal container */
+.promotion-modal {
+  background-color: #fff; /* White background */
+  border-radius: 10px; /* Rounded corners */
+  padding: 30px; /* Internal spacing */
+  text-align: center; /* Center text */
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); /* Subtle shadow for depth */
+  transform: scale(0.9); /* Initial scale for animation */
+  animation: pop 0.5s forwards; /* Apply pop animation */
+}
+
+/* Promotion modal heading */
+.promotion-modal h2 {
+  color: #333; /* Dark gray text */
+  margin-bottom: 20px; /* Space below heading */
+  font-family: 'Playfair Display', serif; /* Decorative font for headings */
+  font-size: 28px; /* Larger font size for emphasis */
 }
 
 /* Container for promotion piece options */
-.promotion-piece-container {
-  display: flex; /* Enable flexbox */
-  flex-direction: column; /* Stack items vertically */
-  justify-content: center; /* Center vertically */
-  align-items: flex-start; /* Align items to left */
-  gap: 20px; /* Space between items */
-}
-
-/* Row layout for promotion pieces */
-.promotion-piece-row {
-  display: flex; /* Enable flexbox */
-  align-items: center; /* Center items vertically */
-  gap: 10px; /* Space between piece and label */
-}
-
-/* Promotion piece image styles */
-.promotion-piece-container img {
-  width: 50px; /* Fixed width */
-  height: auto; /* Maintain aspect ratio */
-  gap: 10px; /* Space between pieces */
-}
-
-/* Promotion option piece styles */
 .promotion-options {
-  filter: brightness(0) invert(1); /* Make images white */
-  width: 40px; /* Fixed width */
-  cursor: pointer; /* Show pointer on hover */
-  gap: 6px; /* Space between pieces */
+  display: flex; /* Use flexbox layout */
+  justify-content: center; /* Center items horizontally */
+  gap: 20px; /* Space between piece options */
+  margin-top: 20px; /* Space above options */
 }
 
-/* Modal heading styles */
-.modal h3 {
-  color: white; /* White text */
-  text-align: center; /* Center text */
+/* Individual piece selection option */
+.piece-option {
+  display: flex; /* Use flexbox layout */
+  flex-direction: column; /* Stack image and text vertically */
+  align-items: center; /* Center items horizontally */
+  cursor: pointer; /* Show pointer cursor on hover */
+  padding: 10px; /* Internal spacing */
+  border-radius: 5px; /* Rounded corners */
+  transition: background-color 0.3s; /* Smooth transition for hover effect */
 }
 
-/* Promotion piece label styles */
-.promotion-label {
-  font-size: 1.2rem; /* Text size */
-  color: white; /* White text */
+/* Hover effect for piece options */
+.piece-option:hover {
+  background-color: #f0f0f0; /* Light gray background on hover */
 }
 
-/* Captured pieces section layout */
+/* Promotion piece image styling */
+.piece-option img {
+  width: 60px; /* Fixed width for piece images */
+  height: 60px; /* Fixed height for piece images */
+  margin-bottom: 10px; /* Space below image */
+}
+
+/* Piece option label styling */
+.piece-option p {
+  margin: 0; /* Remove default margin */
+  font-size: 16px; /* Text size */
+  font-weight: bold; /* Bold text for emphasis */
+  color: #333; /* Dark gray text */
+}
+
+/* ----------------------------------------
+   CAPTURED PIECES DISPLAY
+   ---------------------------------------- */
+/* Layout for captured pieces sections */
 .captured-pieces {
-  display: flex; /* Enable flexbox */
+  display: flex; /* Use flexbox layout */
   flex-direction: column; /* Stack items vertically */
   align-items: center; /* Center items horizontally */
   margin-top: 20px; /* Space above section */
 }
 
-/* Captured pieces container styles */
+/* Container for the captured piece images */
 .captured-pieces div {
-  display: flex; /* Enable flexbox */
-  gap: 5px; /* Space between pieces */
+  display: flex; /* Use flexbox layout */
+  gap: 5px; /* Space between captured pieces */
   flex-wrap: wrap; /* Allow wrapping to new line */
 }
 
-/* Captured piece image styles */
+/* Captured piece image styling */
 .captured-pieces img {
-  width: 40px; /* Fixed width */
+  width: 40px; /* Fixed width for captured pieces */
   height: auto; /* Maintain aspect ratio */
 }
 
-/* Game Over Styles */
+/* ----------------------------------------
+   GAME OVER MODAL
+   ---------------------------------------- */
+/* Full-screen overlay for game over modal */
 .game-over-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
-    opacity: 0;
-    transition: opacity 0.5s ease;
+  position: fixed; /* Fixed position relative to viewport */
+  top: 0; /* Align to top of viewport */
+  left: 0; /* Align to left of viewport */
+  width: 100%; /* Full viewport width */
+  height: 100%; /* Full viewport height */
+  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black overlay */
+  display: flex; /* Use flexbox layout */
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+  z-index: 2000; /* High z-index to appear above all other elements */
+  opacity: 0; /* Start invisible */
+  transition: opacity 0.5s ease; /* Smooth transition for opacity changes */
 }
 
+/* Game over modal container */
 .game-over-modal {
-    background-color: #fff;
-    border-radius: 10px;
-    padding: 30px;
-    text-align: center;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    transform: scale(0.9);
-    animation: pop 0.5s forwards;
+  background-color: #fff; /* White background */
+  border-radius: 10px; /* Rounded corners */
+  padding: 30px; /* Internal spacing */
+  text-align: center; /* Center text */
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); /* Subtle shadow for depth */
+  transform: scale(0.9); /* Initial scale for animation */
+  animation: pop 0.5s forwards; /* Apply pop animation */
 }
 
+/* Pop animation keyframes for modals */
 @keyframes pop {
-    0% { transform: scale(0.9); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
+  0% { transform: scale(0.9); } /* Start slightly smaller */
+  50% { transform: scale(1.05); } /* Overshoot slightly for bounce effect */
+  100% { transform: scale(1); } /* Return to normal size */
 }
 
+/* Game over modal heading */
 .game-over-modal h2 {
-    color: #333;
-    margin-bottom: 20px;
-    font-family: 'Playfair Display', serif;
-    font-size: 28px;
+  color: #333; /* Dark gray text */
+  margin-bottom: 20px; /* Space below heading */
+  font-family: 'Playfair Display', serif; /* Decorative font for headings */
+  font-size: 28px; /* Larger font size for emphasis */
 }
 
+/* Game over modal button styling */
 .game-over-modal button {
-    background-color: #2c3e50;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+  background-color: #2c3e50; /* Dark blue background */
+  color: white; /* White text */
+  border: none; /* No border */
+  padding: 12px 24px; /* Internal spacing */
+  border-radius: 5px; /* Rounded corners */
+  font-size: 16px; /* Text size */
+  cursor: pointer; /* Show pointer on hover */
+  transition: background-color 0.3s; /* Smooth transition for hover effect */
 }
 
+/* Hover effect for game over modal button */
 .game-over-modal button:hover {
-    background-color: #1a252f;
+  background-color: #1a252f; /* Darker blue on hover */
 }
