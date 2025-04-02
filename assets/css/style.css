@@ -2,7 +2,6 @@
    GENERAL STYLES
    ---------------------------------------- */
 /* Reset all default browser styles to ensure consistent rendering across browsers */
-
 * {
   margin: 0; /* Remove default margin */
   padding: 0; /* Remove default padding */
@@ -38,11 +37,23 @@ h1 {
    ---------------------------------------- */
 /* Main content container positioning and alignment */
 .container {
-  margin-top: -20px; /* Shift the entire layout up slightly */
-  text-align: center; /* Center all text within the container */
-  display: grid; /* Use CSS grid for layout */
-  place-items: center; /* Center grid items both horizontally and vertically */
-  justify-content: center; /* Center the grid container itself horizontally */
+  width: 100%; /* Full width container */
+  max-width: 1200px; /* Maximum width for large screens */
+  margin: 0 auto; /* Center horizontally with auto margins */
+  padding: 20px; /* Add internal spacing */
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack elements vertically */
+  align-items: center; /* Center elements horizontally */
+  gap: 20px; /* Add space between flex children */
+}
+
+/* Main content area that contains the game elements */
+main {
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack elements vertically */
+  align-items: center; /* Center elements horizontally */
+  width: 100%; /* Use full width of container */
+  gap: 15px; /* Add consistent spacing between elements */
 }
 
 /* ----------------------------------------
@@ -54,9 +65,10 @@ h1 {
   grid-template-columns: repeat(8, 60px); /* Create 8 columns of 60px each */
   grid-template-rows: repeat(8, 60px); /* Create 8 rows of 60px each */
   gap: 0; /* No gap between chess squares */
-  margin: 15px auto; /* Center the board with margin */
-  border: 2px solid #333; /* Add border around the entire board */
+  margin: 20px auto; /* Center the board with margin */
+  border: 3px solid #333; /* Add border around the entire board */
   transform: rotate(90deg); /* Rotate board for correct orientation */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Add shadow for depth */
 }
 
 /* ----------------------------------------
@@ -137,8 +149,13 @@ h1 {
    GAME CONTROLS
    ---------------------------------------- */
 /* Controls section layout */
-.controls {
-  margin-top: 20px; /* Add space above the controls section */
+#game-controls {
+  margin: 15px 0; /* Add vertical spacing */
+  width: 100%; /* Full width of container */
+  display: flex; /* Use flexbox for button layout */
+  justify-content: center; /* Center buttons horizontally */
+  gap: 10px; /* Space between buttons */
+  flex-wrap: wrap; /* Allow buttons to wrap on narrow screens */
 }
 
 /* Common button styling for all game buttons */
@@ -249,87 +266,149 @@ button {
 /* ----------------------------------------
    CAPTURED PIECES DISPLAY
    ---------------------------------------- */
-/* Enhanced Captured Pieces Display */
+/* Container for both captured pieces sections */
+.captured-area {
+  width: 100%; /* Full width container */
+  max-width: 480px; /* Maximum width for large screens */
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack elements vertically */
+  gap: 15px; /* Space between captured pieces sections */
+  margin: 15px 0; /* Vertical margin */
+}
+
+/* Enhanced captured pieces container styling */
 .captured-pieces {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 15px 0;
-    padding: 10px;
-    background-color: rgba(245, 245, 245, 0.9);
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
+  width: 100%; /* Full width of parent */
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack elements vertically */
+  align-items: center; /* Center content horizontally */
+  padding: 12px; /* Internal spacing */
+  background: linear-gradient(to bottom, #f8f8f8, #e8e8e8); /* Subtle gradient background */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15), /* Outer shadow for depth */
+              inset 0 1px 0 rgba(255, 255, 255, 0.9); /* Inner highlight for depth */
+  border: 1px solid #d0d0d0; /* Subtle border */
+  position: relative; /* For positioning decorative elements */
+  overflow: hidden; /* Hide overflow */
 }
 
+/* Chess-themed decorative top border */
+.captured-pieces::before {
+  content: ""; /* Required for pseudo-elements */
+  position: absolute; /* Position absolutely within parent */
+  top: 0; /* Align to top */
+  left: 0; /* Align to left */
+  right: 0; /* Stretch to right edge */
+  height: 3px; /* Height of decorative border */
+  background: linear-gradient(to right, #b58863, #f0d9b5, #b58863); /* Chess-themed gradient */
+  opacity: 0.8; /* Slightly transparent */
+}
+
+/* Heading style for captured pieces section */
 .captured-pieces h3 {
-    margin-bottom: 8px;
-    color: #2c3e50;
-    font-family: 'Playfair Display', serif;
-    font-size: 18px;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 5px;
-    width: 100%;
-    text-align: center;
+  margin-bottom: 10px; /* Space below heading */
+  color: #2c3e50; /* Dark blue text */
+  font-family: 'Playfair Display', serif; /* Decorative font */
+  font-size: 17px; /* Text size */
+  border-bottom: 1px solid #d8d8d8; /* Bottom border for separation */
+  padding-bottom: 6px; /* Space below text before border */
+  width: 100%; /* Full width */
+  text-align: center; /* Center text */
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8); /* Text shadow for depth */
 }
 
-.captured-pieces div {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    width: 100%;
-    padding: 5px;
+/* Horizontal scrolling container for pieces */
+.pieces-grid {
+  width: 100%; /* Full width */
+  display: flex; /* Use flexbox for horizontal layout */
+  flex-wrap: nowrap; /* Prevent wrapping to new line */
+  overflow-x: auto; /* Enable horizontal scrolling */
+  padding: 8px 4px; /* Internal spacing */
+  gap: 5px; /* Space between pieces */
+  scrollbar-width: thin; /* Thin scrollbar for Firefox */
+  scrollbar-color: rgba(0, 0, 0, 0.3) transparent; /* Scrollbar colors for Firefox */
+  background-color: rgba(0, 0, 0, 0.02); /* Very subtle background */
+  border-radius: 5px; /* Rounded corners */
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); /* Inner shadow for depth */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
-.captured-pieces img {
-    width: 35px;
-    height: 35px;
-    object-fit: contain;
-    transition: transform 0.2s;
+/* Styling for Webkit-based browser scrollbars */
+.pieces-grid::-webkit-scrollbar {
+  height: 6px; /* Scrollbar height */
 }
 
-.captured-pieces img:hover {
-    transform: scale(1.2);
+.pieces-grid::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3); /* Color of the scrollbar thumb */
+  border-radius: 3px; /* Rounded corners for scrollbar thumb */
 }
 
-/* Add a piece-value indicator */
-.piece-value {
-    font-size: 10px;
-    color: #7f8c8d;
-    position: absolute;
-    bottom: -5px;
-    right: -5px;
-    background: white;
-    border-radius: 50%;
-    width: 15px;
-    height: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
+/* Container for each captured piece */
 .piece-container {
-    position: relative;
-    display: inline-block;
+  position: relative; /* For positioning value indicator */
+  flex: 0 0 auto; /* Prevent shrinking or growing */
+  margin: 2px; /* External spacing */
+  padding: 3px; /* Internal spacing */
+  transition: transform 0.2s, box-shadow 0.2s; /* Smooth transition for hover effects */
+}
+
+/* Hover effect for piece containers */
+.piece-container:hover {
+  transform: translateY(-2px); /* Slight upward movement on hover */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Shadow for depth on hover */
+}
+
+/* Styling for captured piece images */
+.captured-pieces img {
+  width: 35px; /* Fixed width */
+  height: 35px; /* Fixed height */
+  object-fit: contain; /* Maintain aspect ratio */
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2)); /* Shadow for depth */
+  transition: transform 0.2s; /* Smooth transition for hover effect */
+}
+
+/* Hover effect for captured piece images */
+.captured-pieces img:hover {
+  transform: scale(1.2); /* Enlarge on hover */
+  z-index: 10; /* Ensure enlarged piece appears above others */
+}
+
+/* Piece value indicator styling */
+.piece-value {
+  font-size: 9px; /* Small text size */
+  font-weight: bold; /* Bold text */
+  color: #fff; /* White text */
+  background: #2c3e50; /* Dark blue background */
+  bottom: 0; /* Position at bottom */
+  right: 0; /* Position at right */
+  width: 14px; /* Fixed width */
+  height: 14px; /* Fixed height */
+  border-radius: 50%; /* Circular shape */
+  display: flex; /* Use flexbox for centering */
+  align-items: center; /* Center vertically */
+  justify-content: center; /* Center horizontally */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); /* Shadow for depth */
+  position: absolute; /* Position absolutely within container */
 }
 
 /* Material advantage indicator */
 .material-advantage {
-    font-size: 14px;
-    font-weight: bold;
-    margin-top: 5px;
-    color: #2c3e50;
+  font-size: 14px; /* Text size */
+  font-weight: bold; /* Bold text */
+  margin-top: 5px; /* Space above */
+  color: #2c3e50; /* Dark blue text */
 }
 
-/* Add animations for newly captured pieces */
+/* Animation for newly captured pieces */
 @keyframes capturedPieceAnimation {
-    0% { transform: scale(0); opacity: 0; }
-    50% { transform: scale(1.2); opacity: 1; }
-    100% { transform: scale(1); opacity: 1; }
+  0% { transform: scale(0); opacity: 0; } /* Start invisible and small */
+  50% { transform: scale(1.2); opacity: 1; } /* Overshoot size for bounce effect */
+  100% { transform: scale(1); opacity: 1; } /* Return to normal size */
 }
 
+/* Apply animation to newly captured pieces */
 .captured-pieces img.new-capture {
-    animation: capturedPieceAnimation 0.5s forwards;
+  animation: capturedPieceAnimation 0.5s forwards; /* Run animation once */
 }
 
 /* ----------------------------------------
