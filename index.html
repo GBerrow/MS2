@@ -133,16 +133,17 @@
                 <button id="restart" aria-label="Restart game">Restart Game</button>
                 <button id="muteButton">🔊</button>
                 <button id="toggleAI">Toggle AI: ON</button>
-                <p class="game-info">Chess Game built with HTML, CSS, and JavaScript</p>
             </section>
              <!-- Captured Pieces Display -->
-            <div class="captured-pieces white-captured">
-                <h3>White's Captured Pieces</h3>
-                <div id="whiteCaptured"></div>
-            </div>
-            <div class="captured-pieces black-captured">
-                <h3>Black's Captured Pieces</h3>
-                <div id="blackCaptured"></div>
+            <div class="captured-area">
+                <div class="captured-pieces white-captured">
+                    <h3>White's Captures</h3>
+                    <div id="whiteCaptured" class="pieces-grid"></div>
+                </div>
+                <div class="captured-pieces black-captured">
+                    <h3>Black's Captures</h3>
+                    <div id="blackCaptured" class="pieces-grid"></div>
+                </div>
             </div>
         </main>
     
