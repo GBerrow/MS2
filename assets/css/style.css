@@ -20,6 +20,91 @@ body {
   overflow-x: hidden; /* Hide horizontal scrollbar if content overflows */
   background: url(../images/background.jpg); /* Set background image for the entire page */
   height: auto; /* Allow body to expand based on content */
+  min-height: 100vh; /* Ensure body covers full viewport height */
+  padding-top: 65px; /* Space for header */
+  padding-bottom: 65px; /* Space for footer */
+  position: relative; /* Create positioning context for absolute elements */
+}
+
+/* ----------------------------------------
+   HEADER STYLING
+   ---------------------------------------- */
+   
+header {
+  position: absolute; /* Position at top of page but scrolls with content */
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 15px 0;
+  background: linear-gradient(to bottom, #ffffff, #9b9797);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15), 
+              inset 0 1px 0 rgb(0 0 0 / 90%);
+  border-bottom: 2px solid #222; /* Add dark border to bottom of header */
+  z-index: 100;
+  overflow: hidden; /* Ensure pseudo-element doesn't cause scrollbars */
+}
+
+/* Dark-themed decorative top border for header */
+header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -5px; /* Extend slightly past the edge */
+  right: -5px; /* Extend slightly past the edge */
+  height: 3px;
+}
+
+header h1 {
+  text-align: center;
+  margin: 0;
+  color: #2c3e50;
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Add padding to body to prevent content from hiding behind header */
+body {
+  padding-top: 65px;
+  padding-bottom: 65px;
+}
+
+/* ----------------------------------------
+   FOOTER STYLING
+   ---------------------------------------- */
+footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  margin: 0;
+  padding: 12px 0;
+  background: linear-gradient(to top, #ffffff, #9b9797); /* Reversed direction from header */
+  box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.15), 
+              inset 0 -1px 0 rgb(0 0 0 / 90%); /* Adjusted shadow direction */
+  border-top: 2px solid #222; /* Changed from bottom to top */
+  text-align: center;
+  z-index: 100;
+  overflow: hidden;
+}
+
+/* Dark-themed decorative bottom border for footer */
+footer::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: -5px;
+  right: -5px;
+  height: 3px;
+  background: linear-gradient(to right, #ffffff, #ffffff, #ffffff);
+}
+
+footer p {
+  margin: 0;
+  color: #2c3e50;
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 /* ----------------------------------------
@@ -274,6 +359,7 @@ button {
   flex-direction: column; /* Stack elements vertically */
   gap: 15px; /* Space between captured pieces sections */
   margin: 15px 0; /* Vertical margin */
+  margin-bottom: 30px; /* Add more bottom margin */
 }
 
 /* Enhanced captured pieces container styling */
