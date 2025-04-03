@@ -126,7 +126,7 @@ export function recordMove(move) {
 }
 
 /**
- * Updates the move history display in the UI
+ * Updates the move history display in the UI with enhanced clarity
  * @param {string} notation - Move in algebraic notation
  * @param {string} color - Player color ('white' or 'black')
  * @param {number} moveNumber - The current move number
@@ -162,7 +162,22 @@ function updateMoveHistoryDisplay(notation, color, moveNumber) {
     if (cell) {
         const notationSpan = document.createElement('span');
         notationSpan.className = 'move-notation';
-        notationSpan.textContent = notation;
+        
+        // Format notation for better clarity
+        let formattedNotation = notation;
+        
+        // Add descriptive title/tooltip with explanation
+        let explanation = getMoveExplanation(notation);
+        notationSpan.title = explanation;
+        
+        // Style captures differently (bold red 'x')
+        if (notation.includes('x')) {
+            const parts = notation.split('x');
+            formattedNotation = `${parts[0]}<span class="capture-x">×</span>${parts[1]}`;
+            notationSpan.innerHTML = formattedNotation;
+        } else {
+            notationSpan.textContent = notation;
+        }
         
         // Clear existing content and add the new notation
         cell.innerHTML = '';
@@ -180,15 +195,78 @@ function updateMoveHistoryDisplay(notation, color, moveNumber) {
             });
         }, 1500);
         
-        // Scroll to the latest move - improved scrolling behavior
+        // Scroll to the latest move
         const container = moveHistoryBody.closest('.move-history-container');
         if (container) {
-            // Delay scrolling slightly to ensure DOM updates
             setTimeout(() => {
                 container.scrollTop = container.scrollHeight;
             }, 50);
         }
     }
+}
+
+/**
+ * Generates a human-readable explanation of a chess move in algebraic notation
+ * @param {string} notation - Move in algebraic notation
+ * @returns {string} - Human-readable explanation of the move
+ */
+function getMoveExplanation(notation) {
+    // Handle castling
+    if (notation === 'O-O') {
+        return 'Kingside castling - The king moves two squares toward the h-file rook, and the rook moves to the square the king crossed';
+    }
+    if (notation === 'O-O-O') {
+        return 'Queenside castling - The king moves two squares toward the a-file rook, and the rook moves to the square the king crossed';
+    }
+
+    // Handle check and checkmate
+    let suffix = '';
+    if (notation.endsWith('+')) {
+        suffix = ' - puts opponent in check';
+        notation = notation.slice(0, -1);
+    } else if (notation.endsWith('#')) {
+        suffix = ' - checkmate!';
+        notation = notation.slice(0, -1);
+    }
+
+    // Determine if it's a capture
+    const isCapture = notation.includes('x');
+    
+    // Regular moves
+    if (notation.length >= 2) {
+        const dest = notation.slice(-2); // Last two characters are always the destination
+        
+        // Pawn moves
+        if (notation[0] >= 'a' && notation[0] <= 'h') {
+            if (isCapture) {
+                // Format: exd5 (pawn on e-file captures on d5)
+                const sourceFile = notation[0];
+                return `Pawn from ${sourceFile}-file captures on ${dest}${suffix}`;
+            } else {
+                // Simple pawn move (e.g., e4)
+                return `Pawn moves to ${dest}${suffix}`;
+            }
+        }
+        
+        // Piece moves with piece letter
+        const pieceMap = {
+            'K': 'King',
+            'Q': 'Queen',
+            'R': 'Rook',
+            'B': 'Bishop',
+            'N': 'Knight'
+        };
+        
+        const piece = pieceMap[notation[0]] || 'Piece';
+        
+        if (isCapture) {
+            return `${piece} captures on ${dest}${suffix}`;
+        } else {
+            return `${piece} moves to ${dest}${suffix}`;
+        }
+    }
+    
+    return notation; // Fallback
 }
 
 /**

@@ -29,83 +29,109 @@ body {
 
 /* ----------------------------------------
    HEADER STYLING
-   ---------------------------------------- */
-   
+   ---------------------------------------- 
+   The header contains the game title and remains fixed at the top of the viewport.
+   It uses a gradient background with shadow effects for visual depth.
+*/
 header {
-  position: absolute; /* Position at top of page but scrolls with content */
-  top: 0;
-  left: 0;
-  width: 100%;
-  padding: 15px 0;
-  background: linear-gradient(to bottom, #ffffff, #9b9797);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15), 
-              inset 0 1px 0 rgb(0 0 0 / 90%);
-  border-bottom: 2px solid #222; /* Add dark border to bottom of header */
-  z-index: 100;
-  overflow: hidden; /* Ensure pseudo-element doesn't cause scrollbars */
+  position: absolute; /* Fixed positioning at the top of container */
+  top: 0; /* Align to top edge */
+  left: 0; /* Start from left edge */
+  width: 100%; /* Span full width of viewport */
+  padding: 15px 0; /* Vertical padding for content spacing */
+  background: linear-gradient(
+    to bottom,
+    #ffffff,
+    #9b9797
+  ); /* Vertical gradient from white to gray */
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15),
+    /* Lower shadow for depth effect */ inset 0 1px 0 rgb(0 0 0 / 90%); /* Inner top highlight */
+  border-bottom: 2px solid #222; /* Dark bottom border for definition */
+  z-index: 100; /* Ensure header appears above other elements */
+  overflow: hidden; /* Prevent content overflow and scrollbars */
 }
 
-/* Dark-themed decorative top border for header */
+/* Decorative top border accent for the header */
 header::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -5px; /* Extend slightly past the edge */
-  right: -5px; /* Extend slightly past the edge */
-  height: 3px;
+  content: ""; /* Required for pseudo-elements */
+  position: absolute; /* Position relative to header */
+  top: 0; /* Align to top of header */
+  left: -5px; /* Extend slightly past left edge */
+  right: -5px; /* Extend slightly past right edge */
+  height: 3px; /* Thin decorative line */
+  /* Note: The background color is missing in the original code */
 }
 
+/* Header title styling */
 header h1 {
-  text-align: center;
-  margin: 0;
-  color: #2c3e50;
-  font-family: 'Playfair Display', serif;
-  font-size: 28px;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+  text-align: center; /* Center-align the title */
+  margin: 0; /* Remove default margins */
+  color: #2c3e50; /* Dark blue-gray text for readability */
+  font-family: "Playfair Display", serif; /* Decorative serif font */
+  font-size: 28px; /* Large text size for title importance */
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8); /* Subtle text shadow for depth */
 }
 
-/* Add padding to body to prevent content from hiding behind header */
+/* 
+   Body padding adjustments
+   This prevents content from being hidden behind fixed header and footer
+   by creating space at the top and bottom of the document.
+*/
 body {
-  padding-top: 65px;
-  padding-bottom: 65px;
+  padding-top: 65px; /* Top padding to account for header height */
+  padding-bottom: 65px; /* Bottom padding to account for footer height */
 }
 
 /* ----------------------------------------
    FOOTER STYLING
-   ---------------------------------------- */
+   ---------------------------------------- 
+   The footer contains attribution and stays fixed at the bottom of the page.
+   It uses a gradient background mirroring the header for visual consistency.
+*/
+
 footer {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  margin: 0;
-  padding: 12px 0;
-  background: linear-gradient(to top, #ffffff, #9b9797); /* Reversed direction from header */
-  box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.15), 
-              inset 0 -1px 0 rgb(0 0 0 / 90%); /* Adjusted shadow direction */
-  border-top: 2px solid #222; /* Changed from bottom to top */
-  text-align: center;
-  z-index: 100;
-  overflow: hidden;
+  position: absolute; /* Fixed positioning at the bottom of container */
+  bottom: 0; /* Align to bottom edge */
+  left: 0; /* Span full width from left edge */
+  width: 100%; /* Occupy full width of viewport */
+  margin: 0; /* Remove default margins */
+  padding: 12px 0; /* Vertical padding for content spacing */
+  background: linear-gradient(
+    to top,
+    #ffffff,
+    #9b9797
+  ); /* Upward gradient (inverse of header) */
+  box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.15),
+    /* Upper shadow for depth effect */ inset 0 -1px 0 rgb(0 0 0 / 90%); /* Inner bottom highlight */
+  border-top: 2px solid #222; /* Dark top border for definition */
+  text-align: center; /* Center-align content */
+  z-index: 100; /* Ensure footer appears above other elements */
+  overflow: hidden; /* Prevent content overflow */
 }
 
-/* Dark-themed decorative bottom border for footer */
+/* Decorative bottom border accent for the footer */
 footer::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: -5px;
-  right: -5px;
-  height: 3px;
-  background: linear-gradient(to right, #ffffff, #ffffff, #ffffff);
+  content: ""; /* Required for pseudo-elements */
+  position: absolute; /* Position relative to footer */
+  bottom: 0; /* Align to bottom of footer */
+  left: -5px; /* Extend slightly past left edge */
+  right: -5px; /* Extend slightly past right edge */
+  height: 3px; /* Thin decorative line */
+  background: linear-gradient(
+    to right,
+    #ffffff,
+    #ffffff,
+    #ffffff
+  ); /* White gradient accent */
 }
 
+/* Footer text styling */
 footer p {
-  margin: 0;
-  color: #2c3e50;
-  font-family: 'Playfair Display', serif;
-  font-size: 20px;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+  margin: 0; /* Remove default paragraph margins */
+  color: #2c3e50; /* Dark blue-gray text for readability */
+  font-family: "Playfair Display", serif; /* Decorative serif font */
+  font-size: 20px; /* Larger text size for importance */
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8); /* Subtle text shadow for depth */
 }
 
 /* ----------------------------------------
@@ -147,10 +173,10 @@ main {
 
 /* Create a game container for the board and controls */
 .game-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
 }
 
 /* ----------------------------------------
@@ -175,7 +201,9 @@ main {
 .piece {
   width: 80%; /* Set piece width relative to its square */
   height: 80%; /* Set piece height relative to its square */
-  transform: rotate(270deg); /* Counter-rotate pieces to display correctly (since board is rotated) */
+  transform: rotate(
+    270deg
+  ); /* Counter-rotate pieces to display correctly (since board is rotated) */
   cursor: grab; /* Show grab cursor when hovering over pieces */
   user-select: none; /* Prevent text selection when dragging */
 }
@@ -195,7 +223,12 @@ main {
 
 /* Highlight valid drop targets during drag */
 .square.valid-drop {
-  background-color: rgba(0, 255, 0, 0.2); /* Light green highlight for valid drop targets */
+  background-color: rgba(
+    0,
+    255,
+    0,
+    0.2
+  ); /* Light green highlight for valid drop targets */
 }
 
 /* ----------------------------------------
@@ -218,14 +251,24 @@ main {
    ---------------------------------------- */
 /* Highlight style for valid move squares */
 .highlight-move {
-  background-color: rgba(0, 255, 0, 0.3) !important; /* Green semi-transparent highlight */
+  background-color: rgba(
+    0,
+    255,
+    0,
+    0.3
+  ) !important; /* Green semi-transparent highlight */
   position: relative; /* Enable z-index positioning */
   z-index: 1; /* Ensure highlight appears above board */
 }
 
 /* Highlight style for possible capture squares */
 .highlight-capture {
-  background-color: rgba(255, 0, 0, 0.3) !important; /* Red semi-transparent highlight */
+  background-color: rgba(
+    255,
+    0,
+    0,
+    0.3
+  ) !important; /* Red semi-transparent highlight */
   position: relative; /* Enable z-index positioning */
   z-index: 1; /* Ensure highlight appears above board */
 }
@@ -317,7 +360,7 @@ button {
 .promotion-modal h2 {
   color: #333; /* Dark gray text */
   margin-bottom: 20px; /* Space below heading */
-  font-family: 'Playfair Display', serif; /* Decorative font for headings */
+  font-family: "Playfair Display", serif; /* Decorative font for headings */
   font-size: 28px; /* Larger font size for emphasis */
 }
 
@@ -381,10 +424,14 @@ button {
   flex-direction: column; /* Stack elements vertically */
   align-items: center; /* Center content horizontally */
   padding: 12px; /* Internal spacing */
-  background: linear-gradient(to bottom, #f8f8f8, #e8e8e8); /* Subtle gradient background */
+  background: linear-gradient(
+    to bottom,
+    #f8f8f8,
+    #e8e8e8
+  ); /* Subtle gradient background */
   border-radius: 8px; /* Rounded corners */
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15), /* Outer shadow for depth */
-              inset 0 1px 0 rgba(255, 255, 255, 0.9); /* Inner highlight for depth */
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15),
+    /* Outer shadow for depth */ inset 0 1px 0 rgba(255, 255, 255, 0.9); /* Inner highlight for depth */
   border: 1px solid #d0d0d0; /* Subtle border */
   position: relative; /* For positioning decorative elements */
   overflow: hidden; /* Hide overflow */
@@ -398,7 +445,12 @@ button {
   left: 0; /* Align to left */
   right: 0; /* Stretch to right edge */
   height: 3px; /* Height of decorative border */
-  background: linear-gradient(to right, #b58863, #f0d9b5, #b58863); /* Chess-themed gradient */
+  background: linear-gradient(
+    to right,
+    #b58863,
+    #f0d9b5,
+    #b58863
+  ); /* Chess-themed gradient */
   opacity: 0.8; /* Slightly transparent */
 }
 
@@ -406,7 +458,7 @@ button {
 .captured-pieces h3 {
   margin-bottom: 10px; /* Space below heading */
   color: #2c3e50; /* Dark blue text */
-  font-family: 'Playfair Display', serif; /* Decorative font */
+  font-family: "Playfair Display", serif; /* Decorative font */
   font-size: 17px; /* Text size */
   border-bottom: 1px solid #d8d8d8; /* Bottom border for separation */
   padding-bottom: 6px; /* Space below text before border */
@@ -499,9 +551,18 @@ button {
 
 /* Animation for newly captured pieces */
 @keyframes capturedPieceAnimation {
-  0% { transform: scale(0); opacity: 0; } /* Start invisible and small */
-  50% { transform: scale(1.2); opacity: 1; } /* Overshoot size for bounce effect */
-  100% { transform: scale(1); opacity: 1; } /* Return to normal size */
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  } /* Start invisible and small */
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  } /* Overshoot size for bounce effect */
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  } /* Return to normal size */
 }
 
 /* Apply animation to newly captured pieces */
@@ -513,6 +574,7 @@ button {
    GAME OVER MODAL
    ---------------------------------------- */
 /* Full-screen overlay for game over modal */
+
 .game-over-overlay {
   position: fixed; /* Fixed position relative to viewport */
   top: 0; /* Align to top of viewport */
@@ -541,16 +603,22 @@ button {
 
 /* Pop animation keyframes for modals */
 @keyframes pop {
-  0% { transform: scale(0.9); } /* Start slightly smaller */
-  50% { transform: scale(1.05); } /* Overshoot slightly for bounce effect */
-  100% { transform: scale(1); } /* Return to normal size */
+  0% {
+    transform: scale(0.9);
+  } /* Start slightly smaller */
+  50% {
+    transform: scale(1.05);
+  } /* Overshoot slightly for bounce effect */
+  100% {
+    transform: scale(1);
+  } /* Return to normal size */
 }
 
 /* Game over modal heading */
 .game-over-modal h2 {
   color: #333; /* Dark gray text */
   margin-bottom: 20px; /* Space below heading */
-  font-family: 'Playfair Display', serif; /* Decorative font for headings */
+  font-family: "Playfair Display", serif; /* Decorative font for headings */
   font-size: 28px; /* Larger font size for emphasis */
 }
 
@@ -571,71 +639,114 @@ button {
   background-color: #1a252f; /* Darker blue on hover */
 }
 
-/* Move History Sidebar Styling */
+/* ----------------------------------------
+   MOVE HISTORY PANEL
+   ---------------------------------------- 
+   The move history panel displays chess moves in standard algebraic notation.
+   It sits beside the chessboard and provides a scrollable record of the game.
+*/
+
+/* Container for the entire move history sidebar */
 .move-history-sidebar {
-    width: 240px;
-    height: 480px; /* Fixed height to match chess board */
-    margin: 0;
-    position: relative; /* Change from sticky to relative */
-    top: 0; /* Reset the top value */
-    align-self: flex-start;
-    display: flex;
-    flex-direction: column;
-    background: #ffffff; /* Solid white background instead of transparent */
-    border-radius: 8px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15), 
-                inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    border: 1px solid #d0d0d0;
-    padding: 12px;
+  width: 240px; /* Fixed width to fit beside chessboard */
+  height: 480px; /* Match height with chess board for alignment */
+  margin: 20px 0; /* Match top/bottom margins with chess board */
+  position: relative; /* Normal document flow positioning */
+  align-self: flex-start; /* Align to top of parent flex container */
+  display: flex; /* Use flexbox for internal layout */
+  flex-direction: column; /* Stack elements vertically */
+  background: #ffffff; /* Solid white background for readability */
+  border-radius: 8px; /* Rounded corners for softer appearance */
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15),
+    /* Outer shadow for depth */ inset 0 1px 0 rgba(255, 255, 255, 0.9); /* Inner highlight */
+  border: 1px solid #d0d0d0; /* Subtle border definition */
+  padding: 12px; /* Internal spacing for content */
 }
 
+/* Heading for the move history panel */
 .move-history-sidebar h3 {
-    margin-bottom: 10px;
-    color: #2c3e50;
-    font-family: 'Playfair Display', serif;
-    font-size: 17px;
-    border-bottom: 1px solid #d8d8d8;
-    padding-bottom: 6px;
-    width: 100%;
-    text-align: center;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+  margin-bottom: 10px; /* Space below heading */
+  color: #2c3e50; /* Dark blue-gray text to match theme */
+  font-family: "Playfair Display", serif; /* Decorative serif font */
+  font-size: 17px; /* Appropriate size for subheading */
+  border-bottom: 1px solid #d8d8d8; /* Subtle separator line */
+  padding-bottom: 6px; /* Space between text and border */
+  width: 100%; /* Full width of container */
+  text-align: center; /* Center the heading text */
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8); /* Subtle text shadow */
 }
 
+/* Scrollable container for the move history table */
 .move-history-container {
-    flex: 1;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
-    height: 380px; /* Adjust to leave room for the title and buttons */
-    min-height: 0; /* Important for proper scrolling in flex containers */
+  flex: 1; /* Expand to fill available space */
+  overflow-y: auto; /* Enable vertical scrolling for overflow content */
+  scrollbar-width: thin; /* Use thin scrollbar in Firefox */
+  scrollbar-color: rgba(0, 0, 0, 0.3) transparent; /* Subtle scrollbar color in Firefox */
+  height: 380px; /* Fixed height to leave room for header and buttons */
+  min-height: 0; /* Required for proper scrolling in flex containers */
 }
 
+/* Custom scrollbar styling for WebKit browsers (Chrome, Safari) */
 .move-history-container::-webkit-scrollbar {
-    width: 6px;
+  width: 6px; /* Thin scrollbar width */
 }
 
 .move-history-container::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.3);
-    border-radius: 3px;
+  background-color: rgba(0, 0, 0, 0.3); /* Semi-transparent scrollbar thumb */
+  border-radius: 3px; /* Rounded scrollbar thumb */
 }
 
+/* Table for displaying move history in organized columns */
 #moveHistoryTable {
-    width: 100%;
-    border-collapse: collapse;
+  width: 100%; /* Full width of container */
+  border-collapse: collapse; /* Remove spacing between cells */
 }
 
+/* Table header styling */
 #moveHistoryTable th {
-    padding: 8px;
-    text-align: center;
-    font-weight: bold;
-    font-size: 14px;
-    color: #2c3e50;
-    background-color: rgba(0, 0, 0, 0.05);
+  padding: 8px; /* Spacing within header cells */
+  text-align: center; /* Center-align header text */
+  font-weight: bold; /* Bold text for headers */
+  font-size: 14px; /* Slightly smaller text size */
+  color: #2c3e50; /* Dark blue-gray text to match theme */
+  background-color: rgba(0, 0, 0, 0.05); /* Very subtle background highlight */
 }
 
+/* Table cell styling */
 #moveHistoryTable td {
-    padding: 6px;
-    text-align: center;
-    font-size: 13px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 6px; /* Spacing within table cells */
+  text-align: center; /* Center-align cell content */
+  font-size: 13px; /* Compact text size for table data */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05); /* Subtle separator between rows */
+}
+
+/* Chess move notation styling - uses monospaced font for clear readability */
+.move-notation {
+  font-family: "Courier New", monospace; /* Monospaced font for chess notation */
+  font-weight: 600; /* Semi-bold text for better definition */
+  cursor: help; /* Show help cursor indicating tooltip availability */
+}
+
+/* Special styling for the capture symbol (×) */
+.capture-x {
+  color: #d32f2f; /* Red color to highlight captures */
+  font-weight: bold; /* Bold text for emphasis */
+  padding: 0 1px; /* Small horizontal padding around symbol */
+}
+
+/* Hover effect for move notation to indicate interactivity */
+.move-notation:hover {
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.05
+  ); /* Subtle background highlight on hover */
+  border-radius: 3px; /* Rounded corners for highlight area */
+}
+
+/* Ensure tooltip triggers have the right positioning for tooltip display */
+[title] {
+  position: relative; /* Create positioning context for tooltips */
+  display: inline-block; /* Ensure proper sizing for tooltip container */
 }
