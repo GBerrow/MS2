@@ -34,29 +34,23 @@ export function switchTurn() {
 }
 
 function updateTurnIndicator() {
-    console.log(`Current turn: ${boardState.currentPlayer}`);
+    // console.log(`Current turn: ${boardState.currentPlayer}`);
     // Add visual indicator in UI if desired
 }
 
 function triggerAiMove() {
     if (!stockfishInitialized) {
-        console.log("Stockfish not yet initialized. Waiting...");
         return;
     }
     
-    console.log("AI is thinking...");
-    
     // Convert current board state to FEN notation
     const fen = boardToFEN(boardState);
-    console.log("Current position FEN:", fen);
     
     // Get best move from Stockfish
     getBestMove(fen);
 }
 
 function handleAIMove(move) {
-    console.log("AI chosen move:", move);
-    
     // Convert UCI move format (e.g., "e2e4") to our format
     const from = move.substring(0, 2);
     const to = move.substring(2, 4);

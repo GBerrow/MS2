@@ -4,6 +4,7 @@ import { setupEventListeners } from './ui/event-handlers.js';
 import { initializeTurnManager } from './game-logic/turn-manager.js';
 import { boardState } from './board/board-state.js';
 import { initSoundManager } from './ui/sound-manager.js';
+import { initMoveHistory } from './game-logic/move-history.js';
 
 // Initialize the game when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
@@ -21,6 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize sound manager
     initSoundManager();
+
+    // Initialize move history
+    initMoveHistory();
     
     console.log("Chess game initialized");
 });

@@ -1,10 +1,104 @@
-// move-history.js - Handles move history tracking and undo functionality
+// move-history.js - Handles move history tracking, display, and undo functionality
+import { boardState } from '../board/board-state.js';
+import { renderBoard } from '../board/board-ui.js';
+import { updateCapturedPieces } from '../ui/captured-pieces.js';
+import { playSound } from '../ui/sound-manager.js';
 
 // Array to store move history
 const moveHistory = [];
+let moveCounter = 1;
 
 /**
- * Records a move in the move history
+ * Initializes the move history and sets up event listeners
+ */
+export function initMoveHistory() {
+    // Set up the undo button listener
+    const undoButton = document.getElementById('undoButton');
+    if (undoButton) {
+        undoButton.addEventListener('click', () => {
+            undoLastMove(boardState, renderBoard, updateCapturedPieces);
+        });
+    }
+    
+    // Clear the move history table
+    clearMoveHistoryDisplay();
+}
+
+/**
+ * Clears the move history display
+ */
+function clearMoveHistoryDisplay() {
+    const moveHistoryBody = document.getElementById('moveHistoryBody');
+    if (moveHistoryBody) {
+        moveHistoryBody.innerHTML = '';
+    }
+    moveCounter = 1;
+}
+
+/**
+ * Converts a move to algebraic notation
+ * @param {Object} move - Move details (from, to, piece, capturedPiece)
+ * @returns {string} - Move in algebraic notation
+ */
+function convertToAlgebraicNotation(move) {
+    const { from, to, piece, capturedPiece } = move;
+    const [pieceType, color] = piece.split('-');
+    
+    // Special case for castling
+    if (pieceType === 'king') {
+        const fromFile = from.charCodeAt(0);
+        const toFile = to.charCodeAt(0);
+        const fileDistance = Math.abs(fromFile - toFile);
+        
+        if (fileDistance === 2) {
+            // Kingside castling
+            if (toFile > fromFile) {
+                return 'O-O';
+            } 
+            // Queenside castling
+            else {
+                return 'O-O-O';
+            }
+        }
+    }
+    
+    // Start with piece letter (except for pawns)
+    let notation = '';
+    if (pieceType !== 'pawn') {
+        // Correct piece notation abbreviations
+        switch(pieceType) {
+            case 'king': notation += 'K'; break;
+            case 'queen': notation += 'Q'; break;
+            case 'rook': notation += 'R'; break;
+            case 'bishop': notation += 'B'; break;
+            case 'knight': notation += 'N'; break; // Fixed! Knights use N, not K
+            default: break;
+        }
+    }
+    
+    // Add capture symbol if applicable
+    if (capturedPiece) {
+        // For pawns, add the file when capturing
+        if (pieceType === 'pawn') {
+            notation += from[0];
+        }
+        notation += 'x';
+    }
+    
+    // Add the destination square
+    notation += to;
+    
+    // Check if the move results in check or checkmate
+    if (boardState.inCheck && boardState.inCheck[color === 'white' ? 'black' : 'white']) {
+        // We'd need to check if it's checkmate, but for now just add + for check
+        notation += '+';
+    }
+    
+    return notation;
+}
+
+/**
+ * Records a move in the move history and updates the UI
  * @param {Object} move - Move details (from, to, piece, capturedPiece)
  */
 export function recordMove(move) {
@@ -13,10 +107,88 @@ export function recordMove(move) {
         to: move.to,
         piece: move.piece,
         capturedPiece: move.capturedPiece,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        moveNumber: moveCounter
     });
     
-    console.log(`Move recorded: ${move.piece} from ${move.from} to ${move.to}`);
+    const [pieceType, color] = move.piece.split('-');
+    const algebraicNotation = convertToAlgebraicNotation(move);
+    
+    // console.log(`Move recorded: ${algebraicNotation}`);
+    
+    // Update the move history display
+    updateMoveHistoryDisplay(algebraicNotation, color, moveCounter);
+    
+    // Increment the move counter after a full move (both white and black)
+    if (color === 'black') {
+        moveCounter++;
+    }
+}
+
+/**
+ * Updates the move history display in the UI
+ * @param {string} notation - Move in algebraic notation
+ * @param {string} color - Player color ('white' or 'black')
+ * @param {number} moveNumber - The current move number
+ */
+function updateMoveHistoryDisplay(notation, color, moveNumber) {
+    const moveHistoryBody = document.getElementById('moveHistoryBody');
+    if (!moveHistoryBody) return;
+    
+    // Get or create a row for this move number
+    let row = document.getElementById(`move-${moveNumber}`);
+    if (!row) {
+        row = document.createElement('tr');
+        row.id = `move-${moveNumber}`;
+        
+        const moveNumberCell = document.createElement('td');
+        moveNumberCell.textContent = moveNumber;
+        row.appendChild(moveNumberCell);
+        
+        // Add cells for white and black moves
+        const whiteCell = document.createElement('td');
+        whiteCell.className = 'white-move';
+        row.appendChild(whiteCell);
+        
+        const blackCell = document.createElement('td');
+        blackCell.className = 'black-move';
+        row.appendChild(blackCell);
+        
+        moveHistoryBody.appendChild(row);
+    }
+    
+    // Add the move notation to the appropriate cell
+    const cell = row.querySelector(color === 'white' ? '.white-move' : '.black-move');
+    if (cell) {
+        const notationSpan = document.createElement('span');
+        notationSpan.className = 'move-notation';
+        notationSpan.textContent = notation;
+        
+        // Clear existing content and add the new notation
+        cell.innerHTML = '';
+        cell.appendChild(notationSpan);
+        
+        // Highlight all cells in the current row
+        row.querySelectorAll('td').forEach(td => {
+            td.classList.add('highlight-recent');
+        });
+        
+        // Remove highlights from previous moves
+        setTimeout(() => {
+            document.querySelectorAll('#moveHistoryTable .highlight-recent').forEach(el => {
+                el.classList.remove('highlight-recent');
+            });
+        }, 1500);
+        
+        // Scroll to the latest move - improved scrolling behavior
+        const container = moveHistoryBody.closest('.move-history-container');
+        if (container) {
+            // Delay scrolling slightly to ensure DOM updates
+            setTimeout(() => {
+                container.scrollTop = container.scrollHeight;
+            }, 50);
+        }
+    }
 }
 
 /**
@@ -31,11 +203,11 @@ export function getMoveHistory() {
  * Undoes the last move
  * @param {Object} boardState - Current board state
  * @param {Function} renderBoard - Function to update the UI
+ * @param {Function} updateCapturedPieces - Function to update captured pieces display
  * @returns {Boolean} True if a move was undone, false if no moves to undo
  */
-export function undoLastMove(boardState, renderBoard) {
+export function undoLastMove(boardState, renderBoard, updateCapturedPieces) {
     if (moveHistory.length === 0) {
-        console.log("No moves to undo");
         return false;
     }
     
@@ -70,6 +242,83 @@ export function undoLastMove(boardState, renderBoard) {
         renderBoard();
     }
     
-    console.log(`Move undone: ${lastMove.piece} from ${lastMove.from} to ${lastMove.to}`);
+    // Update captured pieces display
+    if (updateCapturedPieces) {
+        updateCapturedPieces();
+    }
+    
+    // Update move history display
+    const [_, color] = lastMove.piece.split('-');
+    
+    // If we're undoing a black move, keep the same move number
+    // If we're undoing a white move, decrement the move counter
+    if (color === 'white' && lastMove.moveNumber > 1) {
+        moveCounter = lastMove.moveNumber - 1;
+    } else {
+        moveCounter = lastMove.moveNumber;
+    }
+    
+    // Remove the last move from the display
+    updateMoveHistoryDisplayAfterUndo(color, lastMove.moveNumber);
+    
+    // If we've undone all moves, clear the entire display
+    if (moveHistory.length === 0) {
+        clearMoveHistoryDisplay();
+    }
+    
+    // Play the undo sound
+    playSound('move');
+    
     return true;
+}
+
+/**
+ * Updates the move history display after an undo operation
+ * @param {string} color - Player color of the move that was undone
+ * @param {number} moveNumber - The move number that was undone
+ */
+function updateMoveHistoryDisplayAfterUndo(color, moveNumber) {
+    const moveHistoryBody = document.getElementById('moveHistoryBody');
+    if (!moveHistoryBody) return;
+    
+    // Find the row for this move number
+    const row = document.getElementById(`move-${moveNumber}`);
+    if (!row) return;
+    
+    // Clear the cell corresponding to the color
+    const cell = row.querySelector(color === 'white' ? '.white-move' : '.black-move');
+    if (cell) {
+        cell.innerHTML = '';
+    }
+    
+    // If we're removing a white move and this is the last row, remove the whole row
+    if (color === 'white' && moveNumber === moveCounter) {
+        moveHistoryBody.removeChild(row);
+    }
+    
+    // Highlight the row to indicate the undo action
+    row.querySelectorAll('td').forEach(td => {
+        td.classList.add('highlight-recent');
+    });
+    
+    // Remove highlights after a short delay
+    setTimeout(() => {
+        document.querySelectorAll('#moveHistoryTable .highlight-recent').forEach(el => {
+            el.classList.remove('highlight-recent');
+        });
+    }, 1500);
+}
+
+/**
+ * Resets the move history
+ */
+export function resetMoveHistory() {
+    // Clear the move history array
+    moveHistory.length = 0;
+    moveCounter = 1;
+    
+    // Clear the display
+    clearMoveHistoryDisplay();
+    
+    console.log("Move history reset");
 }

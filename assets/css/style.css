@@ -2,6 +2,7 @@
    GENERAL STYLES
    ---------------------------------------- */
 /* Reset all default browser styles to ensure consistent rendering across browsers */
+
 * {
   margin: 0; /* Remove default margin */
   padding: 0; /* Remove default padding */
@@ -135,10 +136,21 @@ h1 {
 /* Main content area that contains the game elements */
 main {
   display: flex; /* Use flexbox for layout */
-  flex-direction: column; /* Stack elements vertically */
-  align-items: center; /* Center elements horizontally */
-  width: 100%; /* Use full width of container */
-  gap: 15px; /* Add consistent spacing between elements */
+  flex-direction: row; /* Changed from column to row */
+  align-items: flex-start; /* Align items to the top */
+  justify-content: center;
+  width: 100%;
+  gap: 20px; /* Space between board and move history */
+  position: relative;
+  min-height: 600px; /* Ensure enough height for the game layout */
+}
+
+/* Create a game container for the board and controls */
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
 }
 
 /* ----------------------------------------
@@ -557,4 +569,73 @@ button {
 /* Hover effect for game over modal button */
 .game-over-modal button:hover {
   background-color: #1a252f; /* Darker blue on hover */
+}
+
+/* Move History Sidebar Styling */
+.move-history-sidebar {
+    width: 240px;
+    height: 480px; /* Fixed height to match chess board */
+    margin: 0;
+    position: relative; /* Change from sticky to relative */
+    top: 0; /* Reset the top value */
+    align-self: flex-start;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff; /* Solid white background instead of transparent */
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    border: 1px solid #d0d0d0;
+    padding: 12px;
+}
+
+.move-history-sidebar h3 {
+    margin-bottom: 10px;
+    color: #2c3e50;
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    border-bottom: 1px solid #d8d8d8;
+    padding-bottom: 6px;
+    width: 100%;
+    text-align: center;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.move-history-container {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+    height: 380px; /* Adjust to leave room for the title and buttons */
+    min-height: 0; /* Important for proper scrolling in flex containers */
+}
+
+.move-history-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.move-history-container::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+}
+
+#moveHistoryTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#moveHistoryTable th {
+    padding: 8px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    color: #2c3e50;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+#moveHistoryTable td {
+    padding: 6px;
+    text-align: center;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }

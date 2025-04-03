@@ -448,7 +448,12 @@ async function tryMove(from, to) {
     return false;
 
 }
+import { resetMoveHistory } from '../game-logic/move-history.js';
+
 function handleRestartGame() {
+    // Reset the move history
+    resetMoveHistory();
+    
     // Reset the game state and board
     window.location.reload(); // Simple refresh 
 }
