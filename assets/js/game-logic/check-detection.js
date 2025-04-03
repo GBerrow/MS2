@@ -32,7 +32,7 @@ export function checkForCheck() {
         black: blackInCheck
     };
     
-    // Log check status and check for checkmate
+    // Log check status and check for checkmate or stalemate
     if (whiteInCheck) {
         console.log("White king is in check!");
         if (isCheckmate('white')) {
@@ -50,6 +50,15 @@ export function checkForCheck() {
             // Just in check, not checkmate
             playSound('check');
         }
+    } else if (isStalemate('white')) {
+        console.log("White is in stalemate!");
+        playSound('checkmate'); // Or create a specific stalemate sound
+        
+        setTimeout(() => {
+            import('./game-over.js').then(module => {
+                module.declareGameOver("Stalemate! The game is a draw.");
+            });
+        }, 500);
     }
     
     if (blackInCheck) {
@@ -69,6 +78,15 @@ export function checkForCheck() {
             // Just in check, not checkmate
             playSound('check');
         }
+    } else if (isStalemate('black')) {
+        console.log("Black is in stalemate!");
+        playSound('checkmate'); // Or create a specific stalemate sound
+        
+        setTimeout(() => {
+            import('./game-over.js').then(module => {
+                module.declareGameOver("Stalemate! The game is a draw.");
+            });
+        }, 500);
     }
     
     return boardState.inCheck;
@@ -472,4 +490,77 @@ function getBlockingSquares(kingPosition, attackerPosition) {
     }
     
     return blockingSquares;
+}
+
+// Check if the game is in a stalemate state
+export function isStalemate(playerColor) {
+    // If the player is in check, it's not stalemate
+    if (boardState.inCheck[playerColor]) return false;
+    
+    // Check if player has ANY legal moves at all
+    return !hasLegalMoves(playerColor);
+}
+
+// Helper function to check if a player has any legal moves
+function hasLegalMoves(playerColor) {
+    // Check each piece of the player's color
+    for (const [position, piece] of Object.entries(boardState.pieces)) {
+        const [pieceType, color] = piece.split('-');
+        
+        // Skip opponent's pieces
+        if (color !== playerColor) continue;
+        
+        // For each piece, check if it has any valid moves
+        const validMoves = getPossibleMoves(position, pieceType, color);
+        
+        // Check if any of these moves would not leave king in check
+        for (const move of validMoves) {
+            if (!simulateMoveAndCheck(boardState, position, move, color)) {
+                return true; // Found at least one legal move
+            }
+        }
+    }
+    
+    return false; // No legal moves found
+}
+
+// Helper function to get possible moves based on piece type
+function getPossibleMoves(position, pieceType, color) {
+    const allSquares = [];
+    for (let file = 'a'.charCodeAt(0); file <= 'h'.charCodeAt(0); file++) {
+        for (let rank = 1; rank <= 8; rank++) {
+            allSquares.push(String.fromCharCode(file) + rank);
+        }
+    }
+    
+    // Filter squares based on piece movement rules
+    return allSquares.filter(targetPos => {
+        let isValid = false;
+        
+        switch (pieceType) {
+            case 'pawn':
+                isValid = isValidPawnMove(boardState, position, targetPos, color);
+                break;
+            case 'rook':
+                isValid = isValidRookMove(boardState, position, targetPos, color) && 
+                         isPathClear(boardState, position, targetPos);
+                break;
+            case 'knight':
+                isValid = isValidKnightMove(boardState, position, targetPos, color);
+                break;
+            case 'bishop':
+                isValid = isValidBishopMove(boardState, position, targetPos, color) && 
+                         isPathClear(boardState, position, targetPos);
+                break;
+            case 'queen':
+                isValid = isValidQueenMove(boardState, position, targetPos, color) && 
+                         isPathClear(boardState, position, targetPos);
+                break;
+            case 'king':
+                isValid = isValidKingMove(boardState, position, targetPos, color);
+                break;
+        }
+        
+        return isValid;
+    });
 }

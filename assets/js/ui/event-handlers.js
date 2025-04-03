@@ -343,7 +343,7 @@ function showValidMoves(position) {
 }
 
 // Function to try to make a move
-function tryMove(from, to) {
+async function tryMove(from, to) {
     const piece = boardState.pieces[from];
     if (!piece) return false;
     
@@ -420,11 +420,18 @@ function tryMove(from, to) {
         // Execute the move
         executeMove(from, to);
         
-        // Check for check or checkmate after the move
-        checkForCheck();
+        // Check for check, checkmate, or stalemate
+        const checkModule = await import('../game-logic/check-detection.js');
+        checkModule.checkForCheck();
+
+        // Check for stalemate for the opponent
+        const opponentColor = color === 'white' ? 'black' : 'white';
+        if (!boardState.inCheck[opponentColor] && checkModule.isStalemate(opponentColor)) {
+            declareGameOver(`Stalemate! The game is a draw.`);
+            return true;
+        }
         
         // Check for checkmate
-        const opponentColor = color === 'white' ? 'black' : 'white';
         if (boardState.inCheck[opponentColor] && isCheckmate(opponentColor)) {
             // Handle checkmate
             declareGameOver(`Checkmate! ${color} wins!`);
@@ -439,8 +446,8 @@ function tryMove(from, to) {
     // Play incorrect move sound for invalid moves
     playSound('incorrectMove');
     return false;
-}
 
+}
 function handleRestartGame() {
     // Reset the game state and board
     window.location.reload(); // Simple refresh 
