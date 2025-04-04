@@ -91,6 +91,17 @@ export function executeCastling(from, to) {
     delete boardState.pieces[rookPosition];
     boardState.pieces[newRookPosition] = rook;
     
+    // Record the castling move in move history - use direct import
+    import('./move-history.js').then(module => {
+        module.recordMove({
+            from,
+            to,
+            piece: king,
+            capturedPiece: null,
+            specialMove: isKingsideCastling ? 'castling-kingside' : 'castling-queenside'
+        });
+    });
+    
     // Update the UI
     renderBoard();
     
@@ -172,36 +183,33 @@ export function executeEnPassant(from, to, capturePosition) {
     
     console.log(`Executing en passant: ${color} pawn captures ${capturedPawn} at ${capturePosition}`);
     
-    // Instead of doing the en passant logic ourselves, let's use the existing executeMove
-    // First, record the captured pawn
-    const capturedColor = capturedPawn.split('-')[1];
-    
     // Add directly to captured pieces array
     boardState.capturedPieces[color].push(capturedPawn);
     
     // Remove the captured pawn
     delete boardState.pieces[capturePosition];
     
-    // Now move the capturing pawn normally
+    // Move the capturing pawn
     delete boardState.pieces[from];
     boardState.pieces[to] = pawn;
     
-    // Force update the captured pieces display by directly calling the function
+    // Record the en passant move in move history
+    import('./move-history.js').then(module => {
+        module.recordMove({
+            from,
+            to,
+            piece: pawn,
+            capturedPiece: capturedPawn,
+            specialMove: 'en-passant',
+            capturePosition
+        });
+    });
+    
+    // Force update the captured pieces display
     import('../ui/captured-pieces.js').then(module => {
         console.log("Updating captured pieces after en passant");
         module.updateCapturedPieces();
     });
-    
-    // Also directly update the DOM element for captured pieces
-    const capturedContainer = document.getElementById(color === 'white' ? 'whiteCaptured' : 'blackCaptured');
-    if (capturedContainer) {
-        const img = document.createElement('img');
-        img.src = `assets/images/chess-pieces/${capturedPawn}.png`;
-        img.alt = capturedPawn;
-        img.title = capturedPawn.replace('-', ' ');
-        capturedContainer.appendChild(img);
-        console.log(`Added ${capturedPawn} to ${color}'s captured pieces container`);
-    }
     
     // Update board display
     import('../board/board-ui.js').then(module => {

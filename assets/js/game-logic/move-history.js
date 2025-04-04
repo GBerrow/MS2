@@ -107,17 +107,29 @@ export function recordMove(move) {
         to: move.to,
         piece: move.piece,
         capturedPiece: move.capturedPiece,
+        specialMove: move.specialMove,
+        capturePosition: move.capturePosition,
         timestamp: Date.now(),
         moveNumber: moveCounter
     });
     
     const [pieceType, color] = move.piece.split('-');
-    const algebraicNotation = convertToAlgebraicNotation(move);
     
-    // console.log(`Move recorded: ${algebraicNotation}`);
+    // Generate appropriate algebraic notation
+    let algebraicNotation;
+    if (move.specialMove === 'castling-kingside') {
+        algebraicNotation = 'O-O';
+    } else if (move.specialMove === 'castling-queenside') {
+        algebraicNotation = 'O-O-O';
+    } else if (move.specialMove === 'en-passant') {
+        // For en passant, use format like "exd6 e.p."
+        algebraicNotation = `${move.from[0]}x${move.to} e.p.`;
+    } else {
+        algebraicNotation = convertToAlgebraicNotation(move);
+    }
     
     // Update the move history display
-    updateMoveHistoryDisplay(algebraicNotation, color, moveCounter);
+    updateMoveHistoryDisplay(algebraicNotation, color, moveCounter, move);
     
     // Increment the move counter after a full move (both white and black)
     if (color === 'black') {
@@ -130,8 +142,9 @@ export function recordMove(move) {
  * @param {string} notation - Move in algebraic notation
  * @param {string} color - Player color ('white' or 'black')
  * @param {number} moveNumber - The current move number
+ * @param {Object} move - The complete move object
  */
-function updateMoveHistoryDisplay(notation, color, moveNumber) {
+function updateMoveHistoryDisplay(notation, color, moveNumber, move) {
     const moveHistoryBody = document.getElementById('moveHistoryBody');
     if (!moveHistoryBody) return;
     
@@ -167,7 +180,7 @@ function updateMoveHistoryDisplay(notation, color, moveNumber) {
         let formattedNotation = notation;
         
         // Add descriptive title/tooltip with explanation
-        let explanation = getMoveExplanation(notation);
+        let explanation = getMoveExplanation(notation, move);
         notationSpan.title = explanation;
         
         // Style captures differently (bold red 'x')
@@ -208,65 +221,50 @@ function updateMoveHistoryDisplay(notation, color, moveNumber) {
 /**
  * Generates a human-readable explanation of a chess move in algebraic notation
  * @param {string} notation - Move in algebraic notation
+ * @param {Object} move - The complete move object with from/to information
  * @returns {string} - Human-readable explanation of the move
  */
-function getMoveExplanation(notation) {
-    // Handle castling
-    if (notation === 'O-O') {
-        return 'Kingside castling - The king moves two squares toward the h-file rook, and the rook moves to the square the king crossed';
+function getMoveExplanation(notation, move) {
+    // If we don't have the complete move object, use basic explanation
+    if (!move) {
+        // Handle castling
+        if (notation === 'O-O') {
+            return 'King castled kingside';
+        }
+        if (notation === 'O-O-O') {
+            return 'King castled queenside';
+        }
+        
+        // Default format for other notations without move data
+        return notation;
     }
-    if (notation === 'O-O-O') {
-        return 'Queenside castling - The king moves two squares toward the a-file rook, and the rook moves to the square the king crossed';
+    
+    const { from, to, piece, specialMove } = move;
+    const [pieceType, color] = piece.split('-');
+    
+    // Handle special moves
+    if (specialMove === 'castling-kingside') {
+        return `${color.charAt(0).toUpperCase() + color.slice(1)} castled kingside`;
     }
-
-    // Handle check and checkmate
-    let suffix = '';
-    if (notation.endsWith('+')) {
-        suffix = ' - puts opponent in check';
-        notation = notation.slice(0, -1);
-    } else if (notation.endsWith('#')) {
-        suffix = ' - checkmate!';
-        notation = notation.slice(0, -1);
+    if (specialMove === 'castling-queenside') {
+        return `${color.charAt(0).toUpperCase() + color.slice(1)} castled queenside`;
     }
-
+    if (specialMove === 'en-passant') {
+        return `${color.charAt(0).toUpperCase() + color.slice(1)} captured pawn en passant from ${from} to ${to}`;
+    }
+    
     // Determine if it's a capture
-    const isCapture = notation.includes('x');
+    const isCapture = move.capturedPiece ? true : false;
     
-    // Regular moves
-    if (notation.length >= 2) {
-        const dest = notation.slice(-2); // Last two characters are always the destination
-        
-        // Pawn moves
-        if (notation[0] >= 'a' && notation[0] <= 'h') {
-            if (isCapture) {
-                // Format: exd5 (pawn on e-file captures on d5)
-                const sourceFile = notation[0];
-                return `Pawn from ${sourceFile}-file captures on ${dest}${suffix}`;
-            } else {
-                // Simple pawn move (e.g., e4)
-                return `Pawn moves to ${dest}${suffix}`;
-            }
-        }
-        
-        // Piece moves with piece letter
-        const pieceMap = {
-            'K': 'King',
-            'Q': 'Queen',
-            'R': 'Rook',
-            'B': 'Bishop',
-            'N': 'Knight'
-        };
-        
-        const piece = pieceMap[notation[0]] || 'Piece';
-        
-        if (isCapture) {
-            return `${piece} captures on ${dest}${suffix}`;
-        } else {
-            return `${piece} moves to ${dest}${suffix}`;
-        }
+    // Create piece name with first letter capitalized
+    const pieceName = pieceType.charAt(0).toUpperCase() + pieceType.slice(1);
+    
+    // Basic move explanation
+    if (isCapture) {
+        return `${pieceName} moved from ${from} to ${to} capturing ${move.capturedPiece.split('-')[0]}`;
+    } else {
+        return `${pieceName} moved from ${from} to ${to}`;
     }
-    
-    return notation; // Fallback
 }
 
 /**
