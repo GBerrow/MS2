@@ -11,7 +11,8 @@ export const boardState = {
         black: false
     },
     lastMove: null,
-    aiEnabled: true // flag to enable/disable AI
+    aiEnabled: true, // flag to enable/disable AI
+    difficulty: 'normal' // Default difficulty level: 'easy', 'normal', or 'hard'
 };
 
 // Methods to manipulate state

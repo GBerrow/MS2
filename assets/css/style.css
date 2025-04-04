@@ -750,3 +750,76 @@ button {
   position: relative; /* Create positioning context for tooltips */
   display: inline-block; /* Ensure proper sizing for tooltip container */
 }
+
+/* ----------------------------------------
+   DIFFICULTY CONTROLS
+   ---------------------------------------- 
+   Controls for selecting AI difficulty level.
+   These buttons allow players to choose between easy, normal, and hard modes,
+   affecting both AI playing strength and response times.
+*/
+#difficulty-controls {
+  margin: 10px 0; /* Add vertical spacing around the control panel */
+  display: flex; /* Use flexbox for layout */
+  justify-content: center; /* Center buttons horizontally */
+  gap: 10px; /* Space between difficulty buttons */
+}
+
+/* Individual difficulty button styling */
+.difficulty-btn {
+  padding: 8px 16px; /* Internal spacing for comfortable clickable area */
+  font-size: 14px; /* Slightly smaller text size than main buttons */
+  cursor: pointer; /* Show pointer cursor on hover */
+  background-color: #666; /* Medium gray background for inactive state */
+  color: white; /* White text for contrast */
+  border: none; /* Remove default button border */
+  border-radius: 4px; /* Slightly rounded corners */
+  transition: all 0.3s ease; /* Smooth transition for hover/active effects */
+}
+
+/* Hover effect to provide visual feedback */
+.difficulty-btn:hover {
+  background-color: #777; /* Lighten button slightly on hover */
+}
+
+/* Active/selected difficulty button styling */
+.active-difficulty {
+  background-color: #2c3e50; /* Dark blue background matching game theme */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Shadow for depth effect */
+  transform: translateY(-2px); /* Slight upward shift to appear "raised" */
+}
+
+/* ----------------------------------------
+ DIFFICULTY MESSAGE
+ ---------------------------------------- 
+ Informational messages that appear in the move history panel
+ to provide context about the current difficulty level.
+ Each difficulty level has its own color scheme for visual distinction.
+*/
+.difficulty-message {
+  padding: 10px; /* Internal spacing around text */
+  margin-bottom: 10px; /* Space below message before move history */
+  border-radius: 5px; /* Rounded corners for alert-style appearance */
+  text-align: center; /* Center the message text */
+  font-weight: bold; /* Bold text for emphasis */
+  color: #2c3e50; /* Dark blue text matching game theme */
+}
+
+/* Easy difficulty message - green color scheme */
+.easy-message {
+  background-color: #d4edda; /* Light green background */
+  border: 1px solid #c3e6cb; /* Slightly darker green border */
+}
+
+/* Normal difficulty message - blue color scheme */
+.normal-message {
+  background-color: #cce5ff; /* Light blue background */
+  border: 1px solid #b8daff; /* Slightly darker blue border */
+}
+
+/* Hard difficulty message - red color scheme */
+.hard-message {
+  background-color: #f8d7da; /* Light red background */
+  border: 1px solid #f5c6cb; /* Slightly darker red border */
+}
+

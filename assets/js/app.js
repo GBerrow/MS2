@@ -4,12 +4,13 @@ import { setupEventListeners } from './ui/event-handlers.js';
 import { initializeTurnManager } from './game-logic/turn-manager.js';
 import { boardState } from './board/board-state.js';
 import { initSoundManager } from './ui/sound-manager.js';
-import { initMoveHistory } from './game-logic/move-history.js';
+import { initMoveHistory, updateDifficultyMessage } from './game-logic/move-history.js';
 
 // Initialize the game when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
     // Set AI enabled by default
     boardState.aiEnabled = true;
+    boardState.difficulty = 'normal'; // Default difficulty
     
     // Initialize the board
     initializeBoard();
@@ -25,6 +26,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize move history
     initMoveHistory();
+    
+    // Initialize difficulty message
+    updateDifficultyMessage('normal');
+    
+    // Set normal button as active by default
+    const normalButton = document.getElementById('normal-mode');
+    if (normalButton) {
+        normalButton.classList.add('active-difficulty');
+    }
     
     console.log("Chess game initialized");
 });

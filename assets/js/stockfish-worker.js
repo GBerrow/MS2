@@ -47,10 +47,19 @@ export function initStockfish(callback) {
 }
 
 // Function to get best move from current position
-export function getBestMove(fen, depth = 12) {
+export function getBestMove(fen, difficulty = 'normal') {
     if (!stockfish || !isReady) {
         console.error('Stockfish not ready');
         return;
+    }
+    
+    // Set depth based on difficulty
+    let depth = 12; // Default (normal)
+    
+    if (difficulty === 'easy') {
+        depth = 5; // Less depth = weaker play
+    } else if (difficulty === 'hard') {
+        depth = 18; // More depth = stronger play
     }
     
     // Set position

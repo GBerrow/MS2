@@ -398,3 +398,46 @@ export function resetMoveHistory() {
     
     console.log("Move history reset");
 }
+
+// Add this new function to update the difficulty message
+export function updateDifficultyMessage(difficulty) {
+    const moveHistoryContainer = document.querySelector('.move-history-container');
+    if (!moveHistoryContainer) return;
+    
+    // Remove any existing message
+    let existingMessage = document.getElementById('difficulty-message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+    
+    // Create new message element
+    const messageElement = document.createElement('div');
+    messageElement.id = 'difficulty-message';
+    messageElement.className = 'difficulty-message';
+    
+    // Set message based on difficulty
+    switch(difficulty) {
+        case 'easy':
+            messageElement.textContent = "Nice and easy way to start off your day!";
+            messageElement.className += ' easy-message';
+            break;
+        case 'normal':
+            messageElement.textContent = "A balanced challenge awaits you!";
+            messageElement.className += ' normal-message';
+            break;
+        case 'hard':
+            messageElement.textContent = "Watch out, you're on hard difficulty now!";
+            messageElement.className += ' hard-message';
+            break;
+        default:
+            messageElement.textContent = "Select a difficulty level to begin!";
+    }
+    
+    // Insert before the table
+    const table = moveHistoryContainer.querySelector('#moveHistoryTable');
+    if (table) {
+        moveHistoryContainer.insertBefore(messageElement, table);
+    } else {
+        moveHistoryContainer.appendChild(messageElement);
+    }
+}

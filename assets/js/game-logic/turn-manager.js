@@ -46,8 +46,8 @@ function triggerAiMove() {
     // Convert current board state to FEN notation
     const fen = boardToFEN(boardState);
     
-    // Get best move from Stockfish
-    getBestMove(fen);
+    // Get best move from Stockfish with current difficulty level
+    getBestMove(fen, boardState.difficulty);
 }
 
 function handleAIMove(move) {
@@ -55,15 +55,26 @@ function handleAIMove(move) {
     const from = move.substring(0, 2);
     const to = move.substring(2, 4);
     
-    // Execute the move
-    executeMove(from, to);
+    // Add delay based on difficulty level
+    const delayTimes = {
+        'easy': 2000,     // 2 seconds
+        'normal': 1000,   // 1 second
+        'hard': 300       // 0.3 seconds
+    };
     
-    // Check for check
-    import('./check-detection.js').then(module => {
-        module.checkForCheck();
-    });
+    const delay = delayTimes[boardState.difficulty] || 1000;
     
-    // Switch turn back to player
-    boardState.currentPlayer = 'white';
-    updateTurnIndicator();
+    setTimeout(() => {
+        // Execute the move
+        executeMove(from, to);
+        
+        // Check for check
+        import('./check-detection.js').then(module => {
+            module.checkForCheck();
+        });
+        
+        // Switch turn back to player
+        boardState.currentPlayer = 'white';
+        updateTurnIndicator();
+    }, delay);
 }

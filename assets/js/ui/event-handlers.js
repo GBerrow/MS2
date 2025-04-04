@@ -40,6 +40,23 @@ export function setupEventListeners() {
     if (toggleAIButton) {
         toggleAIButton.addEventListener('click', toggleAI);
     }
+
+    // Set up difficulty buttons
+    const easyButton = document.getElementById('easy-mode');
+    const normalButton = document.getElementById('normal-mode');
+    const hardButton = document.getElementById('hard-mode');
+    
+    if (easyButton) {
+        easyButton.addEventListener('click', () => setDifficulty('easy'));
+    }
+    
+    if (normalButton) {
+        normalButton.addEventListener('click', () => setDifficulty('normal'));
+    }
+    
+    if (hardButton) {
+        hardButton.addEventListener('click', () => setDifficulty('hard'));
+    }
 }
 
 function setupCustomDragListeners() {
@@ -470,4 +487,30 @@ function toggleAI() {
         toggleButton.textContent = `Toggle AI: ${boardState.aiEnabled ? 'ON' : 'OFF'}`;
     }
     console.log(`AI is now ${boardState.aiEnabled ? 'enabled' : 'disabled'}`);
+}
+
+// Add new function to handle difficulty setting
+function setDifficulty(level) {
+    // Update board state
+    boardState.difficulty = level;
+    
+    // Update button UI to show active state
+    const buttons = ['easy-mode', 'normal-mode', 'hard-mode'];
+    buttons.forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+            if (btnId === `${level}-mode`) {
+                btn.classList.add('active-difficulty');
+            } else {
+                btn.classList.remove('active-difficulty');
+            }
+        }
+    });
+    
+    // Update move history message
+    import('../game-logic/move-history.js').then(module => {
+        module.updateDifficultyMessage(level);
+    });
+    
+    console.log(`Difficulty set to: ${level}`);
 }
