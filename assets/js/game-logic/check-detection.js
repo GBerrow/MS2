@@ -146,6 +146,16 @@ export function simulateMoveAndCheck(boardState, from, to, playerColor) {
         inCheck: { ...boardState.inCheck }
     };
     
+    // Check if the target square has an opponent's king
+    const targetPiece = tempBoardState.pieces[to];
+    if (targetPiece) {
+        const [targetType, targetColor] = targetPiece.split('-');
+        if (targetType === 'king') {
+            // Can't capture a king
+            return true; // Illegal move
+        }
+    }
+    
     // Execute the move on the temporary board
     const piece = tempBoardState.pieces[from];
     delete tempBoardState.pieces[from];
