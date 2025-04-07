@@ -792,3 +792,140 @@ This new structure ensures:
 The results show significantly improved gameplay with proper chess rules enforcement and no illegal moves. The next phase will be to further improve the UI and add additional features to enhance the overall experience.
 
 ---
+
+### **07/04/2025**
+
+11 days since I last documented my progress, and in that time, I’ve made significant advancements — almost reaching the point of completion. Nothing major needed to be documented in here as everything has been smooth sailing.  
+The game now has robust functionality with a few minor adjustments remaining, and I’ve implemented several features that enhance the user experience, such as:
+
+---
+
+### ✅ Modular Folder Structure Rebuild
+
+- Reorganised the entire project into a clean, scalable folder structure for maintainability and readability.
+
+### ✅ Core Game Mechanics Completed
+
+- Full implementation of chess movement rules: normal moves, captures, and turn alternation.
+- Special moves: **Castling**, **Pawn Promotion**, and **En Passant** are integrated (with some final fixes pending).
+
+### ✅ AI Integration
+
+- Stockfish AI integrated and operational.
+- Added difficulty levels: **Easy**, **Normal**, **Hard** — great for user experience!
+- Dynamic response times based on difficulty level to increase pressure on higher modes.
+
+### ✅ Move History Panel
+
+- Fully functional move tracker, displaying both players’ moves.
+- Includes dynamic difficulty messages ("A balanced challenge awaits you!" for Normal, etc.)
+- Scrollable panel with undo functionality for previous moves.
+- Illegal moves and special moves are handled appropriately, with improvements in progress.
+
+### ✅ Enhanced Undo Functionality
+
+- Undo button restores moves accurately, with minor bugs being fixed.
+
+### ✅ User Interface Refinements
+
+- Clean and responsive layout.
+- Fixed header and footer design with a polished marble background.
+- Right-side move history panel aligned with the board, remains fixed while scrolling.
+- Captured pieces section for both players is in place and operational.
+
+### ✅ Improved Logging & Debugging
+
+- Reduced console spam from unnecessary logs for cleaner debugging.
+- Prominent logs retained for game state changes and move validations.
+
+### ✅ Visual Feedback Enhancements
+
+- Highlighting of possible moves on the board.
+
+---
+
+## 🐞 Bugs to be Fixed
+
+As I continue refining the chess game, there are a few persistent bugs that affect the game flow, primarily in AI logic, UI behaviour, and rule enforcement — particularly around **pawn promotion**, **castling**, and **difficulty management**.  
+Below is a detailed breakdown of the issues along with supporting console evidence:
+
+---
+
+### 1. Illegal Early Pawn Promotion
+
+**Problem:**  
+At the very start of the game, pawns can be promoted immediately, even from their starting positions. This breaks core chess rules.
+
+**Expected Behaviour:**  
+Pawn promotion should only occur when a pawn successfully reaches the final rank:
+- **White:** rank 8
+- **Black:** rank 1
+
+Any other scenario should block the promotion.
+
+---
+
+### 2. Difficulty Switching Mid-Game
+
+**Problem:**  
+Currently, players can change the game’s difficulty during an ongoing match. This undermines the challenge and allows players to lower difficulty to gain an advantage mid-play.
+
+**Expected Behaviour:**
+- If a player attempts to change the difficulty mid-game, display a confirmation warning (e.g., "Changing difficulty will restart the game. Are you sure?").
+- If confirmed, the game should restart with the newly selected difficulty.
+
+
+---
+
+### 3. Illegal King Capture
+
+**Problem:**  
+The game currently allows the player to capture the opposing king directly, which violates chess rules. The king should never be captured — the game should instead recognise checkmate and end immediately.
+
+**Expected Behaviour:**
+- No move should result in the king being captured.
+- When a king is under threat with no legal moves left, the game should trigger a checkmate state and end the game.
+
+
+---
+
+### 4. Castling Undo Bug
+
+**Problem:**  
+When undoing a castling move:
+- The rook sometimes fails to return to its original position.
+- In some cases, the rook disappears entirely from the board.
+
+**Expected Behaviour:**
+- When undoing a castling move, both the **king and rook** should return to their correct pre-castling squares.
+- No pieces should disappear during the undo action.
+
+
+---
+
+## ✅ Planned Fixes
+
+- Add rule enforcement to block premature pawn promotions.
+- Prevent difficulty switching mid-game without confirmation and game restart.
+- Ensure king capture is impossible; the game should end properly at checkmate.
+- Fix castling rollback to correctly reposition both the king and rook every time.
+
+With these final fixes in place, the game will become much more robust and free from critical errors or rule-breaking behaviours.  
+Once completed, I will also clean up the project by removing all development console logs and the AI toggle button, as these were primarily for debugging and testing purposes.
+
+---
+
+## 💡 Potential Features for Future Enhancements
+
+- Add more dynamic, context-aware messages in the move history panel to enhance user experience.
+- Introduce beginner-friendly hints for Easy mode, such as:
+  > *"Your king is in check — try moving to this square to escape danger!"*
+- Further refine UI polish and animations to make the game feel even more interactive and engaging.
+
+---
+
+
+
+
+
+
