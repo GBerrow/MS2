@@ -366,39 +366,6 @@ async function tryMove(from, to) {
     
     const [type, color] = piece.split('-');
     
-    // First check for special moves
-    if (type === 'king' && isCastlingValid(from, to)) {
-        if (executeCastling(from, to)) {
-            checkForCheck();
-            switchTurn();
-            return true;
-        }
-    }
-    
-    if (type === 'pawn') {
-        const enPassantResult = isEnPassantValid(from, to);
-        if (enPassantResult.valid) {
-            if (executeEnPassant(from, to, enPassantResult.capturePosition)) {
-                checkForCheck();
-                switchTurn();
-                return true;
-            }
-        }
-        
-        // Add debug log
-        console.log(`Checking pawn promotion from: ${from} to: ${to}`);
-        
-        if (isPawnPromotionValid(from, to)) {
-            console.log("Pawn promotion is valid, executing...");
-            executePromotion(from, to).then(() => {
-                console.log("Promotion completed");
-                checkForCheck();
-                switchTurn();
-            });
-            return true;
-        }
-    }
-    
     // First check if the move is mechanically valid
     let isValid = false;
     
@@ -426,45 +393,79 @@ async function tryMove(from, to) {
             break;
     }
     
-    if (isValid) {
-        // Check if this move would leave or put the king in check
-        if (simulateMoveAndCheck(boardState, from, to, color)) {
-            console.log(`Illegal move: ${from} to ${to} - would leave king in check`);
-            playSound('incorrectMove');
-            return false;
-        }
-        
-        // Execute the move
-        executeMove(from, to);
-        
-        // Check for check, checkmate, or stalemate
-        const checkModule = await import('../game-logic/check-detection.js');
-        checkModule.checkForCheck();
-
-        // Check for stalemate for the opponent
-        const opponentColor = color === 'white' ? 'black' : 'white';
-        if (!boardState.inCheck[opponentColor] && checkModule.isStalemate(opponentColor)) {
-            declareGameOver(`Stalemate! The game is a draw.`);
+    if (!isValid) {
+        // Play incorrect move sound for invalid moves
+        playSound('incorrectMove');
+        return false;
+    }
+    
+    // Check if this move would leave or put the king in check
+    if (simulateMoveAndCheck(boardState, from, to, color)) {
+        console.log(`Illegal move: ${from} to ${to} - would leave king in check`);
+        playSound('incorrectMove');
+        return false;
+    }
+    
+    // NOW check for special moves after validating the move is legal
+    
+    // Check for castling
+    if (type === 'king' && isCastlingValid(from, to)) {
+        if (executeCastling(from, to)) {
+            checkForCheck();
+            switchTurn();
             return true;
         }
-        
-        // Check for checkmate
-        if (boardState.inCheck[opponentColor] && isCheckmate(opponentColor)) {
-            // Handle checkmate
-            declareGameOver(`Checkmate! ${color} wins!`);
+    }
+    
+    // Check for en passant
+    if (type === 'pawn') {
+        const enPassantResult = isEnPassantValid(from, to);
+        if (enPassantResult.valid) {
+            if (executeEnPassant(from, to, enPassantResult.capturePosition)) {
+                checkForCheck();
+                switchTurn();
+                return true;
+            }
         }
         
-        // Switch turns
-        switchTurn();
-        
+        // Check for pawn promotion AFTER verifying the move is valid
+        if (isPawnPromotionValid(from, to)) {
+            console.log("Pawn promotion is valid, executing...");
+            executePromotion(from, to).then(() => {
+                console.log("Promotion completed");
+                checkForCheck();
+                switchTurn();
+            });
+            return true;
+        }
+    }
+    
+    // Execute the regular move
+    executeMove(from, to);
+    
+    // Check for check, checkmate, or stalemate
+    const checkModule = await import('../game-logic/check-detection.js');
+    checkModule.checkForCheck();
+
+    // Check for stalemate for the opponent
+    const opponentColor = color === 'white' ? 'black' : 'white';
+    if (!boardState.inCheck[opponentColor] && checkModule.isStalemate(opponentColor)) {
+        declareGameOver(`Stalemate! The game is a draw.`);
         return true;
     }
     
-    // Play incorrect move sound for invalid moves
-    playSound('incorrectMove');
-    return false;
-
+    // Check for checkmate
+    if (boardState.inCheck[opponentColor] && isCheckmate(opponentColor)) {
+        // Handle checkmate
+        declareGameOver(`Checkmate! ${color} wins!`);
+    }
+    
+    // Switch turns
+    switchTurn();
+    
+    return true;
 }
+
 import { resetMoveHistory } from '../game-logic/move-history.js';
 
 function handleRestartGame() {
