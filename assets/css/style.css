@@ -823,3 +823,55 @@ button {
   border: 1px solid #f5c6cb; /* Slightly darker red border */
 }
 
+/* ----------------------------------------
+   DIFFICULTY CHANGE MODAL STYLING
+   ----------------------------------------
+   This section contains styles for the difficulty change confirmation modal.
+   The modal warns users that changing difficulty mid-game will restart the game.
+   It provides visual feedback with distinct button colors and hover effects.
+*/
+
+/* Button container - creates a flexible row layout with spacing between buttons */
+.modal-buttons {
+  display: flex;              /* Use flexbox for horizontal button layout */
+  justify-content: center;    /* Center buttons horizontally */
+  gap: 15px;                  /* Add space between buttons */
+  margin-top: 20px;           /* Space between message text and buttons */
+}
+
+/* Base button styling - common properties for all modal buttons */
+.modal-btn {
+  padding: 10px 20px;         /* Internal spacing for comfortable click area */
+  border-radius: 5px;         /* Rounded corners for modern look */
+  font-size: 16px;            /* Readable text size */
+  cursor: pointer;            /* Hand cursor indicates interactive element */
+  border: none;               /* Remove default button borders */
+  transition: background-color 0.3s, transform 0.2s;  /* Smooth transitions for hover effects */
+}
+
+/* Button hover animation - subtle lift effect for better user feedback */
+.modal-btn:hover {
+  transform: translateY(-2px); /* Button lifts slightly on hover for 3D effect */
+}
+
+/* Confirmation button - green color scheme indicates positive/affirmative action */
+.confirm-btn {
+  background-color: #4CAF50;  /* Material Design green */
+  color: white;               /* White text for high contrast readability */
+}
+
+/* Confirmation button hover - darker green provides visual feedback */
+.confirm-btn:hover {
+  background-color: #45a049;  /* Slightly darker green on hover */
+}
+
+/* Cancel button - red color scheme indicates negative/cancellation action */
+.cancel-btn {
+  background-color: #f44336;  /* Material Design red */
+  color: white;               /* White text for high contrast readability */
+}
+
+/* Cancel button hover - darker red provides visual feedback */
+.cancel-btn:hover {
+  background-color: #d32f2f;  /* Slightly darker red on hover */
+}

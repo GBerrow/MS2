@@ -155,7 +155,7 @@
                     </div>
                 </div>
             </div>
-            <!-- Move History Sidebar (now adjacent to the game container) -->
+            <!-- Move History Modal -->
             <div class="move-history-sidebar">
                 <h3>Move History</h3>
                 <div class="move-history-container">
@@ -168,13 +168,32 @@
                             </tr>
                         </thead>
                         <tbody id="moveHistoryBody">
-                            <!-- Move history will be populated here -->
                         </tbody>
                     </table>
                 </div>
                 <button id="undoButton" class="history-control-btn">Undo Last Move</button>
             </div>
         </main>
+    </div>
+    
+    <footer>
+        <p>Created by GBerrow</p>
+    </footer>
+    
+    <script type="module" src="assets/js/app.js"></script>
+</body>
+        </main>
+        <!-- Change Difficulty Modal -->
+        <div id="difficultyChangeModal" class="promotion-overlay">
+            <div class="promotion-modal">
+                <h2>Change Difficulty?</h2>
+                <p>Changing difficulty will restart the game. Are you sure?</p>
+                <div class="modal-buttons">
+                    <button id="confirmDifficultyChange" class="modal-btn confirm-btn">Yes, Restart</button>
+                    <button id="cancelDifficultyChange" class="modal-btn cancel-btn">Cancel</button>
+                </div>
+            </div>
+        </div>
     </div>
     
     <footer>

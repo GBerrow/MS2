@@ -19,6 +19,7 @@ let draggedPiece = null;
 let floatingPiece = null;
 let dragSource = null;
 let offsetX, offsetY;
+let pendingDifficultyChange = null;
 
 export function setupEventListeners() {
     // Add click event listeners to all squares
@@ -57,8 +58,59 @@ export function setupEventListeners() {
     if (hardButton) {
         hardButton.addEventListener('click', () => setDifficulty('hard'));
     }
+    
+    // Event listeners for difficulty change modal
+    const confirmDifficultyBtn = document.getElementById('confirmDifficultyChange');
+    const cancelDifficultyBtn = document.getElementById('cancelDifficultyChange');
+    
+    if (confirmDifficultyBtn) {
+        confirmDifficultyBtn.addEventListener('click', () => {
+            const modal = document.getElementById('difficultyChangeModal');
+            if (modal) modal.style.display = 'none';
+            
+            if (pendingDifficultyChange) {
+                applyDifficultyChange(pendingDifficultyChange);
+                pendingDifficultyChange = null;
+            }
+        });
+    }
+    
+    if (cancelDifficultyBtn) {
+        cancelDifficultyBtn.addEventListener('click', () => {
+            const modal = document.getElementById('difficultyChangeModal');
+            if (modal) modal.style.display = 'none';
+            
+            // Revert button selection
+            updateDifficultyButtons(boardState.difficulty);
+            pendingDifficultyChange = null;
+        });
+    }
 }
 
+function applyDifficultyChange(level) {
+    // Set new difficulty
+    boardState.difficulty = level;
+    
+    // Update UI
+    updateDifficultyButtons(level);
+    
+    // Restart the game
+    handleRestartGame();
+}
+
+function updateDifficultyButtons(activeLevel) {
+    const buttons = ['easy-mode', 'normal-mode', 'hard-mode'];
+    buttons.forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+            if (btnId === `${activeLevel}-mode`) {
+                btn.classList.add('active-difficulty');
+            } else {
+                btn.classList.remove('active-difficulty');
+            }
+        }
+    });
+}
 function setupCustomDragListeners() {
     // Remove any existing listeners to prevent duplicates
     document.querySelectorAll('.piece').forEach(piece => {
@@ -66,11 +118,11 @@ function setupCustomDragListeners() {
         piece.setAttribute('draggable', 'false'); // Disable HTML5 dragging
     });
     
-    // Add new listeners
+    // New listeners
     document.querySelectorAll('.piece').forEach(piece => {
         piece.addEventListener('mousedown', handlePieceMouseDown);
         
-        // Add touch support for mobile
+        // Touch support for mobile
         piece.addEventListener('touchstart', handlePieceTouchStart, { passive: false });
     });
 }
@@ -490,28 +542,36 @@ function toggleAI() {
     console.log(`AI is now ${boardState.aiEnabled ? 'enabled' : 'disabled'}`);
 }
 
-// Add new function to handle difficulty setting
+// Function to handle difficulty setting
 function setDifficulty(level) {
-    // Update board state
-    boardState.difficulty = level;
-    
-    // Update button UI to show active state
-    const buttons = ['easy-mode', 'normal-mode', 'hard-mode'];
-    buttons.forEach(btnId => {
-        const btn = document.getElementById(btnId);
-        if (btn) {
-            if (btnId === `${level}-mode`) {
-                btn.classList.add('active-difficulty');
+    // Check if a game is already in progress
+    import('../game-logic/move-history.js').then(module => {
+        const moveHistory = module.getMoveHistory();
+        
+        // If there are moves in the history, the game is in progress
+        if (moveHistory && moveHistory.length > 0) {
+            // Save the requested difficulty level for later
+            pendingDifficultyChange = level;
+            
+            // Show the custom modal
+            const modal = document.getElementById('difficultyChangeModal');
+            if (modal) {
+                modal.style.display = 'flex';
             } else {
-                btn.classList.remove('active-difficulty');
+                // Fallback to browser confirm if modal not found
+                const confirmChange = confirm("Changing difficulty will restart the game. Are you sure?");
+                if (confirmChange) {
+                    applyDifficultyChange(level);
+                } else {
+                    // Revert button selection
+                    updateDifficultyButtons(boardState.difficulty);
+                }
             }
+        } else {
+            // No game in progress, just update the difficulty
+            boardState.difficulty = level;
+            updateDifficultyButtons(level);
+            module.updateDifficultyMessage(level);
         }
     });
-    
-    // Update move history message
-    import('../game-logic/move-history.js').then(module => {
-        module.updateDifficultyMessage(level);
-    });
-    
-    console.log(`Difficulty set to: ${level}`);
 }
