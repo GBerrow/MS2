@@ -25,18 +25,25 @@ export function applyBoardColors() {
 /**
  * Highlights squares for valid moves
  * @param {Array} validMoves - Array of valid move positions
+ * @param {Object} specialMoves - Object containing special move positions by type
  */
-export function highlightValidMoves(validMoves) {
+export function highlightValidMoves(validMoves, specialMoves = {}) {
     // Clear any existing highlights
     clearHighlights();
     
-    // Add highlight class to each valid move square
+    // Highlight class to each valid move square
     validMoves.forEach(position => {
         const square = document.getElementById(position);
         if (square) {
             // If square contains opponent's piece, highlight as capture
             if (square.querySelector('.piece')) {
                 square.classList.add('highlight-capture');
+            } else if (specialMoves.castling?.includes(position)) {
+                square.classList.add('highlight-special');
+            } else if (specialMoves.enPassant?.includes(position)) {
+                square.classList.add('highlight-special');
+            } else if (specialMoves.promotion?.includes(position)) {
+                square.classList.add('highlight-special');
             } else {
                 square.classList.add('highlight-move');
             }
@@ -48,8 +55,8 @@ export function highlightValidMoves(validMoves) {
  * Clears all highlights from the board
  */
 export function clearHighlights() {
-    document.querySelectorAll('.highlight-move, .highlight-capture').forEach(element => {
-        element.classList.remove('highlight-move', 'highlight-capture');
+    document.querySelectorAll('.highlight-move, .highlight-capture, .highlight-special').forEach(element => {
+        element.classList.remove('highlight-move', 'highlight-capture', 'highlight-special');
     });
 }
 

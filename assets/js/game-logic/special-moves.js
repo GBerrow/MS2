@@ -7,7 +7,6 @@ import { simulateMoveAndCheck } from './check-detection.js';
 
 /**
  * Checks if castling is valid for the given move
- * @param {Object} boardState - Current board state
  * @param {string} from - Starting position (king's position)
  * @param {string} to - Ending position (king's destination)
  * @returns {boolean} - True if castling is valid
@@ -23,8 +22,11 @@ export function isCastlingValid(from, to) {
     const toFile = to.charCodeAt(0);
     const fileDistance = Math.abs(fromFile - toFile);
     
-    // King must move 2 squares horizontally
+    // King must move exactly 2 squares horizontally
     if (fileDistance !== 2) return false;
+    
+    // King and rook must be on the same rank
+    if (from[1] !== to[1]) return false;
     
     // King must be on its original square
     if ((color === 'white' && from !== 'e1') || (color === 'black' && from !== 'e8')) return false;
@@ -38,6 +40,9 @@ export function isCastlingValid(from, to) {
     // Check if there's a rook in position
     const rook = boardState.pieces[rookPosition];
     if (!rook || rook !== `rook-${color}`) return false;
+    
+    // Check if destination square is empty
+    if (boardState.pieces[to]) return false;
     
     // Check if there are pieces between the king and rook
     if (!isPathClear(boardState, from, rookPosition)) return false;

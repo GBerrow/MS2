@@ -12,7 +12,7 @@ import { switchTurn } from '../game-logic/turn-manager.js';
 import { simulateMoveAndCheck, checkForCheck, isCheckmate } from '../game-logic/check-detection.js';
 import { declareGameOver } from '../game-logic/game-over.js';
 import { playSound } from '../ui/sound-manager.js';
-import {isCastlingValid,executeCastling,isEnPassantValid,executeEnPassant,isPawnPromotionValid,executePromotion,} from "../game-logic/special-moves.js";
+import {isCastlingValid, executeCastling, isEnPassantValid, executeEnPassant, isPawnPromotionValid, executePromotion} from "../game-logic/special-moves.js";
 
 let selectedSquare = null;
 let draggedPiece = null;
@@ -371,6 +371,11 @@ function showValidMoves(position) {
     
     const [type, color] = piece.split('-');
     const validMoves = [];
+    const specialMoves = {
+        castling: [],
+        enPassant: [],
+        promotion: []
+    };
     
     // Loop through all squares on the board
     for (let file = 'a'.charCodeAt(0); file <= 'h'.charCodeAt(0); file++) {
@@ -378,39 +383,57 @@ function showValidMoves(position) {
             const targetPosition = String.fromCharCode(file) + rank;
             let isValid = false;
             
-            // Check if move is valid based on piece type
-            switch (type) {
-                case 'pawn':
+            // Check special moves first
+            if (type === 'king' && isCastlingValid(position, targetPosition)) {
+                isValid = true;
+                specialMoves.castling.push(targetPosition);
+            } else if (type === 'pawn') {
+                const enPassantResult = isEnPassantValid(position, targetPosition);
+                if (enPassantResult.valid) {
+                    isValid = true;
+                    specialMoves.enPassant.push(targetPosition);
+                } else if (isPawnPromotionValid(position, targetPosition)) {
+                    // Check if it's also a valid pawn move
+                    if (isValidPawnMove(boardState, position, targetPosition, color)) {
+                        isValid = true;
+                        specialMoves.promotion.push(targetPosition);
+                    }
+                } else {
                     isValid = isValidPawnMove(boardState, position, targetPosition, color);
-                    break;
-                case 'rook':
-                    isValid = isValidRookMove(boardState, position, targetPosition, color) && 
-                             isPathClear(boardState, position, targetPosition);
-                    break;
-                case 'knight':
-                    isValid = isValidKnightMove(boardState, position, targetPosition, color);
-                    break;
-                case 'bishop':
-                    isValid = isValidBishopMove(boardState, position, targetPosition, color) && 
-                             isPathClear(boardState, position, targetPosition);
-                    break;
-                case 'queen':
-                    isValid = isValidQueenMove(boardState, position, targetPosition, color) && 
-                             isPathClear(boardState, position, targetPosition);
-                    break;
-                case 'king':
-                    isValid = isValidKingMove(boardState, position, targetPosition, color);
-                    break;
+                }
+            } else {
+                // Check standard moves
+                switch (type) {
+                    case 'rook':
+                        isValid = isValidRookMove(boardState, position, targetPosition, color) && 
+                                isPathClear(boardState, position, targetPosition);
+                        break;
+                    case 'knight':
+                        isValid = isValidKnightMove(boardState, position, targetPosition, color);
+                        break;
+                    case 'bishop':
+                        isValid = isValidBishopMove(boardState, position, targetPosition, color) && 
+                                isPathClear(boardState, position, targetPosition);
+                        break;
+                    case 'queen':
+                        isValid = isValidQueenMove(boardState, position, targetPosition, color) && 
+                                isPathClear(boardState, position, targetPosition);
+                        break;
+                    case 'king':
+                        isValid = isValidKingMove(boardState, position, targetPosition, color);
+                        break;
+                }
             }
             
-            if (isValid) {
+            // If valid move and wouldn't put king in check
+            if (isValid && !simulateMoveAndCheck(boardState, position, targetPosition, color)) {
                 validMoves.push(targetPosition);
             }
         }
     }
     
     // Highlight valid moves on the board
-    highlightValidMoves(validMoves);
+    highlightValidMoves(validMoves, specialMoves);
 }
 
 // Function to try to make a move

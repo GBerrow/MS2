@@ -286,6 +286,36 @@ main {
 }
 
 /* ----------------------------------------
+   SPECIAL-MOVE HIGHLIGHTING
+   ---------------------------------------- */
+/* 
+ * Highlight style for special chess moves (castling, en passant, promotion)
+ * Uses a royal blue color scheme to visually distinguish from regular moves
+ */
+ 
+ .highlight-special {
+  position: relative;            /* Enables absolute positioning of the ::before pseudo-element */
+  background-color: rgba(65, 105, 225, 0.6) !important; /* Royal blue with 60% opacity */
+                                 /* The !important flag ensures this style overrides any existing square colors */
+                                 /* 0.6 opacity allows the original square color to partially show through */
+}
+
+.highlight-special::before {
+  content: '';                   /* Required for the pseudo-element to render */
+  position: absolute;            /* Positions relative to the parent .highlight-special element */
+  width: 60%;                    /* Circle takes up 60% of the square's width */
+  height: 60%;                   /* Circle takes up 60% of the square's height */
+  background-color: rgba(65, 105, 225, 0.4); /* Lighter shade of the same blue */
+                                 /* Lower opacity (0.4) creates a layered visual effect */
+  border-radius: 50%;            /* Creates a perfect circle shape */
+  top: 20%;                      /* Positions the circle 20% from the top of the square */
+  left: 20%;                     /* Positions the circle 20% from the left of the square */
+                                 /* The 20% top/left with 60% width/height centers the circle */
+  z-index: 1;                    /* Ensures the circle appears above the square but below chess pieces */
+                                 /* Chess pieces typically have a higher z-index value */
+}
+
+/* ----------------------------------------
    GAME CONTROLS
    ---------------------------------------- */
 /* Controls section layout */
