@@ -137,8 +137,9 @@ function handlePieceMouseDown(e) {
     const pieceType = piece.getAttribute('data-piece');
     const pieceColor = pieceType ? pieceType.split('-')[1] : null;
     
-    // Check if it's the current player's piece
-    if (pieceColor === boardState.currentPlayer) {
+    // Check if it's the current player's piece AND not AI's turn
+    if (pieceColor === boardState.currentPlayer && 
+        !(boardState.currentPlayer === 'black' && boardState.aiEnabled)) {
         e.preventDefault(); // Prevent default browser behavior
         
         // Store dragged piece info
@@ -195,8 +196,9 @@ function handlePieceTouchStart(e) {
     const pieceType = piece.getAttribute('data-piece');
     const pieceColor = pieceType ? pieceType.split('-')[1] : null;
     
-    // Check if it's the current player's piece
-    if (pieceColor === boardState.currentPlayer) {
+    // Check if it's the current player's piece AND not AI's turn
+    if (pieceColor === boardState.currentPlayer && 
+        !(boardState.currentPlayer === 'black' && boardState.aiEnabled)) {
         // Store dragged piece info
         draggedPiece = pieceType;
         dragSource = position;
