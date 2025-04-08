@@ -418,7 +418,38 @@ async function tryMove(from, to) {
     
     const [type, color] = piece.split('-');
     
-    // First check if the move is mechanically valid
+    // Check if we're trying to capture a king 
+    const targetPiece = boardState.pieces[to];
+    if (targetPiece && targetPiece.split('-')[0] === 'king') {
+        console.log("Attempting to capture king directly - illegal in chess");
+        playSound('incorrectMove');
+        return false;
+    }
+    
+    // Check special moves BEFORE standard validation
+    
+    // Check for castling
+    if (type === 'king' && isCastlingValid(from, to)) {
+        if (executeCastling(from, to)) {
+            checkForCheck();
+            switchTurn();
+            return true;
+        }
+    }
+    
+    // Check for en passant
+    if (type === 'pawn') {
+        const enPassantResult = isEnPassantValid(from, to);
+        if (enPassantResult.valid) {
+            if (executeEnPassant(from, to, enPassantResult.capturePosition)) {
+                checkForCheck();
+                switchTurn();
+                return true;
+            }
+        }
+    }
+    
+    // Now check standard movement rules
     let isValid = false;
     
     switch (type) {
@@ -458,38 +489,15 @@ async function tryMove(from, to) {
         return false;
     }
     
-    // NOW check for special moves after validating the move is legal
-    
-    // Check for castling
-    if (type === 'king' && isCastlingValid(from, to)) {
-        if (executeCastling(from, to)) {
+    // Check for pawn promotion AFTER verifying the move is valid
+    if (type === 'pawn' && isPawnPromotionValid(from, to)) {
+        console.log("Pawn promotion is valid, executing...");
+        executePromotion(from, to).then(() => {
+            console.log("Promotion completed");
             checkForCheck();
             switchTurn();
-            return true;
-        }
-    }
-    
-    // Check for en passant
-    if (type === 'pawn') {
-        const enPassantResult = isEnPassantValid(from, to);
-        if (enPassantResult.valid) {
-            if (executeEnPassant(from, to, enPassantResult.capturePosition)) {
-                checkForCheck();
-                switchTurn();
-                return true;
-            }
-        }
-        
-        // Check for pawn promotion AFTER verifying the move is valid
-        if (isPawnPromotionValid(from, to)) {
-            console.log("Pawn promotion is valid, executing...");
-            executePromotion(from, to).then(() => {
-                console.log("Promotion completed");
-                checkForCheck();
-                switchTurn();
-            });
-            return true;
-        }
+        });
+        return true;
     }
     
     // Execute the regular move
@@ -517,7 +525,6 @@ async function tryMove(from, to) {
     
     return true;
 }
-
 import { resetMoveHistory } from '../game-logic/move-history.js';
 
 function handleRestartGame() {

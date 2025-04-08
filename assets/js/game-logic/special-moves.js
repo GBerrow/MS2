@@ -82,23 +82,28 @@ export function executeCastling(from, to) {
     const newRookFile = isKingsideCastling ? 'f' : 'd';
     const newRookPosition = newRookFile + rookRank;
     
+    // Save rook information
+    const rook = boardState.pieces[rookPosition];
+    
     // Move the king
     delete boardState.pieces[from];
     boardState.pieces[to] = king;
     
     // Move the rook
-    const rook = boardState.pieces[rookPosition];
     delete boardState.pieces[rookPosition];
     boardState.pieces[newRookPosition] = rook;
     
-    // Record the castling move in move history - use direct import
+    // Record the castling move with COMPLETE rook information
     import('./move-history.js').then(module => {
         module.recordMove({
             from,
             to,
             piece: king,
             capturedPiece: null,
-            specialMove: isKingsideCastling ? 'castling-kingside' : 'castling-queenside'
+            specialMove: isKingsideCastling ? 'castling-kingside' : 'castling-queenside',
+            rookFrom: rookPosition,
+            rookTo: newRookPosition,
+            rookPiece: rook
         });
     });
     
@@ -193,7 +198,7 @@ export function executeEnPassant(from, to, capturePosition) {
     delete boardState.pieces[from];
     boardState.pieces[to] = pawn;
     
-    // Record the en passant move in move history
+    // Record the move in move history
     import('./move-history.js').then(module => {
         module.recordMove({
             from,
@@ -205,13 +210,13 @@ export function executeEnPassant(from, to, capturePosition) {
         });
     });
     
-    // Force update the captured pieces display
+    // Force update the captured pieces display USING DYNAMIC IMPORT
     import('../ui/captured-pieces.js').then(module => {
         console.log("Updating captured pieces after en passant");
         module.updateCapturedPieces();
     });
     
-    // Update board display
+    // Update board display USING DYNAMIC IMPORT
     import('../board/board-ui.js').then(module => {
         module.renderBoard();
     });

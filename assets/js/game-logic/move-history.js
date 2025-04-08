@@ -293,8 +293,57 @@ export function undoLastMove(boardState, renderBoard, updateCapturedPieces) {
     // Restore the piece to its original position
     boardState.pieces[lastMove.from] = lastMove.piece;
     
-    // If there was a capture, restore the captured piece
-    if (lastMove.capturedPiece) {
+    // Handle special moves
+    if (lastMove.specialMove) {
+        // Handle castling
+        if (lastMove.specialMove.includes('castling')) {
+            // Delete king from destination
+            delete boardState.pieces[lastMove.to];
+            
+            // Properly restore rook
+            if (lastMove.rookFrom && lastMove.rookTo && lastMove.rookPiece) {
+                // Return rook to original position
+                boardState.pieces[lastMove.rookFrom] = lastMove.rookPiece;
+                // Remove rook from castled position
+                delete boardState.pieces[lastMove.rookTo];
+            } else {
+                // Fallback for legacy moves without rook data
+                const [_, color] = lastMove.piece.split('-');
+                const rank = color === 'white' ? '1' : '8';
+                const isKingside = lastMove.specialMove === 'castling-kingside';
+                
+                // Original and new rook positions
+                const oldRookFile = isKingside ? 'h' : 'a';
+                const newRookFile = isKingside ? 'f' : 'd';
+                
+                // Restore rook
+                boardState.pieces[oldRookFile + rank] = `rook-${color}`;
+                delete boardState.pieces[newRookFile + rank];
+            }
+        }
+        // Handle en passant separately
+        else if (lastMove.specialMove === 'en-passant' && lastMove.capturePosition) {
+            // In en passant, the captured piece is not at the destination square
+            // Restore captured pawn
+            if (lastMove.capturedPiece) {
+                boardState.pieces[lastMove.capturePosition] = lastMove.capturedPiece;
+                
+                // Remove from captured pieces list
+                const capturedColor = lastMove.capturedPiece.split('-')[1];
+                const capturedByColor = capturedColor === 'white' ? 'black' : 'white';
+                
+                const index = boardState.capturedPieces[capturedByColor].indexOf(lastMove.capturedPiece);
+                if (index !== -1) {
+                    boardState.capturedPieces[capturedByColor].splice(index, 1);
+                }
+            }
+            
+            // Delete the pawn from destination
+            delete boardState.pieces[lastMove.to];
+        }
+    }
+    // Handle regular captures
+    else if (lastMove.capturedPiece) {
         boardState.pieces[lastMove.to] = lastMove.capturedPiece;
         
         // Remove from captured pieces list
@@ -305,8 +354,9 @@ export function undoLastMove(boardState, renderBoard, updateCapturedPieces) {
         if (index !== -1) {
             boardState.capturedPieces[capturedByColor].splice(index, 1);
         }
-    } else {
-        // If no capture, just remove the piece from destination
+    } 
+    // If no capture, just remove the piece from destination
+    else {
         delete boardState.pieces[lastMove.to];
     }
     
