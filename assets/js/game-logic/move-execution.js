@@ -22,7 +22,14 @@ export function executeMove(from, to) {
     
     // Handle capture
     if (capturedPiece) {
-        const capturedColor = capturedPiece.split('-')[1];
+        const [capturedType, capturedColor] = capturedPiece.split('-');
+        
+        // Safety check to prevent king captures
+        if (capturedType === 'king') {
+            console.error("Attempted to capture a king - this is illegal in chess");
+            return false;
+        }
+        
         // Add to captured pieces list
         boardState.capturedPieces[capturedColor === 'white' ? 'black' : 'white'].push(capturedPiece);
         

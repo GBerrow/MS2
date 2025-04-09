@@ -18,23 +18,27 @@ export function updateCapturedPieces() {
     whiteCapturedContainer.innerHTML = '';
     blackCapturedContainer.innerHTML = '';
     
-    // Add white's captured pieces (black pieces that white captured)
-    boardState.capturedPieces.white.forEach(piece => {
-        const img = document.createElement('img');
-        img.src = `assets/images/chess-pieces/${piece}.png`;
-        img.alt = piece;
-        img.title = piece.replace('-', ' '); // e.g., "pawn black"
-        whiteCapturedContainer.appendChild(img);
-    });
+    // White's captured pieces (black pieces that white captured)
+    boardState.capturedPieces.white
+        .filter(piece => !piece.startsWith('king-'))
+        .forEach(piece => {
+            const img = document.createElement('img');
+            img.src = `assets/images/chess-pieces/${piece}.png`;
+            img.alt = piece;
+            img.title = piece.replace('-', ' '); // e.g., "pawn black"
+            whiteCapturedContainer.appendChild(img);
+        });
     
-    // Add black's captured pieces (white pieces that black captured)
-    boardState.capturedPieces.black.forEach(piece => {
-        const img = document.createElement('img');
-        img.src = `assets/images/chess-pieces/${piece}.png`;
-        img.alt = piece;
-        img.title = piece.replace('-', ' '); // e.g., "pawn white"
-        blackCapturedContainer.appendChild(img);
-    });
+    // Black's captured pieces (white pieces that black captured)
+    boardState.capturedPieces.black
+        .filter(piece => !piece.startsWith('king-'))
+        .forEach(piece => {
+            const img = document.createElement('img');
+            img.src = `assets/images/chess-pieces/${piece}.png`;
+            img.alt = piece;
+            img.title = piece.replace('-', ' '); // e.g., "pawn white"
+            blackCapturedContainer.appendChild(img);
+        });
 }
 
 // Initialize empty captured pieces display

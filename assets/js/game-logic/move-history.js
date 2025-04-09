@@ -207,14 +207,6 @@ function updateMoveHistoryDisplay(notation, color, moveNumber, move) {
                 el.classList.remove('highlight-recent');
             });
         }, 1500);
-        
-        // Scroll to the latest move
-        const container = moveHistoryBody.closest('.move-history-container');
-        if (container) {
-            setTimeout(() => {
-                container.scrollTop = container.scrollHeight;
-            }, 50);
-        }
     }
 }
 
