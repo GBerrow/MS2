@@ -552,17 +552,59 @@ async function tryMove(from, to) {
 }
 
 function handleRestartGame() {
-    // Import move-history to reset message state
-    import('../game-logic/move-history.js').then(module => {
-        // Reset the message state
-        module.resetMessageState();
-        
-        // Reset the move history
-        module.resetMoveHistory();
+    // Import necessary modules
+    import('../board/board-setup.js').then(setupModule => {
+        import('../game-logic/move-history.js').then(historyModule => {
+            // Store current difficulty before reset
+            const currentDifficulty = boardState.difficulty;
+            
+            // Reset the board state
+            for (const key in boardState.pieces) {
+                delete boardState.pieces[key];
+            }
+            boardState.currentPlayer = 'white';
+            boardState.capturedPieces = { white: [], black: [] };
+            boardState.inCheck = { white: false, black: false };
+            boardState.lastMove = null;
+            
+            // Preserve AI settings
+            const aiEnabled = boardState.aiEnabled;
+            
+            // Reset the message state
+            historyModule.resetMessageState();
+            
+            // Reset the move history
+            historyModule.resetMoveHistory();
+            
+            // Initialize board again
+            setupModule.initializeBoard();
+            
+            // Restore difficulty and AI settings
+            boardState.difficulty = currentDifficulty;
+            boardState.aiEnabled = aiEnabled;
+            
+            // Update difficulty message
+            historyModule.updateDifficultyMessage(currentDifficulty);
+            
+            // Update UI for captured pieces
+            import('../ui/captured-pieces.js').then(capturedModule => {
+                capturedModule.updateCapturedPieces();
+            });
+            
+            // Critical: Reattach all event listeners for drag and drop
+            reattachDragListeners();
+            
+            // Since we didn't reload the page, we need to manually reattach square click listeners
+            document.querySelectorAll('.square').forEach(square => {
+                // Remove existing listeners to prevent duplicates
+                square.removeEventListener('click', handleSquareClick);
+                // Add listeners back
+                square.addEventListener('click', handleSquareClick);
+            });
+            
+            console.log(`Game restarted with difficulty: ${currentDifficulty}`);
+        });
     });
-    
-    // Reset the game state and board
-    window.location.reload(); // Simple refresh 
 }
 
 export function reattachDragListeners() {
