@@ -449,78 +449,129 @@ export function resetMoveHistory() {
     console.log("Move history reset");
 }
 
-// Function to update the difficulty message
+// Variable to track if we're showing a post-check message
+let showingPostCheckMessage = false;
+
+// UpdateDifficultyMessage function for initial messages
 export function updateDifficultyMessage(difficulty) {
     const moveHistoryContainer = document.querySelector('.move-history-container');
     if (!moveHistoryContainer) return;
     
-    // Remove any existing message
-    let existingMessage = document.getElementById('difficulty-message');
-    if (existingMessage) {
-        existingMessage.remove();
+    // If we're showing a post-check message, don't overwrite it unless explicitly reset
+    if (showingPostCheckMessage) return;
+    
+    // Look for any existing message
+    let existingMessage = document.getElementById('game-status-message');
+    if (!existingMessage) {
+        // Create new message element if none exists
+        existingMessage = document.createElement('div');
+        existingMessage.id = 'game-status-message';
+        existingMessage.className = 'game-status-message';
+        
+        // Insert before the table
+        const table = moveHistoryContainer.querySelector('#moveHistoryTable');
+        if (table) {
+            moveHistoryContainer.insertBefore(existingMessage, table);
+        } else {
+            moveHistoryContainer.appendChild(existingMessage);
+        }
     }
     
-    // Create new message element
-    const messageElement = document.createElement('div');
-    messageElement.id = 'difficulty-message';
-    messageElement.className = 'difficulty-message';
+    // Clear any existing classes except the base class
+    existingMessage.className = 'game-status-message';
     
-    // Set message based on difficulty
+    // Set INITIAL message based on difficulty
     switch(difficulty) {
         case 'easy':
-            messageElement.textContent = "Nice and easy way to start off your day!";
-            messageElement.className += ' easy-message';
+            existingMessage.textContent = "Nice and easy way to start off your day!";
+            existingMessage.className += ' easy-message';
             break;
         case 'normal':
-            messageElement.textContent = "A balanced challenge awaits you!";
-            messageElement.className += ' normal-message';
+            existingMessage.textContent = "A balanced challenge awaits you!";
+            existingMessage.className += ' normal-message';
             break;
         case 'hard':
-            messageElement.textContent = "Watch out, you're on hard difficulty now!";
-            messageElement.className += ' hard-message';
+            existingMessage.textContent = "Watch out, you're on hard difficulty now!";
+            existingMessage.className += ' hard-message';
             break;
         default:
-            messageElement.textContent = "Select a difficulty level to begin!";
-    }
-    
-    // Insert before the table
-    const table = moveHistoryContainer.querySelector('#moveHistoryTable');
-    if (table) {
-        moveHistoryContainer.insertBefore(messageElement, table);
-    } else {
-        moveHistoryContainer.appendChild(messageElement);
+            existingMessage.textContent = "Select a difficulty level to begin!";
     }
 }
 
-// Function to update the check message
+// Update check message function
 export function updateCheckMessage(isInCheck, attackingPiece = null) {
     const moveHistoryContainer = document.querySelector('.move-history-container');
     if (!moveHistoryContainer) return;
     
-    // Remove any existing check message
-    let existingMessage = document.getElementById('check-message');
-    if (existingMessage) {
-        existingMessage.remove();
+    // Look for the game status message element
+    let messageElement = document.getElementById('game-status-message');
+    if (!messageElement) {
+        // Create if it doesn't exist
+        messageElement = document.createElement('div');
+        messageElement.id = 'game-status-message';
+        
+        // Insert before the table
+        const table = moveHistoryContainer.querySelector('#moveHistoryTable');
+        if (table) {
+            moveHistoryContainer.insertBefore(messageElement, table);
+        } else {
+            moveHistoryContainer.appendChild(messageElement);
+        }
     }
     
-    // If not in check, just return - no message needed
-    if (!isInCheck) return;
-    
-    // Create new check message element
-    const messageElement = document.createElement('div');
-    messageElement.id = 'check-message';
-    messageElement.className = 'check-message';
-    
-    // Set the check message with attacking piece info if available
-    const pieceType = attackingPiece ? attackingPiece.split('-')[0] : 'piece';
-    messageElement.textContent = `Your king is in check by ${pieceType}!`;
-    messageElement.className += ' warning-message';
-    
-    // Insert at the top of the container
-    const table = moveHistoryContainer.querySelector('#moveHistoryTable');
-    if (table) {
-        moveHistoryContainer.insertBefore(messageElement, table);
+    if (isInCheck) {
+        // When in check, show check message and mark that we aren't showing post-check
+        showingPostCheckMessage = false;
+        
+        // Clear any existing classes and add check message class
+        messageElement.className = 'game-status-message check-message';
+        
+        // Set the check message with attacking piece info
+        const pieceType = attackingPiece ? attackingPiece.split('-')[0] : 'piece';
+        messageElement.textContent = `Your king is in check by ${pieceType}!`;
     } else {
-        moveHistoryContainer.appendChild(messageElement);
+        // If check was just resolved, show post-check message
+        showPostCheckMessage();
     }
+}
+
+// New function to show post-check encouragement messages
+export function showPostCheckMessage() {
+    const moveHistoryContainer = document.querySelector('.move-history-container');
+    if (!moveHistoryContainer) return;
+    
+    let messageElement = document.getElementById('game-status-message');
+    if (!messageElement) return;
+    
+    // Set flag to indicate we're showing a post-check message
+    showingPostCheckMessage = true;
+    
+    // Clear any existing classes
+    messageElement.className = 'game-status-message';
+    
+    // Show different POST-CHECK messages based on difficulty
+    switch(boardState.difficulty) {
+        case 'easy':
+            messageElement.textContent = "This should be a breeze...right? 😅";
+            messageElement.className += ' easy-message';
+            break;
+        case 'normal':
+            messageElement.textContent = "This could get interesting 👀";
+            messageElement.className += ' normal-message';
+            break;
+        case 'hard':
+            messageElement.textContent = "Had enough yet? 😈";
+            messageElement.className += ' hard-message';
+            break;
+        default:
+            // Fallback to initial message if difficulty not recognized
+            updateDifficultyMessage(boardState.difficulty);
+            showingPostCheckMessage = false;
+    }
+}
+
+// Reset the post-check state on game restart
+export function resetMessageState() {
+    showingPostCheckMessage = false;
 }

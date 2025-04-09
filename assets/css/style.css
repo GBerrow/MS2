@@ -781,26 +781,68 @@ button {
   display: inline-block; /* Ensure proper sizing for tooltip container */
 }
 
-/* Styles for the check message */
+/* Game Status Message Container
+   ----------------------------------------
+   Base styling for all game status messages (difficulty, check warnings, etc.)
+   Uses a subtle transition effect for smooth message changes
+*/
+.game-status-message {
+  padding: 10px 15px;        /* Comfortable internal spacing */
+  margin-bottom: 15px;       /* Separation from content below */
+  border-radius: 4px;        /* Rounded corners for modern look */
+  font-weight: bold;         /* Makes message text stand out */
+  text-align: center;        /* Centers text for better readability */
+  transition: all 0.3s ease; /* Smooth transition when messages change */
+}
+
+/* Difficulty Level Message Styles
+ ----------------------------------------
+ Each difficulty level has a unique color scheme to provide
+ visual differentiation and match the game's difficulty theme
+*/
+
+/* Easy Mode - Green theme (calming, approachable) */
+.easy-message {
+  background-color: #e8f5e9; /* Light green background - soft, approachable */
+  color: #2e7d32;            /* Darker green text for good contrast */
+  border-left: 4px solid #2e7d32; /* Left accent border for visual interest */
+}
+
+/* Normal Mode - Blue theme (neutral, balanced) */
+.normal-message {
+  background-color: #e3f2fd; /* Light blue background - neutral, balanced */
+  color: #1976d2;            /* Medium blue text for readability */
+  border-left: 4px solid #1976d2; /* Left accent border matches text */
+}
+
+/* Hard Mode - Orange/Red theme (challenging, intense) */
+.hard-message {
+  background-color: #fbe9e7; /* Light reddish background - suggests challenge */
+  color: #d84315;            /* Deep orange text conveys intensity */
+  border-left: 4px solid #d84315; /* Left accent border for visual continuity */
+}
+
+/* Check Warning Message Style
+ ----------------------------------------
+ Red theme to attract attention and convey urgency
+ Includes animation for additional emphasis
+*/
 .check-message {
-  padding: 8px 12px;
-  margin-bottom: 10px;
-  border-radius: 4px;
-  font-weight: bold;
-  text-align: center;
+  background-color: #ffe0e0; /* Light red background signals warning */
+  color: #d32f2f;            /* Bright red text for high contrast and urgency */
+  border-left: 4px solid #d32f2f; /* Matching left border for consistency */
+  animation: pulse 2s infinite; /* Subtle pulsing animation to draw attention */
 }
 
-.warning-message {
-  background-color: #ffe0e0;
-  color: #d32f2f;
-  border-left: 4px solid #d32f2f;
-  animation: pulse 2s infinite;
-}
-
+/* Pulse Animation for Check Messages
+ ----------------------------------------
+ Creates a subtle "breathing" effect to draw attention
+ without being too distracting or flashy
+*/
 @keyframes pulse {
-  0% { opacity: 0.8; }
-  50% { opacity: 1; }
-  100% { opacity: 0.8; }
+  0% { opacity: 0.8; }   /* Start slightly transparent */
+  50% { opacity: 1; }    /* Fade to fully opaque at midpoint */
+  100% { opacity: 0.8; } /* Return to starting opacity to loop smoothly */
 }
 
 /* ----------------------------------------

@@ -9,6 +9,9 @@ import { isValidKingMove } from '../pieces/movement/king.js';
 import { isPathClear } from '../pieces/validation.js';
 import { playSound } from '../ui/sound-manager.js';
 
+// Variable to track if white king was previously in check
+let whiteWasInCheck = false;
+
 export function checkForCheck() {
     // Find both kings
     let whiteKingPosition = null;
@@ -31,7 +34,6 @@ export function checkForCheck() {
     
     // Store attacking pieces for UI display
     const whiteAttacker = whiteCheckResult.attackingPiece;
-    const blackAttacker = blackCheckResult.attackingPiece;
     
     // Update board state
     boardState.inCheck = {
@@ -41,17 +43,14 @@ export function checkForCheck() {
     
     // Import move-history to update check message
     import('./move-history.js').then(module => {
-        // If it's white's turn and their king is in check
-        if (boardState.currentPlayer === 'white' && whiteInCheck) {
+        if (whiteInCheck) {
+            // White king is in check, show check message
             module.updateCheckMessage(true, whiteAttacker);
-        }
-        // If it's black's turn and their king is in check (and not AI)
-        else if (boardState.currentPlayer === 'black' && blackInCheck && !boardState.aiEnabled) {
-            module.updateCheckMessage(true, blackAttacker);
-        }
-        // If no check, clear any check messages
-        else {
+            whiteWasInCheck = true;
+        } else if (whiteWasInCheck) {
+            // Check was just resolved for white king
             module.updateCheckMessage(false);
+            whiteWasInCheck = false;
         }
     });
     
