@@ -449,7 +449,7 @@ export function resetMoveHistory() {
     console.log("Move history reset");
 }
 
-// Add this new function to update the difficulty message
+// Function to update the difficulty message
 export function updateDifficultyMessage(difficulty) {
     const moveHistoryContainer = document.querySelector('.move-history-container');
     if (!moveHistoryContainer) return;
@@ -484,6 +484,39 @@ export function updateDifficultyMessage(difficulty) {
     }
     
     // Insert before the table
+    const table = moveHistoryContainer.querySelector('#moveHistoryTable');
+    if (table) {
+        moveHistoryContainer.insertBefore(messageElement, table);
+    } else {
+        moveHistoryContainer.appendChild(messageElement);
+    }
+}
+
+// Function to update the check message
+export function updateCheckMessage(isInCheck, attackingPiece = null) {
+    const moveHistoryContainer = document.querySelector('.move-history-container');
+    if (!moveHistoryContainer) return;
+    
+    // Remove any existing check message
+    let existingMessage = document.getElementById('check-message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+    
+    // If not in check, just return - no message needed
+    if (!isInCheck) return;
+    
+    // Create new check message element
+    const messageElement = document.createElement('div');
+    messageElement.id = 'check-message';
+    messageElement.className = 'check-message';
+    
+    // Set the check message with attacking piece info if available
+    const pieceType = attackingPiece ? attackingPiece.split('-')[0] : 'piece';
+    messageElement.textContent = `Your king is in check by ${pieceType}!`;
+    messageElement.className += ' warning-message';
+    
+    // Insert at the top of the container
     const table = moveHistoryContainer.querySelector('#moveHistoryTable');
     if (table) {
         moveHistoryContainer.insertBefore(messageElement, table);

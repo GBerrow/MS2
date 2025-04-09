@@ -670,9 +670,9 @@ button {
 }
 
 /* ----------------------------------------
-   MOVE HISTORY PANEL
+   GAME PANEL
    ---------------------------------------- 
-   The move history panel displays chess moves in standard algebraic notation.
+   The Game panel displays chess moves in standard algebraic notation.
    It sits beside the chessboard and provides a scrollable record of the game.
 */
 
@@ -779,6 +779,28 @@ button {
 [title] {
   position: relative; /* Create positioning context for tooltips */
   display: inline-block; /* Ensure proper sizing for tooltip container */
+}
+
+/* Styles for the check message */
+.check-message {
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.warning-message {
+  background-color: #ffe0e0;
+  color: #d32f2f;
+  border-left: 4px solid #d32f2f;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.8; }
+  50% { opacity: 1; }
+  100% { opacity: 0.8; }
 }
 
 /* ----------------------------------------

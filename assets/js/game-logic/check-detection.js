@@ -22,15 +22,38 @@ export function checkForCheck() {
         }
     }
     
-    // Check if either king is in check
-    const whiteInCheck = isKingInCheck(whiteKingPosition, 'white', boardState);
-    const blackInCheck = isKingInCheck(blackKingPosition, 'black', boardState);
+    // Check if either king is in check and get attacking piece
+    const whiteCheckResult = findCheckingPiece(whiteKingPosition, 'white', boardState);
+    const blackCheckResult = findCheckingPiece(blackKingPosition, 'black', boardState);
+    
+    const whiteInCheck = whiteCheckResult.inCheck;
+    const blackInCheck = blackCheckResult.inCheck;
+    
+    // Store attacking pieces for UI display
+    const whiteAttacker = whiteCheckResult.attackingPiece;
+    const blackAttacker = blackCheckResult.attackingPiece;
     
     // Update board state
     boardState.inCheck = {
         white: whiteInCheck,
         black: blackInCheck
     };
+    
+    // Import move-history to update check message
+    import('./move-history.js').then(module => {
+        // If it's white's turn and their king is in check
+        if (boardState.currentPlayer === 'white' && whiteInCheck) {
+            module.updateCheckMessage(true, whiteAttacker);
+        }
+        // If it's black's turn and their king is in check (and not AI)
+        else if (boardState.currentPlayer === 'black' && blackInCheck && !boardState.aiEnabled) {
+            module.updateCheckMessage(true, blackAttacker);
+        }
+        // If no check, clear any check messages
+        else {
+            module.updateCheckMessage(false);
+        }
+    });
     
     // Log check status and check for checkmate or stalemate
     if (whiteInCheck) {
@@ -92,8 +115,9 @@ export function checkForCheck() {
     return boardState.inCheck;
 }
 
-function isKingInCheck(kingPosition, kingColor) {
-    if (!kingPosition) return false;
+// Add this helper function to find the checking piece
+function findCheckingPiece(kingPosition, kingColor) {
+    if (!kingPosition) return { inCheck: false, attackingPiece: null };
     
     // Check if any opponent piece can capture the king
     for (const [position, piece] of Object.entries(boardState.pieces)) {
@@ -130,11 +154,16 @@ function isKingInCheck(kingPosition, kingColor) {
         }
         
         if (canAttackKing) {
-            return true; // King is in check
+            return { inCheck: true, attackingPiece: piece }; // King is in check
         }
     }
     
-    return false; // King is not in check
+    return { inCheck: false, attackingPiece: null }; // King is not in check
+}
+
+// The original isKingInCheck function should still be kept for other uses
+function isKingInCheck(kingPosition, kingColor) {
+    return findCheckingPiece(kingPosition, kingColor).inCheck;
 }
 
 // Simulate a move and see if it would leave the king in check
