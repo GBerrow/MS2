@@ -579,10 +579,10 @@ export function showPostCheckMessage() {
 }
 
 /**
- * Handle undo button click with difficulty-based restrictions
+ * Handle undo button click with difficulty-based restrictions and pair-wise undoing
  */
 export function handleUndoButtonClick() {
-    const { difficulty } = boardState;
+    const { difficulty, aiEnabled } = boardState;
     
     // Handle based on difficulty
     if (difficulty === 'hard') {
@@ -599,23 +599,47 @@ export function handleUndoButtonClick() {
         return;
     }
     
-    // Proceed with undo if allowed
+    // Get move history to determine if we should do pair-wise undo
+    const history = getMoveHistory();
+    const needsPairWiseUndo = aiEnabled && 
+                             history.length >= 2 && 
+                             history[history.length-1].piece.split('-')[1] === 'black' &&
+                             history[history.length-2].piece.split('-')[1] === 'white';
+    
+    // First, increment the undo count if we're in normal mode
+    // This needs to happen BEFORE any undos to ensure proper message display
+    if (difficulty === 'normal') {
+        boardState.undoCount++;
+    }
+    
+    // Proceed with first undo
     if (undoLastMove(boardState, renderBoard, updateCapturedPieces)) {
-        // Only increment counter if undo was successful
+        // If AI is enabled and last move was AI's, undo the player's previous move too
+        if (needsPairWiseUndo) {
+            undoLastMove(boardState, renderBoard, updateCapturedPieces);
+            playSound('move'); // Additional sound for second undo
+        }
+        
+        // Always update the undo button state after undoing
+        updateUndoButtonState();
+        
+        // Show appropriate message based on remaining undos
         if (difficulty === 'normal') {
-            boardState.undoCount++;
-            updateUndoButtonState();
-            
-            // Show appropriate message based on remaining undos
-            if (getRemainingUndos() === 2) {
+            const updatedRemainingUndos = getRemainingUndos();
+            if (updatedRemainingUndos === 2) {
                 showUndoMessage("Careful! Only 2 undos left.", "warning-message");
-            } else if (getRemainingUndos() === 1) {
+            } else if (updatedRemainingUndos === 1) {
                 showUndoMessage("Last chance! Only 1 undo left.", "warning-message");
-            } else if (getRemainingUndos() === 0) {
+            } else if (updatedRemainingUndos === 0) {
                 showUndoMessage("No more undos available!", "error-message");
             }
         } else if (difficulty === 'easy') {
-            showUndoMessage("Feel free to experiment and try different moves!", "info-message");
+            showUndoMessage("Move undone! Feel free to try different strategies.", "info-message");
+        }
+    } else {
+        // If undo failed for some reason, revert the undo count increment
+        if (difficulty === 'normal') {
+            boardState.undoCount--;
         }
     }
 }
