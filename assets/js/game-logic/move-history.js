@@ -479,16 +479,17 @@ export function updateUndoButtonState() {
     const { difficulty } = boardState;
     
     if (difficulty === 'hard') {
-        undoButton.textContent = "Undo Disabled";
+        undoButton.innerHTML = "Undo Disabled";
         undoButton.classList.add('disabled-button');
         undoButton.title = "No second chances on hard mode!";
     } else if (difficulty === 'normal') {
         const remaining = getRemainingUndos();
-        undoButton.textContent = `Undo Last Move (${remaining} left)`;
+        // Create two-line format with proper centering
+        undoButton.innerHTML = `Undo Last Move<br><span class="undo-count">(${remaining} left)</span>`;
         undoButton.classList.remove('disabled-button');
         undoButton.title = remaining > 0 ? `You have ${remaining} undos remaining` : "No more undos available";
     } else { // 'easy'
-        undoButton.textContent = "Undo Last Move";
+        undoButton.innerHTML = "Undo Last Move";
         undoButton.classList.remove('disabled-button');
         undoButton.title = "Unlimited undos available in easy mode";
     }

@@ -794,6 +794,32 @@ Uses a subtle transition effect for smooth message changes */
   transition: all 0.3s ease; /* Smooth transition when messages change */
 }
 
+/* Two-line Undo Button Styling */
+#undoButton {
+  text-align: center;         /* Centers text horizontally within the button */
+  min-width: 160px;           /* Ensures button maintains adequate width for all text states */
+  padding: 8px 12px;          /* Creates comfortable space inside the button (8px top/bottom, 12px left/right) */
+  line-height: 1.4;           /* Sets line spacing for improved readability of multi-line text */
+  
+  /* Flexbox configuration for precise control of internal element layout */
+  display: flex;              /* Uses flexbox layout for optimized content positioning */
+  flex-direction: column;     /* Arranges child elements vertically (primary text above count) */
+  align-items: center;        /* Centers child elements horizontally within the button */
+  justify-content: center;    /* Centers child elements vertically within the button */
+}
+
+/* Style for the remaining count within the undo button 
+-------------------------------------------------------
+Creates visual distinction between the action text and the count display */
+#undoButton .undo-count {
+  display: block;             /* Makes element take full width of its container */
+  font-size: 0.9em;           /* Slightly reduces font size compared to primary button text */
+  margin-top: 2px;            /* Creates visual separation between button text and count */
+  
+  /* Note: The reduced size and added margin helps create a visual hierarchy,
+     emphasizing the primary action while keeping the count information easily accessible */
+}
+
 /* Undo Button Styling
 ----------------------------------------
 Style for the undo button when disabled, providing visual feedback
