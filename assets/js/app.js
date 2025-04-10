@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set AI enabled by default
     boardState.aiEnabled = true;
     boardState.difficulty = 'normal'; // Default difficulty
+    boardState.undoCount = 0; // Initialize undo count
     
     // Initialize the board
     initializeBoard();

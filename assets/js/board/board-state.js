@@ -12,7 +12,8 @@ export const boardState = {
     },
     lastMove: null,
     aiEnabled: true, // flag to enable/disable AI
-    difficulty: 'normal' // Default difficulty level: 'easy', 'normal', or 'hard'
+    difficulty: 'normal', // Default difficulty level: 'easy', 'normal', or 'hard'
+    undoCount: 0  // Track how many times player has used undo
 };
 
 // Methods to manipulate state

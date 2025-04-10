@@ -782,10 +782,9 @@ button {
 }
 
 /* Game Status Message Container
-   ----------------------------------------
-   Base styling for all game status messages (difficulty, check warnings, etc.)
-   Uses a subtle transition effect for smooth message changes
-*/
+----------------------------------------
+Base styling for all game status messages (difficulty, check warnings, etc.)
+Uses a subtle transition effect for smooth message changes */
 .game-status-message {
   padding: 10px 15px;        /* Comfortable internal spacing */
   margin-bottom: 15px;       /* Separation from content below */
@@ -794,6 +793,55 @@ button {
   text-align: center;        /* Centers text for better readability */
   transition: all 0.3s ease; /* Smooth transition when messages change */
 }
+
+/* Undo Button Styling
+----------------------------------------
+Style for the undo button when disabled, providing visual feedback
+that the button cannot be used (mainly in hard difficulty) */
+.disabled-button {
+    opacity: 0.5;            /* Reduces opacity to appear faded/inactive */
+    cursor: not-allowed;     /* Changes cursor to indicate button is not clickable */
+}
+
+/* Undo Message Container
+----------------------------------------
+Container for temporary feedback messages related to undo actions
+Hidden by default and displayed programmatically when needed */
+#undo-message-container {
+    margin-top: 10px;        /* Space between container and elements above */
+    padding: 8px;            /* Internal spacing for text */
+    border-radius: 4px;      /* Rounded corners matching other UI elements */
+    font-size: 0.9rem;       /* Slightly smaller text for subtlety */
+    text-align: center;      /* Center-aligned text for consistent layout */
+    display: none;           /* Hidden by default, shown via JavaScript */
+}
+
+/* Message Type Styling
+----------------------------------------
+Different visual styles for various message types to convey
+meaning through color (error, warning, information) */
+
+/* Error Message - Red theme for critical notifications */
+.error-message {
+    background-color: #ffebee; /* Light red background */
+    color: #d32f2f;            /* Dark red text for contrast */
+    border: 1px solid #ffcdd2; /* Slightly darker border for definition */
+}
+
+/* Warning Message - Amber/yellow theme for caution notifications */
+.warning-message {
+    background-color: #fff8e1; /* Light amber background */
+    color: #ff8f00;            /* Dark amber text for readability */
+    border: 1px solid #ffe0b2; /* Matching border for visual containment */
+}
+
+/* Information Message - Blue theme for general/helpful notifications */
+.info-message {
+    background-color: #e3f2fd; /* Light blue background */
+    color: #1976d2;            /* Dark blue text for contrast */
+    border: 1px solid #bbdefb; /* Slightly darker border for definition */
+}
+
 
 /* Difficulty Level Message Styles
  ----------------------------------------

@@ -13,6 +13,7 @@ import { simulateMoveAndCheck, checkForCheck, isCheckmate } from '../game-logic/
 import { declareGameOver } from '../game-logic/game-over.js';
 import { playSound } from '../ui/sound-manager.js';
 import {isCastlingValid, executeCastling, isEnPassantValid, executeEnPassant, isPawnPromotionValid, executePromotion} from "../game-logic/special-moves.js";
+import { updateUndoButtonState } from '../game-logic/move-history.js';
 
 let selectedSquare = null;
 let draggedPiece = null;
@@ -91,11 +92,21 @@ function applyDifficultyChange(level) {
     // Set new difficulty
     boardState.difficulty = level;
     
+    // Reset undo count
+    boardState.undoCount = 0;
+    
     // Update UI
     updateDifficultyButtons(level);
     
     // Restart the game
     handleRestartGame();
+    
+    // Update undo button after restart
+    import('../game-logic/move-history.js').then(historyModule => {
+        if (typeof historyModule.updateUndoButtonState === 'function') {
+            historyModule.updateUndoButtonState();
+        }
+    });
 }
 
 function updateDifficultyButtons(activeLevel) {
@@ -552,58 +563,54 @@ async function tryMove(from, to) {
 }
 
 function handleRestartGame() {
+    // Reset important state values directly
+    boardState.currentPlayer = 'white';
+    boardState.capturedPieces = { white: [], black: [] };
+    boardState.inCheck = { white: false, black: false };
+    boardState.lastMove = null;
+    boardState.undoCount = 0; // Reset undo count
+    
     // Import necessary modules
     import('../board/board-setup.js').then(setupModule => {
+        // Clear the pieces
+        for (const key in boardState.pieces) {
+            delete boardState.pieces[key];
+        }
+        
+        // Initialize board again
+        setupModule.initializeBoard();
+        
+        // Update UI for captured pieces
+        import('../ui/captured-pieces.js').then(capturedModule => {
+            capturedModule.updateCapturedPieces();
+        });
+        
+        // Update move history display
         import('../game-logic/move-history.js').then(historyModule => {
-            // Store current difficulty before reset
-            const currentDifficulty = boardState.difficulty;
-            
-            // Reset the board state
-            for (const key in boardState.pieces) {
-                delete boardState.pieces[key];
-            }
-            boardState.currentPlayer = 'white';
-            boardState.capturedPieces = { white: [], black: [] };
-            boardState.inCheck = { white: false, black: false };
-            boardState.lastMove = null;
-            
-            // Preserve AI settings
-            const aiEnabled = boardState.aiEnabled;
-            
-            // Reset the message state
-            historyModule.resetMessageState();
-            
-            // Reset the move history
+            // Reset move history 
             historyModule.resetMoveHistory();
             
-            // Initialize board again
-            setupModule.initializeBoard();
-            
-            // Restore difficulty and AI settings
-            boardState.difficulty = currentDifficulty;
-            boardState.aiEnabled = aiEnabled;
-            
             // Update difficulty message
-            historyModule.updateDifficultyMessage(currentDifficulty);
+            historyModule.updateDifficultyMessage(boardState.difficulty);
             
-            // Update UI for captured pieces
-            import('../ui/captured-pieces.js').then(capturedModule => {
-                capturedModule.updateCapturedPieces();
-            });
-            
-            // Critical: Reattach all event listeners for drag and drop
-            reattachDragListeners();
-            
-            // Since we didn't reload the page, we need to manually reattach square click listeners
-            document.querySelectorAll('.square').forEach(square => {
-                // Remove existing listeners to prevent duplicates
-                square.removeEventListener('click', handleSquareClick);
-                // Add listeners back
-                square.addEventListener('click', handleSquareClick);
-            });
-            
-            console.log(`Game restarted with difficulty: ${currentDifficulty}`);
+            // Update undo button state if available
+            if (typeof historyModule.updateUndoButtonState === 'function') {
+                historyModule.updateUndoButtonState();
+            }
         });
+        
+        // Critical: Reattach all event listeners for drag and drop
+        reattachDragListeners();
+        
+        // Since we didn't reload the page, we need to manually reattach square click listeners
+        document.querySelectorAll('.square').forEach(square => {
+            // Remove existing listeners to prevent duplicates
+            square.removeEventListener('click', handleSquareClick);
+            // Add listeners back
+            square.addEventListener('click', handleSquareClick);
+        });
+        
+        console.log(`Game restarted with difficulty: ${boardState.difficulty}`);
     });
 }
 
@@ -651,6 +658,10 @@ function setDifficulty(level) {
             boardState.difficulty = level;
             updateDifficultyButtons(level);
             module.updateDifficultyMessage(level);
+            
+            // Update undo button based on new difficulty
+            boardState.undoCount = 0;
+            updateUndoButtonState();
         }
     });
 }

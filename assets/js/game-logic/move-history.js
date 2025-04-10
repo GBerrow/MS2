@@ -15,9 +15,9 @@ export function initMoveHistory() {
     // Set up the undo button listener
     const undoButton = document.getElementById('undoButton');
     if (undoButton) {
-        undoButton.addEventListener('click', () => {
-            undoLastMove(boardState, renderBoard, updateCapturedPieces);
-        });
+        undoButton.removeEventListener('click', handleUndoButtonClick); // Remove any existing
+        undoButton.addEventListener('click', handleUndoButtonClick);
+        updateUndoButtonState(); // Initialize button state
     }
     
     // Clear the move history table
@@ -428,12 +428,131 @@ function updateMoveHistoryDisplayAfterUndo(color, moveNumber) {
 }
 
 /**
+ * Handle undo button click with difficulty-based restrictions
+ */
+export function handleUndoButtonClick() {
+    const { difficulty } = boardState;
+    
+    // Handle based on difficulty
+    if (difficulty === 'hard') {
+        // Show message that undos are not allowed in hard mode
+        showUndoMessage("No second chances on hard mode!", "error-message");
+        return;
+    }
+    
+    const remainingUndos = getRemainingUndos();
+    
+    if (difficulty === 'normal' && remainingUndos <= 0) {
+        // Show message that no more undos are available
+        showUndoMessage("No more undos available in normal mode!", "error-message");
+        return;
+    }
+    
+    // Proceed with undo if allowed
+    if (undoLastMove(boardState, renderBoard, updateCapturedPieces)) {
+        // Only increment counter if undo was successful
+        if (difficulty === 'normal') {
+            boardState.undoCount++;
+            updateUndoButtonState();
+            
+            // Show appropriate message based on remaining undos
+            if (getRemainingUndos() === 2) {
+                showUndoMessage("Careful! Only 2 undos left.", "warning-message");
+            } else if (getRemainingUndos() === 1) {
+                showUndoMessage("Last chance! Only 1 undo left.", "warning-message");
+            } else if (getRemainingUndos() === 0) {
+                showUndoMessage("No more undos available!", "error-message");
+            }
+        } else if (difficulty === 'easy') {
+            showUndoMessage("Feel free to experiment and try different moves!", "info-message");
+        }
+    }
+}
+
+/**
+ * Updates the undo button text and state based on current difficulty
+ */
+export function updateUndoButtonState() {
+    const undoButton = document.getElementById('undoButton');
+    if (!undoButton) return;
+    
+    const { difficulty } = boardState;
+    
+    if (difficulty === 'hard') {
+        undoButton.textContent = "Undo Disabled";
+        undoButton.classList.add('disabled-button');
+        undoButton.title = "No second chances on hard mode!";
+    } else if (difficulty === 'normal') {
+        const remaining = getRemainingUndos();
+        undoButton.textContent = `Undo Last Move (${remaining} left)`;
+        undoButton.classList.remove('disabled-button');
+        undoButton.title = remaining > 0 ? `You have ${remaining} undos remaining` : "No more undos available";
+    } else { // 'easy'
+        undoButton.textContent = "Undo Last Move";
+        undoButton.classList.remove('disabled-button');
+        undoButton.title = "Unlimited undos available in easy mode";
+    }
+}
+
+/**
+ * Displays a message below the Game Panel
+ * @param {string} message - The message to display
+ * @param {string} messageType - CSS class for styling the message
+ */
+function showUndoMessage(message, messageType) {
+    // Check if a message container exists, if not create one
+    let messageContainer = document.getElementById('undo-message-container');
+    
+    if (!messageContainer) {
+        messageContainer = document.createElement('div');
+        messageContainer.id = 'undo-message-container';
+        
+        // Insert the container after the move history table
+        const moveHistoryContainer = document.querySelector('.move-history-container');
+        if (moveHistoryContainer) {
+            moveHistoryContainer.appendChild(messageContainer);
+        }
+    }
+    
+    // Set the message
+    messageContainer.textContent = message;
+    messageContainer.className = messageType;
+    
+    // Make sure it's visible
+    messageContainer.style.display = 'block';
+    
+    // Hide after a few seconds
+    setTimeout(() => {
+        messageContainer.style.display = 'none';
+    }, 3000);
+}
+
+/**
+ * Gets the number of remaining undos based on difficulty
+ */
+function getRemainingUndos() {
+    if (boardState.difficulty === 'easy') {
+        return Infinity; // Unlimited undos
+    } else if (boardState.difficulty === 'hard') {
+        return 0; // No undos allowed
+    } else {
+        return Math.max(0, 3 - boardState.undoCount); // Normal difficulty: 3 undos
+    }
+}
+
+/**
  * Resets the move history
  */
 export function resetMoveHistory() {
     // Clear the move history array
     moveHistory.length = 0;
     moveCounter = 1;
+    
+    // Reset undo count
+    boardState.undoCount = 0;
+    
+    // Update the undo button
+    updateUndoButtonState();
     
     // Clear the display
     clearMoveHistoryDisplay();
