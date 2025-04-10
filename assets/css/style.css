@@ -781,17 +781,95 @@ button {
   display: inline-block; /* Ensure proper sizing for tooltip container */
 }
 
-/* Game Status Message Container
+/* Game Status Message - Centralized Message Display
 ----------------------------------------
-Base styling for all game status messages (difficulty, check warnings, etc.)
-Uses a subtle transition effect for smooth message changes */
+This component serves as the unified notification area for all game feedback.
+It displays various types of messages including:
+- Difficulty-related information
+- Check/checkmate notifications
+- Move validity feedback
+- Undo operation status
+- Other game state updates
+
+The design uses consistent color coding across the application:
+- Green: Success, easy mode, positive actions
+- Blue: Information, normal mode, neutral state
+- Red: Errors, hard mode, critical information
+- Yellow/Orange: Warnings, alerts, attention required
+*/
+
 .game-status-message {
-  padding: 10px 15px;        /* Comfortable internal spacing */
-  margin-bottom: 15px;       /* Separation from content below */
-  border-radius: 4px;        /* Rounded corners for modern look */
-  font-weight: bold;         /* Makes message text stand out */
-  text-align: center;        /* Centers text for better readability */
-  transition: all 0.3s ease; /* Smooth transition when messages change */
+    margin-bottom: 12px;          /* Creates vertical spacing between message and content below */
+    padding: 8px 12px;            /* Provides internal spacing for better text readability */
+    border-radius: 4px;           /* Rounded corners for a modern UI appearance */
+    font-weight: 500;             /* Semi-bold weight improves visibility without being too heavy */
+    text-align: center;           /* Centered text creates a balanced, formal appearance */
+    transition: all 0.3s ease;    /* Smooth transition when message changes for better UX */
+}
+
+/* Message type styling - Each message type has a distinct visual appearance
+   using a consistent pattern: light background, matching border, and darker text
+   in the same color family for optimal contrast and readability */
+
+/* Easy mode - Green theme communicates accessibility and simplicity */
+.game-status-message.easy-message {
+    background-color: #e8f5e9;    /* Light green background - calming, positive */
+    border: 1px solid #c8e6c9;    /* Slightly darker green border for definition */
+    color: #2e7d32;               /* Dark green text ensures high contrast (4.5:1 ratio) */
+}
+
+/* Normal mode - Blue theme represents standard/default state */
+.game-status-message.normal-message {
+    background-color: #e3f2fd;    /* Light blue background - neutral, informational */
+    border: 1px solid #bbdefb;    /* Slightly darker blue border */
+    color: #1976d2;               /* Medium-dark blue text for readability */
+}
+
+/* Hard mode - Red theme signals challenge and intensity */
+.game-status-message.hard-message {
+    background-color: #ffebee;    /* Light red background - attention-grabbing */
+    border: 1px solid #ffcdd2;    /* Pink-red border */
+    color: #c62828;               /* Dark red text - high emphasis */
+}
+
+/* Check notification - Orange/Yellow theme indicates alert status
+   that requires player attention but isn't an error */
+.game-status-message.check-message {
+    background-color: #ffefc5;    /* Warm yellow background - cautionary */
+    border: 1px solid #ffe082;    /* Gold border for emphasis */
+    color: #ff8f00;               /* Dark amber text for warning emphasis */
+    font-weight: 600;             /* Bolder text for enhanced visibility */
+    animation: pulse 2s infinite; /* Subtle pulsing animation draws attention to critical game state */
+}
+
+/* Error messages - Red theme indicates invalid actions or restrictions */
+.game-status-message.error-message {
+    background-color: #ffebee;    /* Light red background - signals problem */
+    border: 1px solid #ffcdd2;    /* Pink-red border */
+    color: #c62828;               /* Dark red text - error state */
+}
+
+/* Warning messages - Yellow theme indicates caution or limited resources */
+.game-status-message.warning-message {
+    background-color: #fff8e1;    /* Pale yellow background - caution */
+    border: 1px solid #ffecb3;    /* Amber border */
+    color: #ff8f00;               /* Dark amber text - awareness without alarm */
+}
+
+/* Information messages - Purple-blue theme indicates helpful tips */
+.game-status-message.info-message {
+    background-color: #e8eaf6;    /* Light indigo background - informational */
+    border: 1px solid #c5cae9;    /* Light purple border */
+    color: #3949ab;               /* Indigo text - distinguishes from normal mode blue */
+}
+
+/* Pulsing animation for check messages 
+   Creates subtle attention-grabbing effect without being distracting
+   The subtle opacity change draws the eye without being jarring */
+@keyframes pulse {
+    0% { opacity: 1; }            /* Start fully visible */
+    50% { opacity: 0.8; }         /* Fade slightly at midpoint */
+    100% { opacity: 1; }          /* Return to fully visible */
 }
 
 /* Two-line Undo Button Styling */
@@ -1042,4 +1120,37 @@ meaning through color (error, warning, information) */
 /* Cancel button hover - darker red provides visual feedback */
 .cancel-btn:hover {
   background-color: #d32f2f;  /* Slightly darker red on hover */
+}
+
+/* Undo Count Indicator in GamePanel
+----------------------------------------
+Displays the number of remaining undos in its own dedicated area */
+.undo-count-indicator {
+    margin: 8px 0 12px 0;       /* Spacing: more space at bottom to separate from move history */
+    padding: 6px 10px;          /* Internal padding for text */
+    border-radius: 4px;         /* Rounded corners matching other UI elements */
+    font-size: 0.9rem;          /* Slightly smaller text for secondary information */
+    text-align: center;         /* Center-aligned text for consistency */
+    font-weight: 600;           /* Semi-bold for better visibility */
+    background-color: #f5f5f5;  /* Light gray background */
+    border: 1px solid #e0e0e0;  /* Subtle border */
+}
+
+/* Different styles based on difficulty mode */
+.undo-count-indicator.easy-mode {
+    background-color: #e8f5e9;  /* Light green background for easy mode */
+    border-color: #c8e6c9;      /* Matching border color */
+    color: #2e7d32;             /* Dark green text */
+}
+
+.undo-count-indicator.normal-mode {
+    background-color: #e3f2fd;  /* Light blue background for normal mode */
+    border-color: #bbdefb;      /* Matching border color */
+    color: #1976d2;             /* Blue text */
+}
+
+.undo-count-indicator.hard-mode {
+    background-color: #ffebee;  /* Light red background for hard mode */
+    border-color: #ffcdd2;      /* Matching border color */
+    color: #c62828;             /* Dark red text */
 }
