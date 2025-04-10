@@ -65,7 +65,36 @@ function handleAIMove(move) {
     const delay = delayTimes[boardState.difficulty] || 1000;
     
     setTimeout(() => {
-        // Execute the move
+        // Check if this is a castling move
+        const piece = boardState.pieces[from];
+        if (piece && piece === 'king-black') {
+            const fromFile = from.charCodeAt(0);
+            const toFile = to.charCodeAt(0);
+            
+            // If king moves two squares horizontally, it's castling
+            if (Math.abs(fromFile - toFile) === 2) {
+                import('./special-moves.js').then(module => {
+                    if (module.isCastlingValid(from, to)) {
+                        module.executeCastling(from, to);
+                    } else {
+                        // Fallback to regular move if castling validation fails
+                        executeMove(from, to);
+                    }
+                    
+                    // Check for check
+                    import('./check-detection.js').then(checkModule => {
+                        checkModule.checkForCheck();
+                    });
+                    
+                    // Switch turn back to player
+                    boardState.currentPlayer = 'white';
+                    updateTurnIndicator();
+                });
+                return;
+            }
+        }
+        
+        // Execute regular move if not castling
         executeMove(from, to);
         
         // Check for check
