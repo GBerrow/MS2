@@ -1154,3 +1154,25 @@ Displays the number of remaining undos in its own dedicated area */
     border-color: #ffcdd2;      /* Matching border color */
     color: #c62828;             /* Dark red text */
 }
+
+/* AI Thinking Message Style
+ ----------------------------------------
+ Blue animated style to indicate processing
+*/
+.ai-thinking-message {
+  background-color: #e0f7fa; /* Light blue background for "processing" state */
+  color: #0288d1;            /* Medium blue text color */
+  border-left: 4px solid #0288d1; /* Matching left border */
+  animation: pulse-blue 1.5s infinite; /* Pulsing animation to indicate activity */
+}
+
+/* Pulse Animation for AI Thinking
+ ----------------------------------------
+ Creates a subtle "breathing" effect with a blueish hue
+ to indicate processing/thinking state
+*/
+@keyframes pulse-blue {
+  0% { opacity: 0.7; background-color: #e0f7fa; }   /* Start slightly transparent */
+  50% { opacity: 1; background-color: #b2ebf2; }    /* Fade to fully opaque with slightly deeper blue */
+  100% { opacity: 0.7; background-color: #e0f7fa; } /* Return to starting opacity to loop smoothly */
+}

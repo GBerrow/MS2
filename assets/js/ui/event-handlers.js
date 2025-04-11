@@ -139,6 +139,12 @@ function setupCustomDragListeners() {
 }
 
 function handlePieceMouseDown(e) {
+    // Block all user interaction when AI is thinking
+    if (boardState.aiThinking) {
+        e.preventDefault();
+        return; // Exit without doing anything
+    }
+    
     const piece = e.target;
     const square = piece.closest('.square');
     

@@ -12,6 +12,41 @@ import { playSound } from '../ui/sound-manager.js';
 // Variable to track if white king was previously in check
 let whiteWasInCheck = false;
 
+// Function to refresh check status and update messages
+export function refreshCheckStatus() {
+    // Find both kings
+    let whiteKingPosition = null;
+    let blackKingPosition = null;
+    
+    for (const [position, piece] of Object.entries(boardState.pieces)) {
+        if (piece === 'king-white') {
+            whiteKingPosition = position;
+        } else if (piece === 'king-black') {
+            blackKingPosition = position;
+        }
+    }
+    
+    // Check if white king is in check
+    const whiteCheckResult = findCheckingPiece(whiteKingPosition, 'white', boardState);
+    const whiteInCheck = whiteCheckResult.inCheck;
+    
+    // Update board state
+    boardState.inCheck.white = whiteInCheck;
+    
+    // Import move-history to update check message
+    import('./move-history.js').then(module => {
+        if (whiteInCheck) {
+            // White king is in check, show check message
+            boardState.messageState = 'check';
+            module.updateCheckMessage(true, whiteCheckResult.attackingPiece);
+        } else if (boardState.messageState === 'check') {
+            // Check was just resolved for white king, show post-check message
+            boardState.messageState = 'default';
+            module.showPostCheckMessage();
+        }
+    });
+}
+
 export function checkForCheck() {
     // Find both kings
     let whiteKingPosition = null;
@@ -40,6 +75,13 @@ export function checkForCheck() {
         white: whiteInCheck,
         black: blackInCheck
     };
+    
+    // Update the message state based on check status
+    if (whiteInCheck) {
+        boardState.messageState = 'check';
+    } else if (boardState.messageState === 'check') {
+        boardState.messageState = 'default';
+    }
     
     // Import move-history to update check message
     import('./move-history.js').then(module => {

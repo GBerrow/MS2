@@ -433,7 +433,7 @@ function updateMoveHistoryDisplayAfterUndo(color, moveNumber) {
  * @param {string} messageType - CSS class for styling the message (e.g., 'error-message', 'warning-message')
  * @param {number} duration - Duration in ms to show the message (0 for persistent messages)
  */
-function displayGameMessage(message, messageType, duration = 0) {
+export function displayGameMessage(message, messageType, duration = 0) {
     const moveHistoryContainer = document.querySelector('.move-history-container');
     if (!moveHistoryContainer) return;
     
@@ -491,48 +491,12 @@ function showUndoMessage(message, messageType) {
     displayGameMessage(message, messageType, 3000); // Show for 3 seconds
 }
 
-/**
- * Updates the difficulty message in the game panel
- * @param {string} difficulty - The current difficulty level
- */
-export function updateDifficultyMessage(difficulty) {
-    // If we're showing a post-check message, don't overwrite it
-    if (showingPostCheckMessage) return;
-    
-    let messageText = "";
-    let messageType = "";
-    
-    // Set message based on difficulty
-    switch(difficulty) {
-        case 'easy':
-            messageText = "Nice and easy way to start off your day!";
-            messageType = "easy-message";
-            break;
-        case 'normal':
-            messageText = "A balanced challenge awaits you!";
-            messageType = "normal-message";
-            break;
-        case 'hard':
-            messageText = "Watch out, you're on hard difficulty now!";
-            messageType = "hard-message";
-            break;
-        default:
-            messageText = "Select a difficulty level to begin!";
-    }
-    
-    // Display in the unified message area (persistent)
-    displayGameMessage(messageText, messageType);
-}
-
-/**
- * Update check message function
- * @param {boolean} isInCheck - Whether the player is in check
- * @param {string} attackingPiece - The piece causing the check
- */
+// Update check message function
 export function updateCheckMessage(isInCheck, attackingPiece = null) {
     if (isInCheck) {
         // When in check, show check message and mark that we aren't showing post-check
         showingPostCheckMessage = false;
+        boardState.messageState = 'check';
         
         // Set the check message with attacking piece info
         const pieceType = attackingPiece ? attackingPiece.split('-')[0] : 'piece';
@@ -543,12 +507,16 @@ export function updateCheckMessage(isInCheck, attackingPiece = null) {
     }
 }
 
-/**
- * Shows post-check encouragement messages
- */
+// Shows post-check encouragement messages
 export function showPostCheckMessage() {
+    // Only show post-check message if AI isn't thinking
+    if (boardState.messageState === 'ai-thinking') {
+        return;
+    }
+    
     // Set flag to indicate we're showing a post-check message
     showingPostCheckMessage = true;
+    boardState.messageState = 'default';
     
     let messageText = "";
     let messageType = "";
@@ -578,11 +546,50 @@ export function showPostCheckMessage() {
     displayGameMessage(messageText, messageType);
 }
 
+// UpdateDifficultyMessage function to check message priority
+export function updateDifficultyMessage(difficulty) {
+    // Don't override check or AI thinking messages
+    if (boardState.messageState !== 'default') return;
+    
+    // If we're showing a post-check message, don't overwrite it
+    if (showingPostCheckMessage) return;
+    
+    let messageText = "";
+    let messageType = "";
+    
+    // Set message based on difficulty
+    switch(difficulty) {
+        case 'easy':
+            messageText = "Nice and easy way to start off your day!";
+            messageType = "easy-message";
+            break;
+        case 'normal':
+            messageText = "A balanced challenge awaits you!";
+            messageType = "normal-message";
+            break;
+        case 'hard':
+            messageText = "Watch out, you're on hard difficulty now!";
+            messageType = "hard-message";
+            break;
+        default:
+            messageText = "Select a difficulty level to begin!";
+    }
+    
+    // Display in the unified message area (persistent)
+    displayGameMessage(messageText, messageType);
+}
+
 /**
  * Handle undo button click with difficulty-based restrictions and pair-wise undoing
  */
 export function handleUndoButtonClick() {
-    const { difficulty, aiEnabled } = boardState;
+    const { difficulty, aiEnabled, aiThinking } = boardState;
+    
+    // Block undo if AI is currently thinking
+    if (aiThinking) {
+        showUndoMessage("Cannot undo while AI is thinking", "error-message");
+        return;
+    }
     
     // Handle based on difficulty
     if (difficulty === 'hard') {
@@ -645,13 +652,25 @@ export function handleUndoButtonClick() {
 }
 
 /**
- * Updates the undo button text and state based on current difficulty
+ * Updates the undo button text and state based on current difficulty and AI thinking status
  */
 export function updateUndoButtonState() {
     const undoButton = document.getElementById('undoButton');
     if (!undoButton) return;
     
-    const { difficulty } = boardState;
+    const { difficulty, aiThinking } = boardState;
+    
+    // First check if AI is thinking - this takes precedence
+    if (aiThinking) {
+        undoButton.textContent = "Undo Move Disabled";
+        undoButton.classList.add('disabled-button');
+        undoButton.setAttribute('disabled', 'disabled'); // Actually disable the button
+        undoButton.title = "Undo is unavailable while AI is thinking";
+        return; // Exit early - no need to check other conditions
+    }
+    
+    // Remove the disabled attribute if it was previously set
+    undoButton.removeAttribute('disabled');
     
     // Button text and state based on difficulty
     if (difficulty === 'hard') {

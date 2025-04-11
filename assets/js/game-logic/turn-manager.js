@@ -1,6 +1,7 @@
 import { boardState } from '../board/board-state.js';
 import { initStockfish, getBestMove, boardToFEN } from '../stockfish-worker.js';
 import { executeMove } from './move-execution.js';
+import { updateUndoButtonState } from '../game-logic/move-history.js';
 
 let stockfishInitialized = false;
 
@@ -34,14 +35,26 @@ export function switchTurn() {
 }
 
 function updateTurnIndicator() {
-    // console.log(`Current turn: ${boardState.currentPlayer}`);
-    // Add visual indicator in UI if desired
+    // Display thinking message when AI's turn begins
+    if (boardState.currentPlayer === 'black' && boardState.aiEnabled) {
+        showAiThinkingMessage(true);
+    } else {
+        showAiThinkingMessage(false);
+    }
 }
 
 function triggerAiMove() {
     if (!stockfishInitialized) {
         return;
     }
+    
+    // Set AI thinking flag to true
+    boardState.aiThinking = true;
+    boardState.messageState = 'ai-thinking'; // Set message state
+    
+    // Update UI to disable buttons and show thinking message
+    showAiThinkingMessage(true);
+    updateUndoButtonState(); // This will disable the undo button
     
     // Convert current board state to FEN notation
     const fen = boardToFEN(boardState);
@@ -86,9 +99,8 @@ function handleAIMove(move) {
                         checkModule.checkForCheck();
                     });
                     
-                    // Switch turn back to player
-                    boardState.currentPlayer = 'white';
-                    updateTurnIndicator();
+                    // AI thinking is complete
+                    finishAiMove();
                 });
                 return;
             }
@@ -102,8 +114,46 @@ function handleAIMove(move) {
             module.checkForCheck();
         });
         
-        // Switch turn back to player
-        boardState.currentPlayer = 'white';
-        updateTurnIndicator();
+        // AI thinking is complete
+        finishAiMove();
     }, delay);
+}
+
+// Helper function to complete AI's turn
+function finishAiMove() {
+    // Set AI thinking flag to false
+    boardState.aiThinking = false;
+    
+    // Switch turn back to player
+    boardState.currentPlayer = 'white';
+    
+    // Update UI to enable buttons and remove thinking message
+    boardState.messageState = 'default'; // Reset message state
+    showAiThinkingMessage(false);
+    updateUndoButtonState(); // This will re-enable the undo button if allowed
+    
+    // Check if the player is in check after AI's move
+    import('./check-detection.js').then(module => {
+        // This will update message appropriately based on check state
+        module.refreshCheckStatus();
+    });
+    
+    updateTurnIndicator();
+}
+
+// Function to show/hide AI thinking message
+function showAiThinkingMessage(isThinking) {
+    // Import move-history module to use the displayGameMessage function
+    import('../game-logic/move-history.js').then(module => {
+        if (isThinking) {
+            // Show thinking message with appropriate styling
+            module.displayGameMessage("AI is thinking...", "ai-thinking-message");
+        } else {
+            // Determine what message to show based on game state
+            if (boardState.messageState === 'default') {
+                module.updateDifficultyMessage(boardState.difficulty);
+            }
+            // If in check, the check message will be shown by check-detection.js
+        }
+    });
 }
