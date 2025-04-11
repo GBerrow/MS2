@@ -11,6 +11,14 @@ const sounds = {
     promote: new Audio('assets/sound/promote.mp3')
 };
 
+// Create clone function to avoid interruption issues
+function cloneAudio(original) {
+    const clone = new Audio();
+    clone.src = original.src;
+    clone.volume = original.volume;
+    return clone;
+}
+
 // Set volume for all sounds
 function setVolume(level) {
     for (const sound in sounds) {
@@ -29,12 +37,11 @@ export function playSound(soundName) {
     if (!soundEnabled) return;
     
     if (sounds[soundName]) {
-        // Stop and reset the sound if it's already playing
-        sounds[soundName].pause();
-        sounds[soundName].currentTime = 0;
+        // Create a clone of the audio to avoid interruption issues
+        const soundToPlay = cloneAudio(sounds[soundName]);
         
         // Play the sound
-        sounds[soundName].play().catch(error => {
+        soundToPlay.play().catch(error => {
             console.warn(`Error playing sound: ${error.message}`);
         });
     } else {
