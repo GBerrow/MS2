@@ -9,22 +9,42 @@
   box-sizing: border-box; /* Include padding and border in element width/height calculation */
 }
 
-/* ----------------------------------------
-   BODY LAYOUT
-   ---------------------------------------- */
-/* Set up the main page layout and background */
+/* ========================================================
+   BODY LAYOUT - MAIN PAGE STRUCTURE
+   ======================================================== */
+/* Set up the main page layout with flex column pattern and full viewport height */
 body {
-  font-family: Arial, sans-serif; /* Set primary font for all text */
-  display: flex; /* Use flexbox layout for body content */
-  flex-direction: column; /* Stack children elements vertically */
-  align-items: center; /* Center children horizontally */
-  overflow-x: hidden; /* Hide horizontal scrollbar if content overflows */
-  background: url(../images/background.jpg); /* Set background image for the entire page */
-  height: auto; /* Allow body to expand based on content */
-  min-height: 100vh; /* Ensure body covers full viewport height */
-  padding-top: 65px; /* Space for header */
-  padding-bottom: 65px; /* Space for footer */
-  position: relative; /* Create positioning context for absolute elements */
+  font-family: Arial, sans-serif; /* Standard readable font */
+  display: flex; /* Use flexbox for vertical stacking */
+  flex-direction: column; /* Stack children vertically */
+  align-items: center; /* Center horizontally */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  background: url(../images/background.jpg); /* Background image */
+  height: 100vh; /* Full viewport height */
+  min-height: 100vh; /* Ensure minimum full height even when content is small */
+  margin: 0; /* Remove default margins */
+  padding: 0; /* Remove default padding */
+  justify-content: space-between; /* Distribute space between header, main, footer */
+}
+
+/* Main content wrapper with controlled width and flexible growth */
+.container {
+  max-width: 1200px; /* Limit width on large screens */
+  width: 100%; /* Take full width up to max-width */
+  padding: 0 20px; /* Add horizontal padding */
+  margin: 0 auto; /* Center horizontally */
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack children vertically */
+  flex: 1; /* Allow container to grow to fill available space */
+}
+
+/* Main content area with vertical centering */
+main {
+  flex: 1; /* Grow to fill available space */
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack children vertically */
+  justify-content: center; /* Center content vertically */
+  width: 100%; /* Use full width */
 }
 
 /* ----------------------------------------
@@ -144,175 +164,331 @@ h1 {
   font-size: 2rem; /* Set font size to 2x root size (32px typically) */
 }
 
-/* ----------------------------------------
-   LAYOUT CONTAINERS
-   ---------------------------------------- */
-/* Main content container positioning and alignment */
-.container {
-  width: 100%; /* Full width container */
-  max-width: 1200px; /* Maximum width for large screens */
-  margin: 0 auto; /* Center horizontally with auto margins */
-  padding: 20px; /* Add internal spacing */
-  display: flex; /* Use flexbox for layout */
-  flex-direction: column; /* Stack elements vertically */
-  align-items: center; /* Center elements horizontally */
-  gap: 20px; /* Add space between flex children */
+/* ========================================================
+   LAYOUT CONTAINERS - GRID STRUCTURE AND COMPONENTS
+   ======================================================== */
+/* Header styling with centered text */
+header {
+  text-align: center; /* Center text */
+  margin-bottom: 10px; /* Space below header */
 }
 
-/* Main content area that contains the game elements */
-main {
-  display: flex; /* Use flexbox for layout */
-  flex-direction: row; /* Changed from column to row */
-  align-items: flex-start; /* Align items to the top */
-  justify-content: center;
-  width: 100%;
-  gap: 20px; /* Space between board and move history */
-  position: relative;
-  min-height: 600px; /* Ensure enough height for the game layout */
+/* Main heading style */
+header h1 {
+  margin: 0; /* Remove default margins */
+  font-size: 2rem; /* Large font size for heading */
 }
 
-/* Create a game container for the board and controls */
-.game-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
+/* Chess game layout - 3-column grid system for responsive layout */
+.chess-game-layout {
+  display: grid !important; /* Use grid for precise column layout */
+  grid-template-columns: 180px 480px 270px !important; /* Three fixed-width columns */
+  grid-gap: 20px !important; /* Space between columns */
+  justify-content: center !important; /* Center the grid horizontally */
+  align-items: start !important; /* Align columns to top */
+  margin: 20px auto !important; /* Add margin and center horizontally */
 }
 
-/* ----------------------------------------
-   CHESSBOARD STYLING
-   ---------------------------------------- */
-/* Main chessboard grid layout */
+/* ========================================================
+ CAPTURED PIECES - LEFT COLUMN STYLING
+ ======================================================== */
+/* Container for captured pieces with vertical arrangement */
+.captured-area {
+  grid-column: 1 !important; /* Place in first column */
+  display: flex !important; /* Use flexbox for layout */
+  flex-direction: column !important; /* Stack children vertically */
+  width: 180px !important; /* Fixed width matching grid column */
+  height: 480px !important; /* Match chessboard height for alignment */
+  justify-content: space-between !important; /* Distribute space between captures */
+  box-sizing: border-box !important; /* Include padding in width calculation */
+  padding: 0 !important; /* Remove padding */
+}
+
+/* Common styling for both captured pieces containers */
+.captured-pieces {
+  width: 100% !important; /* Use full width of parent */
+  box-sizing: border-box !important; /* Include padding in width calculation */
+  margin: 0 !important; /* Remove margins */
+  background-color: #f5f5f5 !important; /* Light background */
+  border-radius: 8px !important; /* Rounded corners */
+  padding: 15px !important; /* Inner spacing */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important; /* Subtle shadow for depth */
+}
+
+/* White player's captured pieces container */
+.white-captured {
+  height: 230px !important; /* Fixed height for consistency */
+  overflow-y: auto !important; /* Enable vertical scrolling for many pieces */
+}
+
+/* Black player's captured pieces container */
+.black-captured {
+  height: 230px !important; /* Fixed height for consistency */
+  overflow-y: auto !important; /* Enable vertical scrolling for many pieces */
+}
+
+/* Heading for captured pieces sections */
+.captured-pieces h3 {
+  margin-top: 0; /* Remove top margin */
+  margin-bottom: 10px; /* Space below heading */
+  font-size: 0.9rem; /* Smaller font size */
+  text-align: center; /* Center text */
+}
+
+/* Grid layout for captured pieces images */
+.pieces-grid {
+  display: grid; /* Use grid for organized layout */
+  grid-template-columns: repeat(4, 1fr); /* 4 columns of equal width */
+  gap: 5px; /* Small gap between pieces */
+}
+
+/* Captured piece image sizing */
+.pieces-grid img {
+  width: 25px; /* Fixed width for piece images */
+  height: auto; /* Maintain aspect ratio */
+}
+
+/* ========================================================
+ CHESSBOARD & CONTROLS - CENTER COLUMN
+ ======================================================== */
+/* Center column container for chessboard and buttons */
+.center-column {
+  grid-column: 2 !important; /* Place in second column */
+  display: flex !important; /* Use flexbox for layout */
+  flex-direction: column !important; /* Stack children vertically */
+  align-items: center !important; /* Center horizontally */
+  justify-content: flex-start !important; /* Align to top */
+  gap: 20px !important; /* Space between board and controls */
+  margin: 0 !important; /* Remove margins */
+  padding: 0 !important; /* Remove padding */
+}
+
+/* Chess board main container */
 .chess-board {
-  display: grid; /* Use CSS grid for the chessboard */
-  grid-template-columns: repeat(8, 60px); /* Create 8 columns of 60px each */
-  grid-template-rows: repeat(8, 60px); /* Create 8 rows of 60px each */
-  gap: 0; /* No gap between chess squares */
-  margin: 20px auto; /* Center the board with margin */
-  border: 3px solid #333; /* Add border around the entire board */
-  transform: rotate(90deg); /* Rotate board for correct orientation */
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Add shadow for depth */
+  width: 480px !important; /* Fixed width */
+  height: 480px !important; /* Fixed height - maintain square shape */
+  box-sizing: border-box !important; /* Include border in dimensions */
+  margin: 0 !important; /* Remove margins */
+  padding: 0 !important; /* Remove padding */
+  border: 3px solid #333; /* Dark border around board */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Shadow for depth */
 }
 
-/* ----------------------------------------
-   CHESS PIECES
-   ---------------------------------------- */
-/* Chess piece image styling */
-.piece {
-  width: 80%; /* Set piece width relative to its square */
-  height: 80%; /* Set piece height relative to its square */
-  transform: rotate(
-    270deg
-  ); /* Counter-rotate pieces to display correctly (since board is rotated) */
-  cursor: grab; /* Show grab cursor when hovering over pieces */
-  user-select: none; /* Prevent text selection when dragging */
+/* Row of chess squares */
+.row {
+  display: flex; /* Use flexbox for horizontal layout */
+  height: 12.5%; /* Each row is 1/8 of board height */
 }
 
-/* ----------------------------------------
-   DRAG AND DROP INTERACTIONS
-   ---------------------------------------- */
-/* Active state during piece dragging */
-.piece:active {
-  cursor: grabbing; /* Change cursor to grabbing while actively dragging */
-}
-
-/* Disable pointer events during drag for dragged piece */
-.piece.dragging {
-  pointer-events: none; /* Prevent the dragged element from interfering with drop targets */
-}
-
-/* Highlight valid drop targets during drag */
-.square.valid-drop {
-  background-color: rgba(
-    0,
-    255,
-    0,
-    0.2
-  ); /* Light green highlight for valid drop targets */
-}
-
-/* ----------------------------------------
-   CHESS SQUARES
-   ---------------------------------------- */
-/* Individual square styling */
+/* Individual chess square */
 .square {
-  width: 60px; /* Fixed width for each square */
-  height: 60px; /* Fixed height for each square */
-  display: flex; /* Use flexbox for centering pieces */
-  justify-content: center; /* Center pieces horizontally */
-  align-items: center; /* Center pieces vertically */
-  font-size: 24px; /* Set font size for any text in squares */
-  border: 1px solid #333; /* Add border to each square */
-  box-sizing: border-box; /* Include border in square dimensions */
+  width: 12.5%; /* Each square is 1/8 of board width */
+  height: 100%; /* Full height of row */
+  position: relative; /* For positioning pieces */
+  display: flex; /* Use flexbox for centering */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
 }
 
-/* ----------------------------------------
-   MOVE HIGHLIGHTING
-   ---------------------------------------- */
-/* Highlight style for valid move squares */
+/* ========================================================
+ GAME CONTROLS - BUTTONS BELOW CHESSBOARD
+ ======================================================== */
+/* Container for all game control buttons in a horizontal row */
+.controls-container {
+  display: flex !important; /* Use flexbox for layout */
+  flex-direction: row !important; /* Arrange horizontally */
+  justify-content: center !important; /* Center horizontally */
+  align-items: center !important; /* Center vertically */
+  width: 100% !important; /* Use full width */
+  gap: 15px !important; /* Space between button groups */
+  flex-wrap: nowrap !important; /* Prevent wrapping to new line */
+  margin-top: 15px !important; /* Space above controls */
+  box-sizing: border-box !important; /* Include padding in width */
+}
+
+/* Button group containers (game controls and difficulty) */
+#game-controls, #difficulty-controls {
+  display: inline !important; /* Flow inline with other elements */
+  margin: 0 10px !important; /* Horizontal space between groups */
+}
+
+/* Individual buttons within control groups */
+#game-controls button, #difficulty-controls button {
+  display: inline-block !important; /* Allow setting dimensions while inline */
+  margin: 0 5px !important; /* Space between buttons */
+  vertical-align: middle !important; /* Align buttons vertically */
+}
+
+/* Base button styling applied to all buttons */
+button {
+  border: none; /* Remove default borders */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Hand cursor on hover */
+  transition: background-color 0.2s; /* Smooth background color change */
+}
+
+/* Styling specific to control buttons */
+.controls-container button {
+  padding: 8px 12px !important; /* Internal spacing */
+  font-size: 0.9rem !important; /* Text size */
+  background-color: #4a6ea9 !important; /* Blue background */
+  color: white !important; /* White text */
+  margin: 0 5px !important; /* Horizontal spacing */
+  vertical-align: middle !important; /* Align buttons vertically */
+}
+
+/* Styling for difficulty option buttons */
+.controls-container .difficulty-btn {
+  padding: 6px 10px !important; /* Slightly smaller padding */
+  background-color: #6c757d !important; /* Gray background */
+  font-size: 0.85rem !important; /* Slightly smaller text */
+}
+
+/* Styling for the currently selected difficulty */
+.controls-container .active-difficulty {
+  background-color: #28a745 !important; /* Green background for active */
+}
+
+/* Specific styling for the undo button */
+#undoButton {
+  width: 100%; /* Full width of container */
+  padding: 8px 0; /* Vertical padding only */
+  background-color: #4a6ea9; /* Blue background */
+  color: white; /* White text */
+  margin-top: 5px; /* Space above */
+  font-size: 0.9rem; /* Text size */
+}
+
+/* Hover effect for undo button */
+#undoButton:hover {
+  background-color: #3a5a8c; /* Darker blue on hover */
+}
+
+/* ========================================================
+ GAME PANEL - RIGHT COLUMN WITH MOVE HISTORY
+ ======================================================== */
+/* Move history sidebar container */
+.move-history-sidebar {
+  grid-column: 3; /* Place in third column */
+  width: 220px; /* Fixed width */
+  height: 480px; /* Match chessboard height */
+  align-self: center; /* Center vertically in grid cell */
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack children vertically */
+  background-color: #f5f5f5; /* Light background */
+  border-radius: 8px; /* Rounded corners */
+  padding: 10px; /* Inner spacing */
+  box-sizing: border-box; /* Include padding in dimensions */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow */
+  overflow: hidden; /* Hide any overflow */
+}
+
+/* Heading for move history panel */
+.move-history-sidebar h3 {
+  margin-top: 0; /* Remove top margin */
+  margin-bottom: 10px; /* Space below */
+  text-align: center; /* Center text */
+}
+
+/* Scrollable container for move history */
+.move-history-container {
+  flex: 1; /* Grow to fill available space */
+  overflow-y: auto; /* Enable vertical scrolling */
+  margin-bottom: 10px; /* Space below */
+}
+
+/* Move history table styling */
+#moveHistoryTable {
+  width: 100%; /* Full width of container */
+  border-collapse: collapse; /* Remove spacing between cells */
+  font-size: 0.9rem; /* Smaller text */
+}
+
+/* Table header and data cell styling */
+#moveHistoryTable th, #moveHistoryTable td {
+  padding: 5px; /* Cell padding */
+  text-align: center; /* Center text */
+  border-bottom: 1px solid #ddd; /* Light bottom border */
+}
+
+/* ========================================================
+ GAME STATUS AND MOVE INDICATORS
+ ======================================================== */
+/* Game status message display */
+.game-status-message {
+  background-color: #f8f9fa; /* Very light background */
+  padding: 8px; /* Inner spacing */
+  border-radius: 4px; /* Rounded corners */
+  margin-bottom: 10px; /* Space below */
+  text-align: center; /* Center text */
+  font-weight: bold; /* Bold text */
+}
+
+/* Highlight for valid moves */
 .highlight-move {
-  background-color: rgba(
-    0,
-    255,
-    0,
-    0.3
-  ) !important; /* Green semi-transparent highlight */
-  position: relative; /* Enable z-index positioning */
-  z-index: 1; /* Ensure highlight appears above board */
+  box-shadow: inset 0 0 0 4px rgba(0, 255, 0, 0.5); /* Green highlight */
 }
 
-/* Highlight style for possible capture squares */
+/* Highlight for capture moves */
 .highlight-capture {
-  background-color: rgba(
-    255,
-    0,
-    0,
-    0.3
-  ) !important; /* Red semi-transparent highlight */
-  position: relative; /* Enable z-index positioning */
-  z-index: 1; /* Ensure highlight appears above board */
+  box-shadow: inset 0 0 0 4px rgba(255, 0, 0, 0.5); /* Red highlight */
 }
 
-/* Common styles for both move and capture highlights */
-.highlight-move,
-.highlight-capture {
-  width: 100%; /* Cover entire square */
-  height: 100%; /* Cover entire square */
-  box-sizing: border-box; /* Include border in dimensions */
-  margin: 0; /* Remove margin */
-  padding: 0; /* Remove padding */
-  position: relative; /* Enable z-index positioning */
-  z-index: 1; /* Layer ordering for visual hierarchy */
+/* Highlight for special moves (castling, en passant, etc.) */
+.highlight-special {
+  box-shadow: inset 0 0 0 4px rgba(0, 0, 255, 0.5); /* Blue highlight */
 }
 
-/* ----------------------------------------
-   SPECIAL-MOVE HIGHLIGHTING
-   ---------------------------------------- */
-/* 
- * Highlight style for special chess moves (castling, en passant, promotion)
- * Uses a royal blue color scheme to visually distinguish from regular moves
- */
- 
- .highlight-special {
-  position: relative;            /* Enables absolute positioning of the ::before pseudo-element */
-  background-color: rgba(65, 105, 225, 0.6) !important; /* Royal blue with 60% opacity */
-                                 /* The !important flag ensures this style overrides any existing square colors */
-                                 /* 0.6 opacity allows the original square color to partially show through */
+/* ========================================================
+ FOOTER AND MODALS
+ ======================================================== */
+/* Footer styling */
+footer {
+  text-align: center; /* Center text */
+  margin-top: 20px; /* Space above */
+  padding: 10px; /* Inner spacing */
+  font-size: 0.9rem; /* Smaller text */
 }
 
-.highlight-special::before {
-  content: '';                   /* Required for the pseudo-element to render */
-  position: absolute;            /* Positions relative to the parent .highlight-special element */
-  width: 60%;                    /* Circle takes up 60% of the square's width */
-  height: 60%;                   /* Circle takes up 60% of the square's height */
-  background-color: rgba(65, 105, 225, 0.4); /* Lighter shade of the same blue */
-                                 /* Lower opacity (0.4) creates a layered visual effect */
-  border-radius: 50%;            /* Creates a perfect circle shape */
-  top: 20%;                      /* Positions the circle 20% from the top of the square */
-  left: 20%;                     /* Positions the circle 20% from the left of the square */
-                                 /* The 20% top/left with 60% width/height centers the circle */
-  z-index: 1;                    /* Ensures the circle appears above the square but below chess pieces */
-                                 /* Chess pieces typically have a higher z-index value */
+/* Modal overlay for promotion selection */
+.promotion-overlay {
+  display: none; /* Hidden by default */
+  position: fixed; /* Fixed position over everything */
+  top: 0; /* Positioned at top */
+  left: 0; /* Positioned at left */
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent dark background */
+  z-index: 1000; /* High z-index to show above everything */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+}
+
+/* Modal content container */
+.promotion-modal {
+  background-color: white; /* White background */
+  padding: 20px; /* Inner spacing */
+  border-radius: 8px; /* Rounded corners */
+  text-align: center; /* Center text */
+}
+
+/* Container for promotion piece options */
+.promotion-options {
+  display: flex; /* Use flexbox for layout */
+  justify-content: center; /* Center horizontally */
+  gap: 20px; /* Space between options */
+}
+
+/* Individual promotion piece option */
+.piece-option {
+  cursor: pointer; /* Hand cursor on hover */
+  padding: 10px; /* Inner spacing */
+  border-radius: 4px; /* Rounded corners */
+}
+
+/* Hover effect for promotion options */
+.piece-option:hover {
+  background-color: #f0f0f0; /* Light gray background on hover */
 }
 
 /* ----------------------------------------
@@ -443,7 +619,7 @@ button {
   display: flex; /* Use flexbox for layout */
   flex-direction: column; /* Stack elements vertically */
   gap: 15px; /* Space between captured pieces sections */
-  margin: 15px 0; /* Vertical margin */
+  margin: 0; /* Vertical margin with the top and bottom of the board */
   margin-bottom: 30px; /* Add more bottom margin */
 }
 
@@ -680,7 +856,7 @@ button {
 .move-history-sidebar {
   width: 240px; /* Fixed width to fit beside chessboard */
   height: 480px; /* Match height with chess board for alignment */
-  margin: 20px 0; /* Match top/bottom margins with chess board */
+  margin: 0px 0; /* Match top/bottom margins with chess board */
   position: relative; /* Normal document flow positioning */
   align-self: flex-start; /* Align to top of parent flex container */
   display: flex; /* Use flexbox for internal layout */
