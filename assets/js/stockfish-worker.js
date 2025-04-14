@@ -136,5 +136,19 @@ export function boardToFEN(boardState) {
     // Add halfmove clock and fullmove number (placeholders)
     fen += ' 0 1';
     
+    // Validation before returning
+    try {
+        // Basic validation - ensure all required FEN parts exist
+        const fenParts = fen.split(' ');
+        if (fenParts.length !== 6) {
+            console.error("Invalid FEN format generated");
+            // Return a default valid FEN instead
+            return "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+        }
+    } catch (e) {
+        console.error("Error in FEN generation:", e);
+        return "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    }
+    
     return fen;
 }

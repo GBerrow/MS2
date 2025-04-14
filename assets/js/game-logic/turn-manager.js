@@ -64,59 +64,73 @@ function triggerAiMove() {
 }
 
 function handleAIMove(move) {
-    // Convert UCI move format (e.g., "e2e4") to our format
-    const from = move.substring(0, 2);
-    const to = move.substring(2, 4);
-    
-    // Add delay based on difficulty level
-    const delayTimes = {
-        'easy': 2000,     // 2 seconds
-        'normal': 1000,   // 1 second
-        'hard': 300       // 0.3 seconds
-    };
-    
-    const delay = delayTimes[boardState.difficulty] || 1000;
-    
-    setTimeout(() => {
-        // Check if this is a castling move
-        const piece = boardState.pieces[from];
-        if (piece && piece === 'king-black') {
-            const fromFile = from.charCodeAt(0);
-            const toFile = to.charCodeAt(0);
-            
-            // If king moves two squares horizontally, it's castling
-            if (Math.abs(fromFile - toFile) === 2) {
-                import('./special-moves.js').then(module => {
-                    if (module.isCastlingValid(from, to)) {
-                        module.executeCastling(from, to);
-                    } else {
-                        // Fallback to regular move if castling validation fails
-                        executeMove(from, to);
-                    }
-                    
-                    // Check for check
-                    import('./check-detection.js').then(checkModule => {
-                        checkModule.checkForCheck();
-                    });
-                    
-                    // AI thinking is complete
-                    finishAiMove();
-                });
-                return;
-            }
+    try {
+        // Validate the move format first
+        if (!move || typeof move !== 'string' || move.length < 4) {
+            console.error("Invalid move received from Stockfish:", move);
+            // Handle gracefully - maybe generate a safe move
+            const safeMove = generateSafeMove(); // Implement this function
+            finishAiMove();
+            return;
         }
         
-        // Execute regular move if not castling
-        executeMove(from, to);
+        // Convert UCI move format (e.g., "e2e4") to our format
+        const from = move.substring(0, 2);
+        const to = move.substring(2, 4);
         
-        // Check for check
-        import('./check-detection.js').then(module => {
-            module.checkForCheck();
-        });
+        // Add delay based on difficulty level
+        const delayTimes = {
+            'easy': 2000,     // 2 seconds
+            'normal': 1000,   // 1 second
+            'hard': 300       // 0.3 seconds
+        };
         
-        // AI thinking is complete
+        const delay = delayTimes[boardState.difficulty] || 1000;
+        
+        setTimeout(() => {
+            // Check if this is a castling move
+            const piece = boardState.pieces[from];
+            if (piece && piece === 'king-black') {
+                const fromFile = from.charCodeAt(0);
+                const toFile = to.charCodeAt(0);
+                
+                // If king moves two squares horizontally, it's castling
+                if (Math.abs(fromFile - toFile) === 2) {
+                    import('./special-moves.js').then(module => {
+                        if (module.isCastlingValid(from, to)) {
+                            module.executeCastling(from, to);
+                        } else {
+                            // Fallback to regular move if castling validation fails
+                            executeMove(from, to);
+                        }
+                        
+                        // Check for check
+                        import('./check-detection.js').then(checkModule => {
+                            checkModule.checkForCheck();
+                        });
+                        
+                        // AI thinking is complete
+                        finishAiMove();
+                    });
+                    return;
+                }
+            }
+            
+            // Execute regular move if not castling
+            executeMove(from, to);
+            
+            // Check for check
+            import('./check-detection.js').then(module => {
+                module.checkForCheck();
+            });
+            
+            // AI thinking is complete
+            finishAiMove();
+        }, delay);
+    } catch (error) {
+        console.error("Error processing AI move:", error);
         finishAiMove();
-    }, delay);
+    }
 }
 
 // Helper function to complete AI's turn

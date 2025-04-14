@@ -209,6 +209,12 @@ function isKingInCheck(kingPosition, kingColor) {
 
 // Simulate a move and see if it would leave the king in check
 export function simulateMoveAndCheck(boardState, from, to, playerColor) {
+    // Validate inputs before proceeding
+    if (!from || !to || !playerColor || !boardState.pieces[from]) {
+        console.error("Invalid move simulation attempt:", from, to, playerColor);
+        return true; // Consider invalid moves as illegal
+    }
+    
     // Create a deep copy of the board state
     const tempBoardState = {
         pieces: { ...boardState.pieces },
