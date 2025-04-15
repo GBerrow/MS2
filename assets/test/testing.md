@@ -924,8 +924,64 @@ Once completed, I will also clean up the project by removing all development con
 
 ---
 
+### **15/04/2025**
 
+Eight days since my last documentation update, and I've made excellent progress. All issues previously addressed have been fixed and refined. During this time, I've significantly improved the styling of the game and enhanced the overall codebase structure.
 
+![Test 14](test-images/test-image-14.png)
 
+#### **Major Architectural Challenge: Inconsistent State Management**
 
+One significant architectural issue emerged during testing: inconsistent behavior in state management between human player moves and AI moves. This manifested in several ways:
+
+1. **Message Inconsistency**: When a player escaped from check caused by the AI, the post-check confirmation message would not display properly, whereas escaping from check by a human player would show the message correctly.
+
+2. **Turn Transition Issues**: After escaping check from the AI, the game would sometimes freeze or display incorrect status messages like "AI is thinking..." permanently.
+
+3. **State Tracking Problems**: The game had different code paths for processing AI vs. human moves, leading to inconsistent state updates and message priority conflicts.
+
+#### **Root Cause Analysis**
+
+After extensive debugging and code review, I determined that the core issues were:
+
+1. **Fragmented Processing Logic**: Move completion logic was split across multiple files with different execution paths for AI vs. human moves.
+
+2. **Module Scope Problems**: Variables defined in one module were being incorrectly referenced from other modules, causing "undefined variable" errors.
+
+3. **Race Conditions**: Asynchronous operations like dynamic imports were creating timing issues where messages would override each other before being properly displayed.
+
+4. **Inconsistent State Updates**: The check/post-check state was being updated differently depending on which module initiated the check.
+
+#### **Solution Implemented: Unified Move Processing Pipeline**
+
+To address these issues, I implemented a centralized state management approach:
+
+1. **Created game-state.js**: A new module that serves as a central point for processing all move completions regardless of source (AI or human).
+
+2. **Implemented Message Prioritization**: Added proper state tracking to ensure higher-priority messages (like escaping check) wouldn't be immediately overridden by lower-priority ones.
+
+3. **Coordinated Turn Switching**: Added delayed turn switching after escaping check to ensure messages have time to display before the AI begins thinking.
+
+4. **Enhanced State Tracking**: Added explicit state properties in the boardState object to maintain consistent state across all modules.
+
+5. **Fixed Scope Issues**: Ensured all modules only reference properly imported functions and boardState properties, avoiding direct cross-module variable access.
+
+The solution significantly improved the user experience by ensuring proper message flow and state transitions regardless of whether the player is facing the AI or another human player.
+
+#### **Current Status**
+
+The implementation is approximately 80% complete. The post-check messages now display correctly in most scenarios, but there remain some edge cases with timing issues that need addressing. Further refinement is needed to make the solution completely robust across all possible game states.
+
+#### **Learning Outcomes**
+
+This architectural challenge highlighted several important lessons:
+
+1. The importance of a centralized state management approach in complex applications
+2. The need for careful handling of asynchronous operations and message queuing
+3. The benefits of explicit state transitions rather than implicit side effects
+4. The value of thorough testing across different user interaction patterns
+
+Next steps will focus on resolving the remaining timing issues and further improving the robustness of the state management system.
+
+---
 
