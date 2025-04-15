@@ -37,5 +37,15 @@ document.addEventListener('DOMContentLoaded', () => {
         normalButton.classList.add('active-difficulty');
     }
     
+    // Initialize the check detection system
+    import('./game-logic/check-detection.js').then(module => {
+        console.log("Check detection system initialized");
+    });
+    
+    // Initialize game state handling
+    import('./game-logic/game-state.js').then(module => {
+        console.log("Game state handler initialized");
+    });
+    
     console.log("Chess game initialized");
 });

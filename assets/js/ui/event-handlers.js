@@ -544,28 +544,28 @@ async function tryMove(from, to) {
     
     // Execute the regular move
     executeMove(from, to);
-    
-    // Check for check, checkmate, or stalemate
-    const checkModule = await import('../game-logic/check-detection.js');
-    checkModule.checkForCheck();
 
-    // Check for stalemate for the opponent
-    const opponentColor = color === 'white' ? 'black' : 'white';
-    if (!boardState.inCheck[opponentColor] && checkModule.isStalemate(opponentColor)) {
-        declareGameOver(`Stalemate! The game is a draw.`);
-        return true;
-    }
-    
-    // Check for checkmate
-    if (boardState.inCheck[opponentColor] && isCheckmate(opponentColor)) {
-        // Handle checkmate
-        declareGameOver(`Checkmate! ${color} wins!`);
-    }
-    
-    // Switch turns
-    switchTurn();
-    
-    return true;
+    // Store check state before any changes
+    const wasInCheck = boardState.inCheck.white;
+
+    // Use the unified move processor
+    import('../game-logic/game-state.js').then(module => {
+        module.processMoveCompletion(wasInCheck).then(checkState => {
+            // Check for stalemate for the opponent
+            const opponentColor = color === 'white' ? 'black' : 'white';
+            
+            // Check for special end states
+            import('../game-logic/check-detection.js').then(checkModule => {
+                // Check for stalemate/checkmate logic...
+                
+                // Only switch turns if we didn't just escape check
+                // (that is handled with a delay in processMoveCompletion)
+                if (!(wasInCheck && !boardState.inCheck.white)) {
+                    switchTurn();
+                }
+            });
+        });
+    });
 }
 
 function handleRestartGame() {

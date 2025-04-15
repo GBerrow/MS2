@@ -15,8 +15,10 @@ export const boardState = {
     difficulty: 'normal', // Default difficulty level: 'easy', 'normal', or 'hard'
     undoCount: 0,  // Track how many times player has used undo
     aiThinking: false, // Flag to track when AI is processing its move
-    messageState: 'default' // Property to track what message should be displayed
+    messageState: 'default', // Property to track what message should be displayed
                            // Possible values: 'default', 'check', 'ai-thinking'
+    messageTimer: null,      // Track any active message timers
+    escapedCheck: false      // Track if player just escaped check
 };
 
 // Methods to manipulate state

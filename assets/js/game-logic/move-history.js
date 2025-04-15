@@ -508,15 +508,19 @@ export function updateCheckMessage(isInCheck, attackingPiece = null) {
 }
 
 // Shows post-check encouragement messages
+let messagePriority = 0; // 0: none, 1: normal, 2: check, 3: post-check, 4: ai-thinking
+
+// Simplify the showPostCheckMessage function
 export function showPostCheckMessage() {
-    // Only show post-check message if AI isn't thinking
-    if (boardState.messageState === 'ai-thinking') {
-        return;
-    }
+    console.log("Showing post-check message...");
     
-    // Set flag to indicate we're showing a post-check message
-    showingPostCheckMessage = true;
-    boardState.messageState = 'default';
+    // Set message state directly in boardState
+    boardState.messageState = 'post-check';
+    
+    // Clear any existing timer
+    if (boardState.messageTimer) {
+        clearTimeout(boardState.messageTimer);
+    }
     
     let messageText = "";
     let messageType = "";
@@ -536,14 +540,23 @@ export function showPostCheckMessage() {
             messageType = "hard-message";
             break;
         default:
-            // Fallback to initial message if difficulty not recognized
-            updateDifficultyMessage(boardState.difficulty);
-            showingPostCheckMessage = false;
-            return;
+            messageText = "Nicely done escaping check!";
+            messageType = "normal-message";
     }
     
-    // Display in unified message area
+    console.log(`Displaying post-check message: "${messageText}"`);
+    
+    // Display message
     displayGameMessage(messageText, messageType);
+    
+    // Set timer to revert to default message
+    boardState.messageTimer = setTimeout(() => {
+        // Only reset if still in post-check state
+        if (boardState.messageState === 'post-check') {
+            boardState.messageState = 'default';
+            updateDifficultyMessage(boardState.difficulty);
+        }
+    }, 5000);
 }
 
 // UpdateDifficultyMessage function to check message priority
@@ -781,6 +794,13 @@ export function resetMoveHistory() {
     resetMessageState();
     
     console.log("Move history reset");
+}
+
+/**
+ * Adds this function to move-history.js
+ */
+export function setMessagePriority(priority) {
+    messagePriority = priority;
 }
 
 // Variable to track if we're showing a post-check message

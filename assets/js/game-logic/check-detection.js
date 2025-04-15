@@ -26,13 +26,19 @@ export function refreshCheckStatus() {
         }
     }
     
-    // Check if white king is in check
+    // Store previous check state before updating
+    const wasWhiteInCheck = boardState.inCheck.white;
+    const wasBlackInCheck = boardState.inCheck.black;
+
+    // Update current check state
     const whiteCheckResult = findCheckingPiece(whiteKingPosition, 'white', boardState);
-    const whiteInCheck = whiteCheckResult.inCheck;
-    
-    // Update board state
-    boardState.inCheck.white = whiteInCheck;
-    
+    const blackCheckResult = findCheckingPiece(blackKingPosition, 'black', boardState);
+
+    // Use game-state module to update check state
+    import('./game-state.js').then(module => {
+        module.updateCheckState(whiteCheckResult.inCheck, blackCheckResult.inCheck);
+    });
+
     // Import move-history to update check message
     import('./move-history.js').then(module => {
         if (whiteInCheck) {

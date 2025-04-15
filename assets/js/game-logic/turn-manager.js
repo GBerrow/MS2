@@ -119,13 +119,16 @@ function handleAIMove(move) {
             // Execute regular move if not castling
             executeMove(from, to);
             
-            // Check for check
-            import('./check-detection.js').then(module => {
-                module.checkForCheck();
+            // Store check state before processing
+            const wasInCheck = boardState.inCheck.white;
+
+            // Use unified move processor
+            import('./game-state.js').then(module => {
+                module.processMoveCompletion(wasInCheck).then(() => {
+                    // AI thinking is complete after move processing
+                    finishAiMove();
+                });
             });
-            
-            // AI thinking is complete
-            finishAiMove();
         }, delay);
     } catch (error) {
         console.error("Error processing AI move:", error);
@@ -146,28 +149,31 @@ function finishAiMove() {
     showAiThinkingMessage(false);
     updateUndoButtonState(); // This will re-enable the undo button if allowed
     
-    // Check if the player is in check after AI's move
-    import('./check-detection.js').then(module => {
-        // This will update message appropriately based on check state
-        module.refreshCheckStatus();
-    });
+    // State transitions and messaging already handled by processMoveCompletion
+    boardState.messageState = 'default';
     
     updateTurnIndicator();
 }
 
 // Function to show/hide AI thinking message
 function showAiThinkingMessage(isThinking) {
-    // Import move-history module to use the displayGameMessage function
-    import('../game-logic/move-history.js').then(module => {
+    import('./move-history.js').then(module => {
         if (isThinking) {
-            // Show thinking message with appropriate styling
+            // Don't show AI thinking message if we're in post-check state
+            if (boardState.messageState === 'post-check') {
+                console.log("Not showing AI thinking message due to post-check state");
+                return;
+            }
+            
+            // Show thinking message
+            boardState.messageState = 'ai-thinking';
             module.displayGameMessage("AI is thinking...", "ai-thinking-message");
         } else {
-            // Determine what message to show based on game state
-            if (boardState.messageState === 'default') {
+            // Only clear if specifically in AI thinking state
+            if (boardState.messageState === 'ai-thinking') {
+                boardState.messageState = 'default';
                 module.updateDifficultyMessage(boardState.difficulty);
             }
-            // If in check, the check message will be shown by check-detection.js
         }
     });
 }
