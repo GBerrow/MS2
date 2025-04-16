@@ -985,3 +985,92 @@ Next steps will focus on resolving the remaining timing issues and further impro
 
 ---
 
+### **16/04/2025**
+
+I've completely resolved the message flow architectural issues that were causing inconsistencies in the game. After extensive testing and debugging, I've implemented a comprehensive solution to ensure consistent messaging behavior across all game states. This issue was particularly challenging due to the dynamic nature of the game state and the need to handle asynchronous operations effectively and deserved to be logged in here. 
+
+#### **Complete Message Flow Resolution**
+
+The previously documented issues with message inconsistencies between human and AI moves have now been fully resolved. I've implemented a robust solution that addresses all the edge cases:
+
+1. **Created Centralized Message Management System**
+   - Developed a new `message-manager.js` module that serves as a single source of truth for all game messages
+   - Consolidated previously scattered message-handling code into this central module
+   - Implemented proper error handling with fallback mechanisms for dynamic imports
+
+2. **Message Priority System**
+   - Designed a priority-based message framework with explicit hierarchy:
+     - CHECK messages (priority 4): "Your king is in check by [piece]!"
+     - AI_THINKING messages (priority 3): "AI is thinking..."
+     - POST_CHECK messages (priority 2): "This could get interesting 👀"
+     - DIFFICULTY messages (priority 1): "A balanced challenge awaits you!"
+   - Created a `resetMessagePriority()` function to properly manage message transitions
+
+3. **Persistent State Tracking**
+   - Added `boardState.postCheckMode` flag to maintain post-check messaging until game restart
+   - Implemented `boardState.escapedCheck` to track when a king has just escaped check
+   - Added `boardState.wasInPostCheck` to remember state before AI thinking begins
+   - These flags ensure proper message flow and persistence across turn transitions
+
+4. **Fixed Game Restart Behavior**
+   - Updated `handleRestartGame()` function to properly reset all message-related state variables
+   - Created `resetMessageSystem()` function to ensure clean slate on game restart
+   - Ensured proper initial difficulty message display based on selected difficulty level
+
+#### **Technical Implementation Details**
+
+The solution required careful coordination between several modules:
+
+1. **Improved Dynamic Import Pattern**
+   - Used JavaScript's dynamic import() with proper error handling:
+   ```javascript
+   import('./message-manager.js').then(module => {
+       module.resetMessagePriority();
+       // Additional operations...
+   }).catch(error => {
+       console.log("Error importing message manager:", error);
+       // Fallback behavior...
+   });
+   ```
+
+2. **State Transition Management**
+   - Implemented clear state transitions in the message flow:
+   ```
+   Check → King Escape → AI Thinking → Post-Check → [AI Thinking ↔ Post-Check]
+   ```
+   - Each transition now properly maintains message history and context
+
+3. **Timing Coordination**
+   - Fixed race conditions by properly sequencing async operations:
+     1. Player escapes check
+     2. AI turn begins immediately with "AI is thinking..."
+     3. After AI move completes, post-check message appears and persists
+
+#### **Current Status**
+
+The implementation is now 100% complete. All message flow scenarios function correctly:
+- Initial difficulty messages display properly on game start
+- Check messages appear correctly when the king is threatened
+- AI thinking messages display during AI's turn
+- Post-check messages appear after check resolution and persist until game restart
+- Message transitions are smooth with no flickering or incorrect messaging
+
+#### **Known Issues for Future Work**
+
+While the message system is now fully functional, there are still architectural issues in the undo move functionality:
+- The current undo implementation doesn't properly coordinate with the new message system
+- Difficulty-based undo restrictions need to be refactored for better integration
+- Move history tracking needs better coordination with the message state
+- The interface between move-history.js and message-manager.js needs clarification
+
+#### **Learning Outcomes**
+
+This final phase of fixing the message system reinforced several key principles:
+1. The value of explicit state management over implicit side effects
+2. The importance of proper priority systems for UI elements that can conflict
+3. The benefits of centralized management for cross-cutting concerns like notifications
+4. How to properly structure asynchronous operations to prevent race conditions
+
+Next steps will focus on addressing the architectural issues in the undo functionality while maintaining the robust message flow we've established.
+
+---
