@@ -4,6 +4,15 @@ import { renderBoard } from '../board/board-ui.js';
 import { updateCapturedPieces } from '../ui/captured-pieces.js';
 import { playSound } from '../ui/sound-manager.js';
 
+// Define MESSAGE_PRIORITY constants locally to avoid import issues
+const MESSAGE_PRIORITY = {
+    DEFAULT: 0,
+    DIFFICULTY: 1,
+    POST_CHECK: 2,
+    AI_THINKING: 3,
+    CHECK: 4
+};
+
 // Array to store move history
 const moveHistory = [];
 let moveCounter = 1;
@@ -434,45 +443,36 @@ function updateMoveHistoryDisplayAfterUndo(color, moveNumber) {
  * @param {number} duration - Duration in ms to show the message (0 for persistent messages)
  */
 export function displayGameMessage(message, messageType, duration = 0) {
-    const moveHistoryContainer = document.querySelector('.move-history-container');
-    if (!moveHistoryContainer) return;
+    // Map message types to priorities
+    let priority = MESSAGE_PRIORITY.DEFAULT;
     
-    // Get or create the game status message element
-    let messageElement = document.getElementById('game-status-message');
-    if (!messageElement) {
-        messageElement = document.createElement('div');
-        messageElement.id = 'game-status-message';
-        messageElement.className = 'game-status-message';
-        
-        // Insert at the top of the move history container
-        const table = moveHistoryContainer.querySelector('#moveHistoryTable');
-        if (table) {
-            moveHistoryContainer.insertBefore(messageElement, table);
+    if (messageType === 'check-message') {
+        priority = MESSAGE_PRIORITY.CHECK;
+    } else if (messageType === 'ai-thinking-message') {
+        priority = MESSAGE_PRIORITY.AI_THINKING;
+    } else if (messageType.includes('-message')) {
+        priority = MESSAGE_PRIORITY.DIFFICULTY;
+    }
+    
+    // Use the centralized message system
+    import('../game-logic/message-manager.js').then(module => {
+        if (module.displayMessage) {
+            module.displayMessage(message, messageType, priority, duration);
         } else {
-            moveHistoryContainer.appendChild(messageElement);
-        }
-    }
-    
-    // Clear any existing classes except the base class
-    messageElement.className = 'game-status-message';
-    
-    // Add the specific message type class
-    if (messageType) {
-        messageElement.classList.add(messageType);
-    }
-    
-    // Set the message
-    messageElement.textContent = message;
-    
-    // If duration is specified, clear the message after the duration
-    if (duration > 0) {
-        setTimeout(() => {
-            // Revert to difficulty-based message if no other messages are shown
-            if (!showingPostCheckMessage) {
-                updateDifficultyMessage(boardState.difficulty);
+            console.log("Message manager's displayMessage function not available, using fallback");
+            // Fallback to direct DOM manipulation if needed
+            const messageElement = document.getElementById('game-status-message');
+            if (messageElement) {
+                messageElement.className = 'game-status-message';
+                if (messageType) {
+                    messageElement.classList.add(messageType);
+                }
+                messageElement.textContent = message;
             }
-        }, duration);
-    }
+        }
+    }).catch(error => {
+        console.log("Error using message manager:", error);
+    });
 }
 
 /**
@@ -493,18 +493,20 @@ function showUndoMessage(message, messageType) {
 
 // Update check message function
 export function updateCheckMessage(isInCheck, attackingPiece = null) {
-    if (isInCheck) {
-        // When in check, show check message and mark that we aren't showing post-check
-        showingPostCheckMessage = false;
-        boardState.messageState = 'check';
-        
-        // Set the check message with attacking piece info
-        const pieceType = attackingPiece ? attackingPiece.split('-')[0] : 'piece';
-        displayGameMessage(`Your king is in check by ${pieceType}!`, 'check-message');
-    } else {
-        // If check was just resolved, show post-check message
-        showPostCheckMessage();
-    }
+    import('./message-manager.js').then(module => {
+        if (module.displayCheckMessage) {
+            module.displayCheckMessage(isInCheck, attackingPiece);
+        } else {
+            // Fallback if message manager isn't available
+            if (isInCheck) {
+                const pieceType = attackingPiece ? attackingPiece.split('-')[0] : 'piece';
+                displayGameMessage(`Your king is in check by ${pieceType}!`, 'check-message');
+                boardState.messageState = 'check';
+            }
+        }
+    }).catch(error => {
+        console.log("Error in updateCheckMessage:", error);
+    });
 }
 
 // Shows post-check encouragement messages
@@ -512,51 +514,39 @@ let messagePriority = 0; // 0: none, 1: normal, 2: check, 3: post-check, 4: ai-t
 
 // Simplify the showPostCheckMessage function
 export function showPostCheckMessage() {
-    console.log("Showing post-check message...");
-    
-    // Set message state directly in boardState
-    boardState.messageState = 'post-check';
-    
-    // Clear any existing timer
-    if (boardState.messageTimer) {
-        clearTimeout(boardState.messageTimer);
-    }
-    
-    let messageText = "";
-    let messageType = "";
-    
-    // Show different POST-CHECK messages based on difficulty
-    switch(boardState.difficulty) {
-        case 'easy':
-            messageText = "This should be a breeze...right? 😅";
-            messageType = "easy-message";
-            break;
-        case 'normal':
-            messageText = "This could get interesting 👀";
-            messageType = "normal-message";
-            break;
-        case 'hard':
-            messageText = "Had enough yet? 😈";
-            messageType = "hard-message";
-            break;
-        default:
-            messageText = "Nicely done escaping check!";
-            messageType = "normal-message";
-    }
-    
-    console.log(`Displaying post-check message: "${messageText}"`);
-    
-    // Display message
-    displayGameMessage(messageText, messageType);
-    
-    // Set timer to revert to default message
-    boardState.messageTimer = setTimeout(() => {
-        // Only reset if still in post-check state
-        if (boardState.messageState === 'post-check') {
-            boardState.messageState = 'default';
-            updateDifficultyMessage(boardState.difficulty);
+    import('../game-logic/message-manager.js').then(module => {
+        if (module.displayPostCheckMessage) {
+            module.displayPostCheckMessage();
+        } else {
+            // Fallback if message manager isn't available
+            let messageText = "";
+            let messageType = "";
+            
+            // Show different POST-CHECK messages based on difficulty
+            switch(boardState.difficulty) {
+                case 'easy':
+                    messageText = "This should be a breeze...right? 😅";
+                    messageType = "easy-message";
+                    break;
+                case 'normal':
+                    messageText = "This could get interesting 👀";
+                    messageType = "normal-message";
+                    break;
+                case 'hard':
+                    messageText = "Had enough yet? 😈";
+                    messageType = "hard-message";
+                    break;
+                default:
+                    messageText = "Nicely done escaping check!";
+                    messageType = "normal-message";
+            }
+            
+            displayGameMessage(messageText, messageType, 5000);
+            boardState.messageState = 'post-check';
         }
-    }, 5000);
+    }).catch(error => {
+        console.log("Error in showPostCheckMessage:", error);
+    });
 }
 
 // UpdateDifficultyMessage function to check message priority
@@ -564,8 +554,11 @@ export function updateDifficultyMessage(difficulty) {
     // Don't override check or AI thinking messages
     if (boardState.messageState !== 'default') return;
     
-    // If we're showing a post-check message, don't overwrite it
-    if (showingPostCheckMessage) return;
+    // If we're in post-check mode, show post-check message instead
+    if (boardState.postCheckMode) {
+        showPostCheckMessage();
+        return;
+    }
     
     let messageText = "";
     let messageType = "";
@@ -588,8 +581,17 @@ export function updateDifficultyMessage(difficulty) {
             messageText = "Select a difficulty level to begin!";
     }
     
-    // Display in the unified message area (persistent)
+    // Use the existing displayGameMessage function
     displayGameMessage(messageText, messageType);
+    
+    // Also update the centralized message system if it's available
+    import('./message-manager.js').then(module => {
+        if (module.displayDifficultyMessage) {
+            module.displayDifficultyMessage(difficulty);
+        }
+    }).catch(error => {
+        console.log("Message manager not yet available, using fallback");
+    });
 }
 
 /**
@@ -774,6 +776,9 @@ export function resetMoveHistory() {
     
     // Reset undo count
     boardState.undoCount = 0;
+    
+    // Reset post-check mode
+    boardState.postCheckMode = false;
     
     // Update the undo button
     updateUndoButtonState();

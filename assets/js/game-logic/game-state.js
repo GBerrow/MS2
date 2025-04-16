@@ -21,28 +21,18 @@ export function processMoveCompletion(wasInCheck) {
         if (wasInCheck && !boardState.inCheck.white) {
             console.log("White king escaped from check - handling special sequence");
             
-            // Set the message state to prevent AI thinking message
-            boardState.messageState = 'post-check';
+            // Set escaped check flag to true for later reference
+            boardState.escapedCheck = true;
             
-            // Show post-check message with delay before AI turn
-            return new Promise(resolve => {
-                import('./move-history.js').then(historyModule => {
-                    historyModule.showPostCheckMessage();
-                    
-                    // Delay AI turn to allow message to be seen
-                    setTimeout(() => {
-                        // Switch turns only if not already switched
-                        if (boardState.currentPlayer === 'white') {
-                            import('./turn-manager.js').then(turnModule => {
-                                turnModule.switchTurn();
-                                resolve(checkState);
-                            });
-                        } else {
-                            resolve(checkState);
-                        }
-                    }, 2000); // 2 second delay
+            // IMPORTANT: Don't show post-check message now, instead switch to AI's turn immediately
+            
+            // Switch turns immediately
+            if (boardState.currentPlayer === 'white') {
+                return import('./turn-manager.js').then(turnModule => {
+                    turnModule.switchTurn(); // This will show "AI is thinking..."
+                    return checkState;
                 });
-            });
+            }
         }
         
         return checkState;
@@ -60,6 +50,7 @@ export function resetGameState() {
     boardState.lastMove = null
     boardState.undoCount = 0
     boardState.messageState = 'default'
+    boardState.postCheckMode = false  // <-- Reset post-check mode
     
     // Clear pieces
     for (const key in boardState.pieces) {

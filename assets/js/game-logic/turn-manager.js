@@ -144,36 +144,85 @@ function finishAiMove() {
     // Switch turn back to player
     boardState.currentPlayer = 'white';
     
-    // Update UI to enable buttons and remove thinking message
-    boardState.messageState = 'default'; // Reset message state
-    showAiThinkingMessage(false);
+    // IMPORTANT: Reset message priority before showing new messages
+    import('./message-manager.js').then(module => {
+        // Reset the priority if we're not in check
+        if (!boardState.inCheck.white) {
+            module.resetMessagePriority();
+        }
+        
+        // Update UI to enable buttons and restore appropriate message
+        showAiThinkingMessage(false);
+    }).catch(error => {
+        console.log("Error resetting message priority:", error);
+        // Fallback to direct call
+        showAiThinkingMessage(false);
+    });
+    
     updateUndoButtonState(); // This will re-enable the undo button if allowed
-    
-    // State transitions and messaging already handled by processMoveCompletion
-    boardState.messageState = 'default';
-    
     updateTurnIndicator();
 }
 
 // Function to show/hide AI thinking message
 function showAiThinkingMessage(isThinking) {
-    import('./move-history.js').then(module => {
+    import('./message-manager.js').then(module => {
         if (isThinking) {
-            // Don't show AI thinking message if we're in post-check state
-            if (boardState.messageState === 'post-check') {
-                console.log("Not showing AI thinking message due to post-check state");
+            // Get the current message state
+            const currentState = boardState.messageState;
+            
+            // Only show AI thinking message if we're not in check
+            if (boardState.inCheck.white) {
+                console.log("Not showing AI thinking message due to king in check");
                 return;
             }
             
-            // Show thinking message
+            // Set priority to 0 first to ensure message is shown
+            module.resetMessagePriority();
+            
+            // Now display the AI thinking message
+            module.displayAiThinkingMessage(true);
             boardState.messageState = 'ai-thinking';
-            module.displayGameMessage("AI is thinking...", "ai-thinking-message");
         } else {
-            // Only clear if specifically in AI thinking state
+            // When AI is done thinking:
             if (boardState.messageState === 'ai-thinking') {
+                // Reset to lower priority for default messages
+                module.resetMessagePriority();
+                
+                // Restore default message state
                 boardState.messageState = 'default';
-                module.updateDifficultyMessage(boardState.difficulty);
+                
+                // If we previously escaped check, show post-check message
+                if (boardState.escapedCheck) {
+                    // First time escaping check - set persistent flag and show message
+                    boardState.postCheckMode = true; // <-- NEW LINE: Set persistent flag
+                    module.displayPostCheckMessage();
+                    boardState.escapedCheck = false;
+                } else if (boardState.postCheckMode) {
+                    // If we're in post-check mode, continue showing post-check message
+                    module.displayPostCheckMessage();
+                } else {
+                    // Otherwise show normal difficulty message
+                    module.displayDifficultyMessage(boardState.difficulty);
+                }
             }
         }
+    }).catch(error => {
+        console.log("Message manager not available:", error);
+        // Fallback to move-history
+        import('./move-history.js').then(module => {
+            if (isThinking) {
+                boardState.messageState = 'ai-thinking';
+                module.displayGameMessage("AI is thinking...", "ai-thinking-message");
+            } else if (boardState.messageState === 'ai-thinking') {
+                boardState.messageState = 'default';
+                
+                // Check for post-check mode here as well
+                if (boardState.postCheckMode) {
+                    module.showPostCheckMessage();
+                } else {
+                    module.updateDifficultyMessage(boardState.difficulty);
+                }
+            }
+        });
     });
 }

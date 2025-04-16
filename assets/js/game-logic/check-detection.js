@@ -84,9 +84,29 @@ export function checkForCheck() {
     
     // Update the message state based on check status
     if (whiteInCheck) {
-        boardState.messageState = 'check';
-    } else if (boardState.messageState === 'check') {
-        boardState.messageState = 'default';
+        // White king is in check, show check message
+        import('./message-manager.js').then(module => {
+            module.displayCheckMessage(true, whiteAttacker);
+            whiteWasInCheck = true;
+        }).catch(error => {
+            console.log("Error showing check message:", error);
+            // Fallback message handling
+            import('./move-history.js').then(historyModule => {
+                historyModule.updateCheckMessage(true, whiteAttacker);
+            });
+        });
+    } else if (whiteWasInCheck) {
+        // Check was just resolved for white king
+        import('./message-manager.js').then(module => {
+            module.displayCheckMessage(false);
+            whiteWasInCheck = false;
+        }).catch(error => {
+            console.log("Error showing post-check message:", error);
+            // Fallback message handling
+            import('./move-history.js').then(historyModule => {
+                historyModule.updateCheckMessage(false);
+            });
+        });
     }
     
     // Import move-history to update check message

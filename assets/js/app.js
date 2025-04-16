@@ -47,5 +47,18 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Game state handler initialized");
     });
     
+    // Initialize the message system with a slight delay to ensure other systems are ready
+    setTimeout(() => {
+        import('./game-logic/message-manager.js').then(module => {
+            console.log("Message system initialized");
+            // Only call if function exists
+            if (module.resetMessageSystem) {
+                module.resetMessageSystem();
+            }
+        }).catch(error => {
+            console.error("Could not load message manager:", error);
+        });
+    }, 100);
+    
     console.log("Chess game initialized");
 });

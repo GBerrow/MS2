@@ -18,7 +18,10 @@ export const boardState = {
     messageState: 'default', // Property to track what message should be displayed
                            // Possible values: 'default', 'check', 'ai-thinking'
     messageTimer: null,      // Track any active message timers
-    escapedCheck: false      // Track if player just escaped check
+    escapedCheck: false,      // Track if player just escaped check
+    wasInPostCheck: false,    // Track if we were in post-check before AI thinking
+    activeMessage: null,       // Track current active message and its info
+    postCheckMode: false     // Track if game is in post-check mode (persists until game restart)
 };
 
 // Methods to manipulate state

@@ -575,6 +575,9 @@ function handleRestartGame() {
     boardState.inCheck = { white: false, black: false };
     boardState.lastMove = null;
     boardState.undoCount = 0; // Reset undo count
+    boardState.postCheckMode = false; // CRITICAL: Reset post-check mode
+    boardState.escapedCheck = false; // Reset escaped check flag
+    boardState.messageState = 'default'; // Reset message state
     
     // Import necessary modules
     import('../board/board-setup.js').then(setupModule => {
@@ -603,6 +606,15 @@ function handleRestartGame() {
             if (typeof historyModule.updateUndoButtonState === 'function') {
                 historyModule.updateUndoButtonState();
             }
+        });
+        
+        // Reset message state through message manager
+        import('../game-logic/message-manager.js').then(module => {
+            if (module.resetMessageSystem) {
+                module.resetMessageSystem();
+            }
+        }).catch(error => {
+            console.log("Error resetting message system:", error);
         });
         
         // Critical: Reattach all event listeners for drag and drop
