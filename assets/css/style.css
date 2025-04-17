@@ -1096,6 +1096,61 @@ Hidden by default and displayed programmatically when needed */
     display: none;           /* Hidden by default, shown via JavaScript */
 }
 
+/* ----------------------------------------
+   UNDO MARKER STYLING
+   ---------------------------------------- 
+   Styling for the "UD" markers that indicate undone moves in the move history panel.
+   These markers help users track which moves were undone during gameplay.
+*/
+
+/* Base styling for undo markers */
+.undo-marker {
+  display: inline-block;         /* Allows proper sizing and spacing */
+  padding: 2px 5px;              /* Internal spacing around text */
+  border-radius: 4px;            /* Rounded corners */
+  background-color: #ffebee;     /* Light red background */
+  color: #d32f2f;                /* Darker red text for contrast */
+  font-weight: bold;             /* Bold text for emphasis */
+  font-size: 0.85rem;            /* Slightly smaller than normal text */
+  font-family: "Courier New", monospace; /* Monospaced font like move notation */
+  text-align: center;            /* Center-align text */
+  cursor: help;                  /* Help cursor indicates tooltip available */
+  border: 1px solid #ffcdd2;     /* Subtle border for definition */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1); /* Light shadow for depth */
+  margin: 0 auto;                /* Center in cell */
+  transition: all 0.2s ease;     /* Smooth transitions for hover effects */
+}
+
+/* Hover effect for undo markers */
+.undo-marker:hover {
+  background-color: #ffcdd2;     /* Slightly darker background on hover */
+  transform: translateY(-1px);   /* Subtle lift effect */
+  box-shadow: 0 2px 3px rgba(0,0,0,0.15); /* Enhanced shadow on hover */
+}
+
+/* Special pulsing animation for newly added undo markers */
+@keyframes undo-pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.9; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Apply animation to newly added undo markers */
+.undo-marker.new-undo {
+  animation: undo-pulse 1.5s ease-in-out;
+}
+
+/* Ensure proper alignment within move history table cells */
+.white-move .undo-marker,
+.black-move .undo-marker {
+  margin: 0 auto;                /* Center marker in cell */
+}
+
+/* Undo marker in the context of a highlighted recent move */
+.highlight-recent .undo-marker {
+  background-color: #ffdde1;     /* Slightly different background when highlighted */
+}
+
 /* Message Type Styling
 ----------------------------------------
 Different visual styles for various message types to convey
