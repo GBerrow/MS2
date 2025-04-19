@@ -68,8 +68,9 @@ function handleAIMove(move) {
         // Validate the move format first
         if (!move || typeof move !== 'string' || move.length < 4) {
             console.error("Invalid move received from Stockfish:", move);
-            // Handle gracefully - maybe generate a safe move
-            const safeMove = generateSafeMove(); // Implement this function
+            
+            // Instead of calling a non-existent function, let's just finish the AI's turn
+            // This will switch back to the player's turn without making a move
             finishAiMove();
             return;
         }
@@ -135,7 +136,6 @@ function handleAIMove(move) {
         finishAiMove();
     }
 }
-
 // Helper function to complete AI's turn
 function finishAiMove() {
     // Set AI thinking flag to false

@@ -5,6 +5,11 @@ let stockfish = null;
 let isReady = false;
 let onReadyCallback = null;
 
+// Global variables to track multipv analysis
+let analyzing = false;
+let candidateMoves = [];
+let currentDifficulty = 'normal';
+
 // Function to initialize Stockfish
 export function initStockfish(callback) {
     try {
@@ -26,11 +31,58 @@ export function initStockfish(callback) {
                 onReadyCallback();
             }
             
+            // If we're in easy mode and analyzing multiple moves
+            if (analyzing && currentDifficulty === 'easy') {
+                // Extract info from multipv analysis lines
+                if (message.includes('info') && message.includes('multipv') && message.includes('score')) {
+                    // Correctly extract the entire move from the PV
+                    const pvMatch = message.match(/pv\s+([a-h][1-8][a-h][1-8])/);
+                    const scoreMatch = message.match(/score\s+cp\s+(-?\d+)/);
+                    
+                    if (pvMatch && scoreMatch) {
+                        const move = pvMatch[1]; // This should now be a full UCI move like "e2e4"
+                        const score = parseInt(scoreMatch[1]);
+                        candidateMoves.push({ move, score });
+                    }
+                }
+            }
+            
             // Handle best move responses
             if (message.includes('bestmove')) {
-                const bestMove = message.split('bestmove ')[1].split(' ')[0];
-                if (window.onBestMove) {
-                    window.onBestMove(bestMove);
+                const defaultBestMove = message.split('bestmove ')[1].split(' ')[0];
+                
+                if (analyzing && currentDifficulty === 'easy' && candidateMoves.length > 0) {
+                    // Sort moves by score (ascending)
+                    candidateMoves.sort((a, b) => a.score - b.score);
+                    
+                    // Select a bad move (either the worst or one of the worst)
+                    const worstMoveIndex = Math.floor(Math.random() * Math.min(3, candidateMoves.length));
+                    const selectedMove = candidateMoves[worstMoveIndex].move;
+                    
+                    // Validate the move format before returning it
+                    if (selectedMove && selectedMove.match(/^[a-h][1-8][a-h][1-8]$/)) {
+                        console.log(`Easy mode: Selected one of the worst moves: ${selectedMove} (score: ${candidateMoves[worstMoveIndex].score})`);
+                        
+                        // Reset analysis state
+                        analyzing = false;
+                        candidateMoves = [];
+                        
+                        // Return the bad move
+                        if (window.onBestMove) {
+                            window.onBestMove(selectedMove);
+                        }
+                    } else {
+                        // Fallback to default move if format is invalid
+                        console.warn("Selected move had invalid format, using default move instead");
+                        if (window.onBestMove) {
+                            window.onBestMove(defaultBestMove);
+                        }
+                    }
+                } else {
+                    // Normal operation - return Stockfish's choice
+                    if (window.onBestMove) {
+                        window.onBestMove(defaultBestMove);
+                    }
                 }
             }
         };
@@ -53,22 +105,29 @@ export function getBestMove(fen, difficulty = 'normal') {
         return;
     }
     
-    // Set depth based on difficulty
-    let depth = 12; // Default (normal)
-    
-    if (difficulty === 'easy') {
-        depth = 5; // Less depth = weaker play
-    } else if (difficulty === 'hard') {
-        depth = 18; // More depth = stronger play
-    }
+    // Store the current difficulty
+    currentDifficulty = difficulty;
     
     // Set position
     stockfish.postMessage('position fen ' + fen);
     
-    // Find best move
-    stockfish.postMessage('go depth ' + depth);
+    if (difficulty === 'easy') {
+        // For easy mode, analyze multiple candidate moves
+        analyzing = true;
+        candidateMoves = [];
+        
+        // Request multiple candidate moves with multipv
+        stockfish.postMessage('setoption name MultiPV value 5');
+        stockfish.postMessage('go depth 8 multipv 5');
+    } else if (difficulty === 'normal') {
+        // Reset multipv for other difficulties
+        stockfish.postMessage('setoption name MultiPV value 1');
+        stockfish.postMessage('go depth 12');
+    } else { // hard
+        stockfish.postMessage('setoption name MultiPV value 1');
+        stockfish.postMessage('go depth 18');
+    }
 }
-
 // Convert chess board to FEN notation
 export function boardToFEN(boardState) {
     let fen = '';
